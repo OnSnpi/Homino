@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f2f5" id="meta-theme-color" />
+  <title>Homino</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='14' width='52' height='36' rx='9' fill='%232563eb'/%3E%3Crect x='9' y='17' width='46' height='30' rx='6' fill='%23ffffff'/%3E%3Cline x1='32' y1='19' x2='32' y2='45' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='25' r='2.8' fill='%232563eb'/%3E%3Ccircle cx='24' cy='39' r='2.8' fill='%232563eb'/%3E%3Ccircle cx='40' cy='25' r='2.8' fill='%232563eb'/%3E%3Ccircle cx='43.5' cy='32' r='2.8' fill='%232563eb'/%3E%3Ccircle cx='47' cy='39' r='2.8' fill='%232563eb'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --border: #dcdfe4;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --status-bg: #e8f0fe;
+      --status-text: #1d4ed8;
+      --status-border: #d2e3fc;
+      --wall: #0f172a;
+      --wall-hint: #d97706;
+      --domino-bg: #eff6ff;
+      --domino-bg-v: #f0fdf4;
+      --domino-border: #2563eb;
+      --domino-border-v: #16a34a;
+      --error-bg: #fef2f2;
+      --error-border: #ef4444;
+      --error-text: #b91c1c;
+      --success-bg: #ecfdf5;
+      --success-border: #86efac;
+      --success-text: #15803d;
+      --tray-used-bg: #e2e8f0;
+      --tray-used-text: #94a3b8;
+      --shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    }
+
+    /* 5 vyher: Smaragdovy klubovy stul */
+    body.theme-emerald {
+      --bg: #064e3b;
+      --card: #065f46;
+      --border: #047857;
+      --text: #fefce8;
+      --text-muted: #a7f3d0;
+      --accent: #fbbf24;
+      --accent-dark: #fef08a;
+      --status-bg: rgba(251, 191, 36, 0.14);
+      --status-text: #fef08a;
+      --status-border: rgba(251, 191, 36, 0.35);
+      --wall: #fef3c7;
+      --wall-hint: #38bdf8;
+      --domino-bg: #fefce8;
+      --domino-bg-v: #fef9c3;
+      --domino-border: #d97706;
+      --domino-border-v: #b45309;
+      --error-bg: rgba(220, 38, 38, 0.28);
+      --error-border: #fca5a5;
+      --error-text: #fee2e2;
+      --success-bg: rgba(16, 185, 129, 0.24);
+      --success-border: #6ee7b7;
+      --success-text: #ecfdf5;
+      --tray-used-bg: #022c22;
+      --tray-used-text: #34d399;
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+    }
+
+    /* 10 vyher: Turnajove barvy */
+    body.theme-tournament {
+      --c1: #2563eb;
+      --c2: #16a34a;
+      --c3: #d97706;
+      --c4: #7c3aed;
+      --c5: #0891b2;
+      --c6: #e11d48;
+    }
+
+    /* 30 vyher: Kralovska zlata edice */
+    body.theme-royal {
+      --bg: #0f172a;
+      --card: #162033;
+      --border: #334155;
+      --text: #fef3c7;
+      --text-muted: #cbd5e1;
+      --accent: #f59e0b;
+      --accent-dark: #fde68a;
+      --status-bg: rgba(245, 158, 11, 0.14);
+      --status-text: #fde68a;
+      --status-border: rgba(251, 191, 36, 0.4);
+      --wall: #fbbf24;
+      --wall-hint: #f8fafc;
+      --domino-bg: rgba(245, 158, 11, 0.12);
+      --domino-bg-v: rgba(244, 114, 182, 0.10);
+      --domino-border: #fbbf24;
+      --domino-border-v: #f9a8d4;
+      --error-bg: rgba(239, 68, 68, 0.22);
+      --error-border: #f87171;
+      --error-text: #fca5a5;
+      --success-bg: rgba(245, 158, 11, 0.18);
+      --success-border: #fbbf24;
+      --success-text: #fde68a;
+      --tray-used-bg: #0b1120;
+      --tray-used-text: #64748b;
+      --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Pevna sirka totozna s Diffequa (max 440px), bez roztahovani pri zmene symbolu */
+    .app {
+      width: 100%;
+      max-width: 440px;
+      padding: max(10px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 8px 11px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .header-left {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-left strong {
+      font-weight: 700;
+    }
+
+    body.theme-royal .header-left strong,
+    body.theme-royal .header-right strong,
+    body.theme-emerald .header-left strong,
+    body.theme-emerald .header-right strong {
+      color: #fbbf24;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      padding: 0 2px;
+    }
+
+    .brand-title {
+      font-size: 16.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+    }
+
+    body.theme-royal .brand-title {
+      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 55%, #b45309 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .gear-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.1s ease;
+    }
+
+    .gear-btn:active {
+      transform: scale(0.94);
+    }
+
+    .status-bar {
+      background: var(--status-bg);
+      border: 1px solid var(--status-border);
+      border-radius: 12px;
+      height: 46px;
+      min-height: 46px;
+      max-height: 46px;
+      flex-shrink: 0;
+      overflow: hidden;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.25;
+      font-weight: 500;
+      color: var(--status-text);
+      width: 100%;
+      min-width: 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .status-bar.is-error {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+      font-weight: 600;
+    }
+
+    .status-bar.is-success {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+      font-weight: 600;
+    }
+
+    .board-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+    }
+
+    body.theme-emerald .board-card {
+      background: radial-gradient(circle at center, #065f46 0%, #022c22 100%);
+      border-color: #10b981;
+    }
+
+    body.theme-royal .board-card {
+      border-color: rgba(251, 191, 36, 0.35);
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+    }
+
+    .board-wrapper {
+      width: 100%;
+      position: relative;
+      touch-action: none;
+    }
+
+    .board-grid {
+      position: relative;
+      width: 100%;
+      aspect-ratio: var(--cols) / var(--rows);
+      display: grid;
+      grid-template-columns: repeat(var(--cols), 1fr);
+      grid-template-rows: repeat(var(--rows), 1fr);
+      border: 2.5px solid var(--wall);
+      border-radius: 10px;
+      background: var(--card);
+      overflow: hidden;
+    }
+
+    body.theme-emerald .board-grid {
+      background: #064e3b;
+    }
+
+    body.theme-royal .board-grid {
+      background: #0f172a;
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.14);
+    }
+
+    .cell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px dashed rgba(148, 163, 184, 0.34);
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.34);
+      font-weight: 700;
+      font-size: clamp(19px, 5.5vw, 24px);
+      color: var(--text);
+      z-index: 1;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .cell.last-col { border-right: none; }
+    .cell.last-row { border-bottom: none; }
+
+    body.theme-emerald .cell {
+      border-right-color: rgba(167, 243, 208, 0.22);
+      border-bottom-color: rgba(167, 243, 208, 0.22);
+    }
+    body.theme-emerald .cell.in-domino-h,
+    body.theme-emerald .cell.in-domino-v {
+      color: #064e3b;
+    }
+
+    body.theme-tournament .val-1 { color: var(--c1); }
+    body.theme-tournament .val-2 { color: var(--c2); }
+    body.theme-tournament .val-3 { color: var(--c3); }
+    body.theme-tournament .val-4 { color: var(--c4); }
+    body.theme-tournament .val-5 { color: var(--c5); }
+    body.theme-tournament .val-6 { color: var(--c6); }
+
+    body.theme-royal .cell {
+      color: #fde68a;
+      text-shadow: 0 1px 6px rgba(245, 158, 11, 0.35);
+      border-right-color: rgba(251, 191, 36, 0.16);
+      border-bottom-color: rgba(251, 191, 36, 0.16);
+    }
+
+    body.theme-royal .pip {
+      background: radial-gradient(circle at 35% 35%, #fef9c3 0%, #fbbf24 55%, #b45309 100%);
+      box-shadow: 0 0 4px rgba(251, 191, 36, 0.45);
+    }
+
+    .cell.in-domino-h { background: var(--domino-bg); }
+    .cell.in-domino-v { background: var(--domino-bg-v); }
+    .cell.is-error {
+      background: var(--error-bg) !important;
+      color: var(--error-text) !important;
+    }
+    .cell.swipe-active {
+      background: var(--status-bg);
+      box-shadow: inset 0 0 0 2px var(--accent);
+    }
+
+    .domino-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .domino-pill {
+      position: absolute;
+      border: 2px solid var(--domino-border);
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: all 0.14s ease;
+    }
+
+    .domino-pill.vertical {
+      border-color: var(--domino-border-v);
+    }
+
+    .domino-pill.is-error {
+      border-color: var(--error-border) !important;
+      box-shadow: 0 0 0 1px var(--error-border);
+    }
+
+    .domino-pill::after {
+      content: "";
+      position: absolute;
+      background: currentColor;
+      opacity: 0.22;
+    }
+
+    .domino-pill.horizontal::after {
+      top: 18%;
+      bottom: 18%;
+      left: 50%;
+      width: 1.5px;
+      transform: translateX(-50%);
+    }
+
+    .domino-pill.vertical::after {
+      left: 18%;
+      right: 18%;
+      top: 50%;
+      height: 1.5px;
+      transform: translateY(-50%);
+    }
+
+    body.theme-royal .domino-pill {
+      border: none;
+      background: transparent;
+    }
+    body.theme-royal .domino-pill::after {
+      display: none;
+    }
+    body.theme-royal .domino-pill svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .edges-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .edge-hit {
+      position: absolute;
+      pointer-events: auto;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .edge-hit.v-edge {
+      width: 22px;
+      transform: translateX(-50%);
+    }
+
+    .edge-hit.h-edge {
+      height: 22px;
+      transform: translateY(-50%);
+    }
+
+    .edge-line {
+      border-radius: 99px;
+      transition: background-color 0.12s ease;
+    }
+
+    .edge-hit.v-edge .edge-line {
+      width: 3.5px;
+      height: 82%;
+    }
+
+    .edge-hit.h-edge .edge-line {
+      height: 3.5px;
+      width: 82%;
+    }
+
+    .edge-hit.active .edge-line {
+      background: var(--wall);
+    }
+
+    .edge-hit.hinted .edge-line {
+      background: var(--wall-hint);
+      box-shadow: 0 0 6px rgba(217, 119, 6, 0.45);
+    }
+
+    .edge-hit.error-edge .edge-line {
+      background: var(--error-border) !important;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+    }
+
+    .pip-grid {
+      width: 70%;
+      height: 70%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      place-items: center;
+    }
+
+    .pip {
+      width: 66%;
+      height: 66%;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .sym-icon {
+      width: 56%;
+      height: 56%;
+      display: block;
+    }
+
+    /* ODSKRTAVACI PREHLED KAMENU */
+    .tray-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 8px 8px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .tray-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      width: 100%;
+    }
+
+    .tray-grid.cols-5 {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .tray-item {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 3px 1px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      min-width: 0;
+      min-height: 23px;
+      overflow: hidden;
+      transition: all 0.15s ease;
+    }
+
+    .tray-item svg {
+      flex-shrink: 0;
+    }
+
+    .tray-item.used {
+      background: var(--tray-used-bg);
+      color: var(--tray-used-text);
+      border-color: transparent;
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .tray-item.duplicate {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border-color: var(--error-border);
+      opacity: 1;
+      text-decoration: none;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-top: auto;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: var(--shadow);
+      transition: transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    body.theme-emerald .btn-primary {
+      background: #fbbf24;
+      border-color: #fde68a;
+      color: #022c22;
+    }
+
+    body.theme-royal .btn-primary {
+      background: linear-gradient(135deg, #fde047, #f59e0b, #b45309);
+      border-color: #fde68a;
+      color: #0f172a;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.56);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 90dvh;
+      overflow-y: auto;
+      padding: 18px 16px 16px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
+      color: var(--text);
+    }
+
+    .modal-title-center {
+      text-align: center;
+      font-size: 19px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .modal-section-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 12px 0 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stats-grid-modal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .stat-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 4px 2px;
+      border-radius: 8px;
+    }
+
+    .stat-col.master-col {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .stat-col-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .stat-col-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-col.master-col .stat-col-val {
+      color: #f59e0b;
+    }
+
+    .segmented-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .segmented-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .seg-choice {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 9px 6px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .seg-choice.active {
+      background: var(--status-bg);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .lang-code {
+      font-size: 10.5px;
+      font-weight: 800;
+      opacity: 0.75;
+    }
+
+    .style-tile {
+      position: relative;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 6px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .style-tile.active {
+      background: var(--status-bg);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .style-tile.locked {
+      background: var(--bg);
+      opacity: 0.62;
+      cursor: not-allowed;
+    }
+
+    .style-tile-check {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.theme-royal .style-tile-check,
+    body.theme-emerald .style-tile-check {
+      color: #0f172a;
+    }
+
+    .style-tile.active .style-tile-check {
+      display: flex;
+    }
+
+    .style-tile-name {
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .style-tile-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.1;
+    }
+
+    .info-box-modal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    .info-box-modal strong {
+      color: var(--text);
+    }
+
+    .rules-intro {
+      font-size: 13.5px;
+      line-height: 1.45;
+      margin: 0 0 10px;
+    }
+
+    .rules-box-gray {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin: 10px 0;
+    }
+
+    .rules-box-gray ul {
+      margin: 0;
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .rules-box-green {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 10px 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .rules-box-green strong.green-title {
+      display: block;
+      color: var(--success-text);
+      margin-bottom: 3px;
+    }
+
+    .rules-warn {
+      color: var(--error-text);
+      font-size: 13px;
+      line-height: 1.4;
+      margin: 10px 0;
+    }
+
+    .rules-rewards {
+      color: #b45309;
+      font-size: 12.5px;
+      line-height: 1.4;
+      margin: 10px 0 14px;
+    }
+
+    body.theme-royal .rules-rewards,
+    body.theme-emerald .rules-rewards {
+      color: #fbbf24;
+    }
+
+    .btn-modal-full {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    body.theme-emerald .btn-modal-full {
+      background: #fbbf24;
+      color: #022c22;
+    }
+
+    body.theme-royal .btn-modal-full {
+      background: linear-gradient(135deg, #fde047, #f59e0b, #b45309);
+      color: #0f172a;
+    }
+
+    /* POJISTKA PRO MOBILNI PROHLIZEC PRI OTOCENI NA SIRKU */
+    .rotate-lock-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      color: var(--text);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .rotate-lock-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      max-width: 300px;
+    }
+
+    .rotate-lock-card strong {
+      font-size: 16px;
+    }
+
+    .rotate-lock-card span {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .rotate-lock-overlay {
+        display: flex;
+      }
+      .app, .modal-backdrop {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="rotate-lock-overlay" id="rotate-overlay">
+    <div class="rotate-lock-card">
+      <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="2" width="12" height="20" rx="2.5"/>
+        <line x1="12" y1="18" x2="12.01" y2="18"/>
+      </svg>
+      <strong id="rotate-title">Oto&#269; za&#345;&#237;zen&#237; na v&#253;&#353;ku</strong>
+      <span id="rotate-sub">Hra Homino je navr&#382;ena pro hran&#237; na v&#253;&#353;ku.</span>
+    </div>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute;pointer-events:none;" aria-hidden="true">
+    <defs>
+      <linearGradient id="royalGoldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#fef08a"/>
+        <stop offset="45%" stop-color="#f59e0b"/>
+        <stop offset="100%" stop-color="#b45309"/>
+      </linearGradient>
+      <linearGradient id="royalGoldFill" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="rgba(254, 240, 138, 0.22)"/>
+        <stop offset="100%" stop-color="rgba(180, 83, 9, 0.08)"/>
+      </linearGradient>
+      <linearGradient id="royalRoseStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#fce7f3"/>
+        <stop offset="45%" stop-color="#f472b6"/>
+        <stop offset="100%" stop-color="#be185d"/>
+      </linearGradient>
+      <linearGradient id="royalRoseFill" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="rgba(252, 231, 243, 0.20)"/>
+        <stop offset="100%" stop-color="rgba(190, 24, 93, 0.07)"/>
+      </linearGradient>
+      <linearGradient id="royalPlatStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffffff"/>
+        <stop offset="50%" stop-color="#cbd5e1"/>
+        <stop offset="100%" stop-color="#64748b"/>
+      </linearGradient>
+      <linearGradient id="royalPlatFill" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.22)"/>
+        <stop offset="100%" stop-color="rgba(100, 116, 139, 0.08)"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <header class="header">
+      <div class="header-left">
+        <span id="header-wins-label">V&#253;hry:</span> <strong id="wins-count">0</strong>
+      </div>
+
+      <div class="brand">
+        <svg width="23" height="23" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="5" y="13" width="54" height="38" rx="10" fill="var(--accent)"/>
+          <rect x="8.5" y="16.5" width="47" height="31" rx="7" fill="var(--card)"/>
+          <line x1="32" y1="19" x2="32" y2="45" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="16.5" cy="24.5" r="2.7" fill="var(--accent)"/>
+          <circle cx="23.5" cy="39.5" r="2.7" fill="var(--accent)"/>
+          <circle cx="40.5" cy="24.5" r="2.7" fill="var(--accent)"/>
+          <circle cx="44" cy="32" r="2.7" fill="var(--accent)"/>
+          <circle cx="47.5" cy="39.5" r="2.7" fill="var(--accent)"/>
+        </svg>
+        <span class="brand-title">Homino</span>
+      </div>
+
+      <div class="header-right">
+        <span><span id="header-deck-label">Sada:</span> <strong id="deck-counter">0/21</strong></span>
+        <button class="gear-btn" id="btn-settings" aria-label="Nastaven&#237;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="status-bar" id="status-bar"></div>
+
+    <main class="board-card">
+      <div class="board-wrapper" id="board-wrapper">
+        <div class="board-grid" id="board-grid"></div>
+        <div class="domino-overlay" id="domino-overlay"></div>
+        <div class="edges-overlay" id="edges-overlay"></div>
+      </div>
+    </main>
+
+    <section class="tray-card">
+      <div class="tray-grid" id="tray-grid"></div>
+    </section>
+
+    <footer class="controls">
+      <button class="btn" id="btn-undo" disabled>&#8617; <span id="lbl-undo">Zp&#283;t</span></button>
+      <button class="btn" id="btn-rules"><span id="lbl-rules">N&#225;vod</span></button>
+      <button class="btn" id="btn-hint"><span id="lbl-hint">N&#225;pov&#283;da</span></button>
+      <button class="btn btn-primary" id="btn-new"><span id="lbl-new">Nov&#225; hra</span></button>
+    </footer>
+  </div>
+
+  <!-- MODALNI OKNO: NASTAVENI HRY -->
+  <div class="modal-backdrop" id="modal-settings">
+    <div class="modal">
+      <h2 class="modal-title-center" id="set-title">Nastaven&#237; hry</h2>
+
+      <!-- STATISTIKA VYHER (1-4, 1-5, Mistrovske 1-6) -->
+      <div class="stats-grid-modal" id="stats-box">
+        <div class="stat-col">
+          <span class="stat-col-label">1&#8211;4</span>
+          <span class="stat-col-val" id="stat-wins-4">0</span>
+        </div>
+        <div class="stat-col">
+          <span class="stat-col-label">1&#8211;5</span>
+          <span class="stat-col-val" id="stat-wins-5">0</span>
+        </div>
+        <div class="stat-col master-col">
+          <span class="stat-col-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
+            1&#8211;6
+          </span>
+          <span class="stat-col-val" id="stat-wins-6">0</span>
+        </div>
+      </div>
+
+      <div class="modal-section-label"><span id="set-lang-label">Jazyk / Language</span></div>
+      <div class="segmented-2">
+        <button class="seg-choice" id="lang-cs" data-lang="cs"><span class="lang-code">CZ</span> &#268;e&#353;tina</button>
+        <button class="seg-choice" id="lang-en" data-lang="en"><span class="lang-code">GB</span> English</button>
+      </div>
+
+      <div class="modal-section-label"><span id="set-diff-label">Velikost sady (Obt&#237;&#382;nost)</span></div>
+      <div class="segmented-3">
+        <button class="seg-choice" id="diff-4" data-diff="4">1&#8211;4 (4&#215;5)</button>
+        <button class="seg-choice" id="diff-5" data-diff="5">1&#8211;5 (5&#215;6)</button>
+        <button class="seg-choice" id="diff-6" data-diff="6">1&#8211;6 (6&#215;7)</button>
+      </div>
+
+      <!-- BAREVNY MOTIV (2x2) -->
+      <div class="modal-section-label">
+        <span id="set-theme-label">Barevn&#253; motiv</span>
+      </div>
+      <div class="segmented-2">
+        <div class="style-tile" id="tile-classic">
+          <span class="style-tile-check">&#10003;</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16" rx="3"/>
+            <line x1="12" y1="4" x2="12" y2="20"/>
+          </svg>
+          <span class="style-tile-name" id="tile-classic-name">Klasick&#253;</span>
+          <span class="style-tile-sub" id="tile-classic-sub">Z&#225;kladn&#237;</span>
+        </div>
+
+        <div class="style-tile" id="tile-emerald">
+          <span class="style-tile-check">&#10003;</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="4" fill="#065f46" stroke="#10b981" stroke-width="2"/>
+            <rect x="7" y="9" width="10" height="6" rx="1.5" fill="#fefce8"/>
+          </svg>
+          <span class="style-tile-name" id="tile-emerald-name">Smaragdov&#253;</span>
+          <span class="style-tile-sub" id="tile-emerald-sub">&#128274; 5 v&#253;her</span>
+        </div>
+
+        <div class="style-tile" id="tile-tournament">
+          <span class="style-tile-check">&#10003;</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="8" cy="8" r="3.5" fill="#2563eb"/>
+            <circle cx="16" cy="8" r="3.5" fill="#16a34a"/>
+            <circle cx="8" cy="16" r="3.5" fill="#d97706"/>
+            <circle cx="16" cy="16" r="3.5" fill="#e11d48"/>
+          </svg>
+          <span class="style-tile-name" id="tile-tour-name">Turnajov&#253;</span>
+          <span class="style-tile-sub" id="tile-tour-sub">&#128274; 10 v&#253;her</span>
+        </div>
+
+        <div class="style-tile" id="tile-royal">
+          <span class="style-tile-check">&#10003;</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linejoin="round">
+            <path d="M3 18h18M4 8l4 4 4-6 4 6 4-4-2 8H6L4 8z"/>
+          </svg>
+          <span class="style-tile-name" id="tile-royal-name">Kr&#225;lovsk&#253;</span>
+          <span class="style-tile-sub" id="tile-royal-sub">&#128274; 30 v&#253;her</span>
+        </div>
+      </div>
+
+      <!-- ZOBRAZENI HODNOT (2x2) -->
+      <div class="modal-section-label">
+        <span id="set-display-label">Zobrazen&#237; hodnot</span>
+      </div>
+      <div class="segmented-2">
+        <div class="style-tile" id="tile-digits">
+          <span class="style-tile-check">&#10003;</span>
+          <span id="tile-digits-icon" style="font-size:17px;font-weight:800;line-height:22px;">1&#8211;6</span>
+          <span class="style-tile-name" id="tile-digits-name">&#268;&#237;slice</span>
+          <span class="style-tile-sub" id="tile-digits-sub">Z&#225;kladn&#237;</span>
+        </div>
+
+        <div class="style-tile" id="tile-letters">
+          <span class="style-tile-check">&#10003;</span>
+          <span id="tile-letters-icon" style="font-size:17px;font-weight:800;line-height:22px;">A&#8211;F</span>
+          <span class="style-tile-name" id="tile-letters-name">P&#237;smena</span>
+          <span class="style-tile-sub" id="tile-letters-sub">Z&#225;kladn&#237;</span>
+        </div>
+
+        <div class="style-tile" id="tile-symbols">
+          <span class="style-tile-check">&#10003;</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="8" cy="8" r="3"/>
+            <rect x="13" y="5" width="6" height="6" rx="1"/>
+            <polygon points="12,13 16,20 8,20"/>
+          </svg>
+          <span class="style-tile-name" id="tile-symbols-name">Symboly</span>
+          <span class="style-tile-sub" id="tile-symbols-sub">&#128274; 15 v&#253;her</span>
+        </div>
+
+        <div class="style-tile" id="tile-pips">
+          <span class="style-tile-check">&#10003;</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="7" cy="7" r="2.3"/>
+            <circle cx="12" cy="12" r="2.3"/>
+            <circle cx="17" cy="17" r="2.3"/>
+          </svg>
+          <span class="style-tile-name" id="tile-pips-name">Te&#269;ky</span>
+          <span class="style-tile-sub" id="tile-pips-sub">&#128274; 20 v&#253;her</span>
+        </div>
+      </div>
+
+      <div class="info-box-modal" id="set-unlock-info"></div>
+
+      <button class="btn-modal-full" id="btn-close-settings">Ulo&#382;it a zav&#345;&#237;t</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-rules">
+    <div class="modal" id="rules-modal-content"></div>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'homino_save_v5';
+
+      const MILESTONE_EMERALD = 5;
+      const MILESTONE_TOUR = 10;
+      const MILESTONE_SYMBOLS = 15;
+      const MILESTONE_PIPS = 20;
+      const MILESTONE_ROYAL = 30;
+
+      const LETTERS = ['', 'A', 'B', 'C', 'D', 'E', 'F'];
+
+      const I18N = {
+        cs: {
+          rotateTitle: 'Oto\u010d za\u0159\u00edzen\u00ed na v\u00fd\u0161ku',
+          rotateSub: 'Hra Homino je navr\u017eena pro hran\u00ed na v\u00fd\u0161ku.',
+          winsLabel: 'V\u00fdhry:',
+          deckLabel: 'Sada:',
+          undo: 'Zp\u011bt',
+          rules: 'N\u00e1vod',
+          hint: 'N\u00e1pov\u011bda',
+          newGame: 'Nov\u00e1 hra',
+          statusStart: 'Klepnut\u00edm ozna\u010d okraj, p\u0159ejet\u00edm spoj domino.',
+          statusResume: 'Pokra\u010duje\u0161 v rozehran\u00e9 h\u0159e.',
+          statusAutoFormed: 'Ohrani\u010den\u00e1 dvojice se automaticky spojila v domino!',
+          statusHintEdge: 'N\u00e1pov\u011bda doplnila jeden okraj domina.',
+          statusHintErrDup: 'Chyba: K\u00e1men {pair} u\u017e na plo\u0161e le\u017e\u00ed v\u00edcekr\u00e1t!',
+          statusHintErrWall: 'Chyba: Zv\u00fdrazn\u011bn\u00fd okraj p\u0159e\u0159ez\u00e1v\u00e1 platn\u00e9 domino.',
+          statusHintErrDead: 'Chyba: Zv\u00fdrazn\u011bn\u00e9 pol\u00ed\u010dko nem\u00e1 \u017e\u00e1dn\u00e9ho souseda.',
+          statusErrDup: 'Pozor, k\u00e1men {pair} u\u017e v sad\u011b jednou le\u017e\u00ed!',
+          statusErrDead: 'Pozor, n\u011bkter\u00e9 pol\u00ed\u010dko z\u016fstalo zcela izolovan\u00e9!',
+          statusWinMaster: 'Mistrovsk\u00e9 v\u00edt\u011bzstv\u00ed! V\u0161ech 21 kamen\u016f je na m\u00edst\u011b.',
+          statusWinTrain: 'Skv\u011bl\u00e1 pr\u00e1ce! Sada 1\u2013{max} je kompletn\u00ed.',
+          statusUnlock5: 'Odem\u010den bonus za 5 v\u00fdher: Smaragdov\u00fd st\u016fl!',
+          statusUnlock10: 'Odem\u010den bonus za 10 v\u00fdher: Turnajov\u00e9 barvy!',
+          statusUnlock15: 'Odem\u010den bonus za 15 v\u00fdher: Symboly z Diffequa!',
+          statusUnlock20: 'Odem\u010den bonus za 20 v\u00fdher: Dominov\u00e9 te\u010dky!',
+          statusUnlock30: 'Odem\u010den bonus za 30 v\u00fdher: Kr\u00e1lovsk\u00e1 zlat\u00e1 edice!',
+          statusStatsReset: 'Statistika v\u00fdher byla vynulov\u00e1na.',
+          setTitle: 'Nastaven\u00ed hry',
+          setLangLabel: 'Jazyk / Language',
+          setDiffLabel: 'Velikost sady (Obt\u00ed\u017enost)',
+          setThemeLabel: 'Barevn\u00fd motiv',
+          setDisplayLabel: 'Zobrazen\u00ed hodnot',
+          tileClassic: 'Klasick\u00fd',
+          tileEmerald: 'Smaragdov\u00fd',
+          tileTour: 'Turnajov\u00fd',
+          tileRoyal: 'Kr\u00e1lovsk\u00fd',
+          tileDigits: '\u010c\u00edslice',
+          tileLetters: 'P\u00edsmena',
+          tileSymbols: 'Symboly',
+          tilePips: 'Te\u010dky',
+          subBase: 'Z\u00e1kladn\u00ed',
+          subUnlocked: 'Odem\u010deno',
+          subLock5: '5 v\u00fdher',
+          subLock10: '10 v\u00fdher',
+          subLock15: '15 v\u00fdher',
+          subLock20: '20 v\u00fdher',
+          subLock30: '30 v\u00fdher',
+          setUnlockInfo: '<strong>Odemknut\u00ed bonus\u016f (mistrovsk\u00e1 sada 1\u20136):</strong> 5 v\u00fdher = <strong>Smaragdov\u00fd st\u016fl</strong>, 10 = <strong>Turnajov\u00fd</strong>, 15 = <strong>Symboly Diffequa</strong>, 20 = <strong>Te\u010dky</strong>, 30 = <strong>Kr\u00e1lovsk\u00e1 zlat\u00e1 edice</strong>.',
+          saveAndClose: 'Ulo\u017eit a zav\u0159\u00edt',
+          rulesHTML: `
+            <h2 class="modal-title-center">Jak hr\u00e1t Homino</h2>
+            <p class="rules-intro">C\u00edlem hry je rozd\u011blit m\u0159\u00ed\u017eku na kompletn\u00ed sadu <strong>unik\u00e1tn\u00edch kamen\u016f domina</strong> (nap\u0159. 21 kamen\u016f od 1\u20131 a\u017e po 6\u20136).</p>
+            <p class="rules-intro"><strong>Ovl\u00e1d\u00e1n\u00ed m\u00e1 3 jednoduch\u00e9 prvky:</strong></p>
+            <div class="rules-box-gray">
+              <ul>
+                <li><strong>Klepnut\u00ed na hranu:</strong> nakresl\u00ed nebo sma\u017ee okrajovou \u010d\u00e1ru mezi dv\u011bma pol\u00ed\u010dky.</li>
+                <li><strong>Pota\u017een\u00ed prstem (swipe):</strong> p\u0159eje\u010f z jednoho pol\u00ed\u010dka na sousedn\u00ed pro okam\u017eit\u00e9 spojen\u00ed (nebo \u00fapln\u00e9 zru\u0161en\u00ed) domina.</li>
+                <li><strong>N\u00e1pov\u011bda:</strong> nejprve upozorn\u00ed na chybu; jinak dopln\u00ed jeden spr\u00e1vn\u00fd okraj.</li>
+              </ul>
+            </div>
+            <p class="rules-intro"><strong>Zlat\u00e9 pravidlo:</strong> Ka\u017ed\u00e1 dvojice hodnot sm\u00ed b\u00fdt v cel\u00e9 m\u0159\u00ed\u017ece pou\u017eita <strong>pouze jednou</strong>.</p>
+            <div class="rules-box-green">
+              <strong class="green-title">Automatick\u00e9 uzav\u0159en\u00ed kostky:</strong>
+              Jakmile postupn\u00fdm o\u0165uk\u00e1v\u00e1n\u00edm ohrani\u010d\u00ed\u0161 dvojici sousedn\u00edch pol\u00ed\u010dek v\u0161emi 6 vn\u011bj\u0161\u00edmi hranami, kostka domina se <strong>sama automaticky spoj\u00ed</strong> a od\u0161krtne v p\u0159ehledu dole.
+            </div>
+            <p class="rules-warn"><strong>Pozor:</strong> Pokud vytvo\u0159\u00ed\u0161 stejn\u00fd k\u00e1men dvakr\u00e1t nebo n\u011bkter\u00e9 pol\u00ed\u010dko zcela od\u0159\u00edzne\u0161 od okol\u00ed, hra t\u011b okam\u017eit\u011b upozorn\u00ed!</p>
+            <p class="rules-rewards"><strong>Odm\u011bny:</strong> V\u00fdhry v mistrovsk\u00e9 sad\u011b 1\u20136 postupn\u011b odemykaj\u00ed Smaragdov\u00fd st\u016fl (5), Turnajov\u00fd motiv (10), Symboly Diffequa (15), Te\u010dky (20) a Kr\u00e1lovskou zlatou edici (30).</p>
+            <button class="btn-modal-full" id="btn-close-rules">Rozum\u00edm, hr\u00e1t</button>
+          `
+        },
+        en: {
+          rotateTitle: 'Rotate device to portrait',
+          rotateSub: 'Homino is designed to be played in portrait mode.',
+          winsLabel: 'Wins:',
+          deckLabel: 'Deck:',
+          undo: 'Undo',
+          rules: 'Rules',
+          hint: 'Hint',
+          newGame: 'New Game',
+          statusStart: 'Tap an edge to draw a border, swipe across two cells to link.',
+          statusResume: 'Continuing saved game.',
+          statusAutoFormed: 'Surrounded pair automatically locked into a domino!',
+          statusHintEdge: 'Hint revealed one border edge.',
+          statusHintErrDup: 'Mistake: Domino {pair} is placed more than once!',
+          statusHintErrWall: 'Mistake: Highlighted border cuts through a valid domino.',
+          statusHintErrDead: 'Mistake: Highlighted cell has no available neighbor.',
+          statusErrDup: 'Duplicate alert: Domino {pair} is already used!',
+          statusErrDead: 'Warning: A cell has been completely isolated!',
+          statusWinMaster: 'Master Victory! All 21 dominoes are in place.',
+          statusWinTrain: 'Great job! Set 1\u2013{max} completed.',
+          statusUnlock5: '5-Win Bonus Unlocked: Emerald Table!',
+          statusUnlock10: '10-Win Bonus Unlocked: Tournament Colors!',
+          statusUnlock15: '15-Win Bonus Unlocked: Diffequa Symbols!',
+          statusUnlock20: '20-Win Bonus Unlocked: Domino Pips!',
+          statusUnlock30: '30-Win Bonus Unlocked: Royal Gold Edition!',
+          statusStatsReset: 'Win statistics have been reset.',
+          setTitle: 'Game Settings',
+          setLangLabel: 'Jazyk / Language',
+          setDiffLabel: 'Set Size (Difficulty)',
+          setThemeLabel: 'Color Theme',
+          setDisplayLabel: 'Value Display',
+          tileClassic: 'Classic',
+          tileEmerald: 'Emerald',
+          tileTour: 'Tournament',
+          tileRoyal: 'Royal Gold',
+          tileDigits: 'Digits',
+          tileLetters: 'Letters',
+          tileSymbols: 'Symbols',
+          tilePips: 'Pips',
+          subBase: 'Default',
+          subUnlocked: 'Unlocked',
+          subLock5: '5 wins',
+          subLock10: '10 wins',
+          subLock15: '15 wins',
+          subLock20: '20 wins',
+          subLock30: '30 wins',
+          setUnlockInfo: '<strong>Unlock Bonuses (1\u20136 Master set):</strong> 5 wins = <strong>Emerald Table</strong>, 10 = <strong>Tournament</strong>, 15 = <strong>Diffequa Symbols</strong>, 20 = <strong>Pips</strong>, 30 = <strong>Royal Gold Edition</strong>.',
+          saveAndClose: 'Save & Close',
+          rulesHTML: `
+            <h2 class="modal-title-center">How to Play Homino</h2>
+            <p class="rules-intro">Partition the grid into a complete set of <strong>unique dominoes</strong> (e.g. 21 dominoes from 1\u20131 to 6\u20136).</p>
+            <p class="rules-intro"><strong>Controls have 3 simple actions:</strong></p>
+            <div class="rules-box-gray">
+              <ul>
+                <li><strong>Tap an edge:</strong> draws or removes a border line between two cells.</li>
+                <li><strong>Swipe across cells:</strong> drag from one cell to an adjacent cell to link (or completely unlink) a domino.</li>
+                <li><strong>Hint:</strong> highlights any mistake first; otherwise reveals one true border edge.</li>
+              </ul>
+            </div>
+            <p class="rules-intro"><strong>Golden Rule:</strong> Every value pair may appear <strong>only once</strong> on the entire board.</p>
+            <div class="rules-box-green">
+              <strong class="green-title">Auto-completion:</strong>
+              Surrounding any adjacent pair of cells with all 6 outer borders automatically locks them into a domino and checks it off below.
+            </div>
+            <p class="rules-warn"><strong>Watch out:</strong> Placing the same domino twice or isolating a single cell triggers an immediate warning!</p>
+            <p class="rules-rewards"><strong>Rewards:</strong> Master wins progressively unlock Emerald Table (5), Tournament Colors (10), Diffequa Symbols (15), Domino Pips (20), and Royal Gold Edition (30).</p>
+            <button class="btn-modal-full" id="btn-close-rules">Got it, play</button>
+          `
+        }
+      };
+
+      const detectLang = () => {
+        const nav = (navigator.language || 'en').toLowerCase();
+        return (nav.startsWith('cs') || nav.startsWith('sk')) ? 'cs' : 'en';
+      };
+
+      let state = {
+        lang: detectLang(),
+        maxPip: 6,
+        wins: { 4: 0, 5: 0, 6: 0 },
+        theme: 'classic',
+        displayMode: 'digits',
+        rows: 7,
+        cols: 6,
+        grid: [],
+        solution: [],
+        walls: {},
+        dominoes: [],
+        history: [],
+        won: false
+      };
+
+      let transientErrors = {
+        cells: new Set(),
+        edges: new Set(),
+        message: null,
+        type: 'normal'
+      };
+
+      function getMasterWins() {
+        return Number(state.wins && state.wins[6]) || 0;
+      }
+
+      function getTotalWins() {
+        if (!state.wins) return 0;
+        return (Number(state.wins[4]) || 0) + (Number(state.wins[5]) || 0) + (Number(state.wins[6]) || 0);
+      }
+
+      function sanitizeUnlocks() {
+        const mw = getMasterWins();
+        if (mw < MILESTONE_EMERALD && state.theme === 'emerald') state.theme = 'classic';
+        if (mw < MILESTONE_TOUR && state.theme === 'tournament') state.theme = 'classic';
+        if (mw < MILESTONE_ROYAL && state.theme === 'royal') state.theme = 'classic';
+        if (mw < MILESTONE_SYMBOLS && state.displayMode === 'symbols') state.displayMode = 'digits';
+        if (mw < MILESTONE_PIPS && state.displayMode === 'pips') state.displayMode = 'digits';
+      }
+
+      function edgeKey(r1, c1, r2, c2) {
+        if (r1 < r2 || (r1 === r2 && c1 < c2)) return `${r1},${c1}|${r2},${c2}`;
+        return `${r2},${c2}|${r1},${c1}`;
+      }
+
+      function pairKey(a, b) {
+        return a <= b ? `${a}-${b}` : `${b}-${a}`;
+      }
+
+      function formatPairLabel(a, b) {
+        const lo = Math.min(a, b);
+        const hi = Math.max(a, b);
+        if (state.displayMode === 'letters') {
+          return `${LETTERS[lo]}\u2013${LETTERS[hi]}`;
+        }
+        return `${lo}\u2013${hi}`;
+      }
+
+      function getNeighbors(r, c, rows = state.rows, cols = state.cols) {
+        const res = [];
+        if (r > 0) res.push([r - 1, c]);
+        if (r < rows - 1) res.push([r + 1, c]);
+        if (c > 0) res.push([r, c - 1]);
+        if (c < cols - 1) res.push([r, c + 1]);
+        return res;
+      }
+
+      function generatePuzzle(maxPip) {
+        const rows = maxPip + 1;
+        const cols = maxPip;
+        const totalCells = rows * cols;
+        const used = Array.from({ length: rows }, () => Array(cols).fill(false));
+        const pairs = [];
+
+        function backtrack(idx) {
+          while (idx < totalCells && used[Math.floor(idx / cols)][idx % cols]) idx++;
+          if (idx >= totalCells) return true;
+
+          const r = Math.floor(idx / cols);
+          const c = idx % cols;
+          used[r][c] = true;
+
+          const dirs = [];
+          if (c + 1 < cols && !used[r][c + 1]) dirs.push([r, c + 1]);
+          if (r + 1 < rows && !used[r + 1][c]) dirs.push([r + 1, c]);
+
+          if (dirs.length === 2 && Math.random() < 0.5) {
+            [dirs[0], dirs[1]] = [dirs[1], dirs[0]];
+          }
+
+          for (const [nr, nc] of dirs) {
+            used[nr][nc] = true;
+            pairs.push({ r1: r, c1: c, r2: nr, c2: nc });
+            if (backtrack(idx + 1)) return true;
+            pairs.pop();
+            used[nr][nc] = false;
+          }
+
+          used[r][c] = false;
+          return false;
+        }
+
+        backtrack(0);
+
+        const tiles = [];
+        for (let a = 1; a <= maxPip; a++) {
+          for (let b = a; b <= maxPip; b++) {
+            tiles.push([a, b]);
+          }
+        }
+        for (let i = tiles.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+        }
+
+        const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+        pairs.forEach((p, i) => {
+          const [a, b] = tiles[i];
+          if (Math.random() < 0.5) {
+            grid[p.r1][p.c1] = a;
+            grid[p.r2][p.c2] = b;
+          } else {
+            grid[p.r1][p.c1] = b;
+            grid[p.r2][p.c2] = a;
+          }
+        });
+
+        return { rows, cols, grid, solution: pairs };
+      }
+
+      function saveGame() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      function loadGame() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return false;
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.grid) && parsed.grid.length > 0) {
+            state = { ...state, ...parsed };
+            if (!state.wins || typeof state.wins !== 'object') {
+              state.wins = { 4: 0, 5: 0, 6: Number(parsed.masterWins) || 0 };
+            }
+            sanitizeUnlocks();
+            return true;
+          }
+        } catch (e) {}
+        return false;
+      }
+
+      function startNewGame(maxPip = state.maxPip) {
+        const puzzle = generatePuzzle(maxPip);
+        state.maxPip = maxPip;
+        state.rows = puzzle.rows;
+        state.cols = puzzle.cols;
+        state.grid = puzzle.grid;
+        state.solution = puzzle.solution;
+        state.walls = {};
+        state.dominoes = [];
+        state.history = [];
+        state.won = false;
+        transientErrors = {
+          cells: new Set(),
+          edges: new Set(),
+          message: I18N[state.lang].statusStart,
+          type: 'normal'
+        };
+        saveGame();
+        renderAll();
+      }
+
+      function simulateBatchWinForTesting() {
+        if (state.won) {
+          startNewGame(state.maxPip);
+        }
+        const solEdgeSet = new Set(state.solution.map(s => edgeKey(s.r1, s.c1, s.r2, s.c2)));
+        state.walls = {};
+        for (let r = 0; r < state.rows; r++) {
+          for (let c = 0; c < state.cols; c++) {
+            if (c + 1 < state.cols) {
+              const k = edgeKey(r, c, r, c + 1);
+              if (!solEdgeSet.has(k)) state.walls[k] = 'user';
+            }
+            if (r + 1 < state.rows) {
+              const k = edgeKey(r, c, r + 1, c);
+              if (!solEdgeSet.has(k)) state.walls[k] = 'user';
+            }
+          }
+        }
+        state.dominoes = state.solution.map(s => ({ ...s }));
+        state.wins[state.maxPip] = (Number(state.wins[state.maxPip]) || 0) + 4;
+        evaluateBoard(false);
+        saveGame();
+        renderAll();
+      }
+
+      function resetAllWinsForTesting() {
+        state.wins = { 4: 0, 5: 0, 6: 0 };
+        sanitizeUnlocks();
+        transientErrors.cells.clear();
+        transientErrors.edges.clear();
+        transientErrors.message = I18N[state.lang].statusStatsReset;
+        transientErrors.type = 'normal';
+        saveGame();
+        renderAll();
+      }
+
+      function pushHistory() {
+        if (state.won) return;
+        state.history.push({
+          walls: { ...state.walls },
+          dominoes: state.dominoes.map(d => ({ ...d }))
+        });
+        if (state.history.length > 120) state.history.shift();
+      }
+
+      function undoMove() {
+        if (state.won || state.history.length === 0) return;
+        const prev = state.history.pop();
+        state.walls = prev.walls;
+        state.dominoes = prev.dominoes;
+        transientErrors.cells.clear();
+        transientErrors.edges.clear();
+        transientErrors.message = null;
+        transientErrors.type = 'normal';
+        saveGame();
+        renderAll();
+      }
+
+      function findDominoAt(r, c) {
+        return state.dominoes.findIndex(d => (d.r1 === r && d.c1 === c) || (d.r2 === r && d.c2 === c));
+      }
+
+      function isBlockedBetween(r1, c1, r2, c2) {
+        return Boolean(state.walls[edgeKey(r1, c1, r2, c2)]);
+      }
+
+      function removeDominoAndOuterWalls(idx) {
+        if (idx === -1) return;
+        const d = state.dominoes[idx];
+        state.dominoes.splice(idx, 1);
+
+        const cells = [[d.r1, d.c1], [d.r2, d.c2]];
+        for (const [cr, cc] of cells) {
+          for (const [nr, nc] of getNeighbors(cr, cc)) {
+            if ((nr === d.r1 && nc === d.c1) || (nr === d.r2 && nc === d.c2)) continue;
+            if (findDominoAt(nr, nc) !== -1) continue;
+            const k = edgeKey(cr, cc, nr, nc);
+            if (state.walls[k] === 'user') {
+              delete state.walls[k];
+            }
+          }
+        }
+      }
+
+      function linkDomino(r1, c1, r2, c2, recordHistory = true) {
+        if (state.won) return;
+        if (Math.abs(r1 - r2) + Math.abs(c1 - c2) !== 1) return;
+
+        const existingIdx = state.dominoes.findIndex(
+          d => (d.r1 === r1 && d.c1 === c1 && d.r2 === r2 && d.c2 === c2) ||
+               (d.r1 === r2 && d.c1 === c2 && d.r2 === r1 && d.c2 === c1)
+        );
+
+        if (recordHistory) pushHistory();
+
+        if (existingIdx !== -1) {
+          removeDominoAndOuterWalls(existingIdx);
+          evaluateBoard();
+          saveGame();
+          renderAll();
+          return;
+        }
+
+        const idx1 = findDominoAt(r1, c1);
+        if (idx1 !== -1) removeDominoAndOuterWalls(idx1);
+        const idx2 = findDominoAt(r2, c2);
+        if (idx2 !== -1) removeDominoAndOuterWalls(idx2);
+
+        delete state.walls[edgeKey(r1, c1, r2, c2)];
+        state.dominoes.push({ r1, c1, r2, c2 });
+
+        const cells = [[r1, c1], [r2, c2]];
+        for (const [cr, cc] of cells) {
+          for (const [nr, nc] of getNeighbors(cr, cc)) {
+            if ((nr === r1 && nc === c1) || (nr === r2 && nc === c2)) continue;
+            const k = edgeKey(cr, cc, nr, nc);
+            if (!state.walls[k]) state.walls[k] = 'user';
+          }
+        }
+
+        runAutoEncloseLoop();
+        evaluateBoard();
+        saveGame();
+        renderAll();
+      }
+
+      function toggleEdge(r1, c1, r2, c2) {
+        if (state.won) return;
+        const k = edgeKey(r1, c1, r2, c2);
+        pushHistory();
+
+        if (state.walls[k]) {
+          delete state.walls[k];
+        } else {
+          state.walls[k] = 'user';
+          const dIdx = state.dominoes.findIndex(
+            d => (d.r1 === r1 && d.c1 === c1 && d.r2 === r2 && d.c2 === c2) ||
+                 (d.r1 === r2 && d.c1 === c2 && d.r2 === r1 && d.c2 === c1)
+          );
+          if (dIdx !== -1) state.dominoes.splice(dIdx, 1);
+        }
+
+        const autoFormed = runAutoEncloseLoop();
+        evaluateBoard(autoFormed);
+        saveGame();
+        renderAll();
+      }
+
+      function runAutoEncloseLoop() {
+        let formedAny = false;
+        let changed = true;
+
+        while (changed) {
+          changed = false;
+          for (let r = 0; r < state.rows; r++) {
+            for (let c = 0; c < state.cols; c++) {
+              if (findDominoAt(r, c) !== -1) continue;
+
+              const openNeighbors = getNeighbors(r, c).filter(([nr, nc]) => {
+                if (isBlockedBetween(r, c, nr, nc)) return false;
+                if (findDominoAt(nr, nc) !== -1) return false;
+                return true;
+              });
+
+              if (openNeighbors.length === 1) {
+                const [nr, nc] = openNeighbors[0];
+                const backNeighbors = getNeighbors(nr, nc).filter(([br, bc]) => {
+                  if (isBlockedBetween(nr, nc, br, bc)) return false;
+                  if (findDominoAt(br, bc) !== -1) return false;
+                  return true;
+                });
+
+                if (backNeighbors.length === 1 && backNeighbors[0][0] === r && backNeighbors[0][1] === c) {
+                  state.dominoes.push({ r1: r, c1: c, r2: nr, c2: nc });
+                  formedAny = true;
+                  changed = true;
+                }
+              }
+            }
+          }
+        }
+        return formedAny;
+      }
+
+      function evaluateBoard(autoFormed = false) {
+        const t = I18N[state.lang];
+        transientErrors.cells.clear();
+        transientErrors.edges.clear();
+        transientErrors.message = null;
+        transientErrors.type = 'normal';
+
+        const counts = {};
+        for (const d of state.dominoes) {
+          const pk = pairKey(state.grid[d.r1][d.c1], state.grid[d.r2][d.c2]);
+          counts[pk] = (counts[pk] || 0) + 1;
+        }
+
+        let dupLabel = null;
+        for (const d of state.dominoes) {
+          const v1 = state.grid[d.r1][d.c1];
+          const v2 = state.grid[d.r2][d.c2];
+          const pk = pairKey(v1, v2);
+          if (counts[pk] > 1) {
+            dupLabel = formatPairLabel(v1, v2);
+            transientErrors.cells.add(`${d.r1},${d.c1}`);
+            transientErrors.cells.add(`${d.r2},${d.c2}`);
+          }
+        }
+
+        let hasDeadCell = false;
+        for (let r = 0; r < state.rows; r++) {
+          for (let c = 0; c < state.cols; c++) {
+            if (findDominoAt(r, c) !== -1) continue;
+            const free = getNeighbors(r, c).filter(([nr, nc]) => !isBlockedBetween(r, c, nr, nc) && findDominoAt(nr, nc) === -1);
+            if (free.length === 0) {
+              hasDeadCell = true;
+              transientErrors.cells.add(`${r},${c}`);
+            }
+          }
+        }
+
+        const totalDominoes = (state.rows * state.cols) / 2;
+
+        if (dupLabel) {
+          transientErrors.message = t.statusErrDup.replace('{pair}', dupLabel);
+          transientErrors.type = 'error';
+          return;
+        }
+
+        if (hasDeadCell) {
+          transientErrors.message = t.statusErrDead;
+          transientErrors.type = 'error';
+          return;
+        }
+
+        if (state.dominoes.length === totalDominoes && Object.keys(counts).length === totalDominoes) {
+          state.won = true;
+          state.history = [];
+          transientErrors.type = 'success';
+
+          const prevMaster = getMasterWins();
+          state.wins[state.maxPip] = (Number(state.wins[state.maxPip]) || 0) + 1;
+
+          if (state.maxPip === 6) {
+            const mw = getMasterWins();
+            if (prevMaster < MILESTONE_EMERALD && mw >= MILESTONE_EMERALD) {
+              state.theme = 'emerald';
+              transientErrors.message = t.statusUnlock5;
+            } else if (prevMaster < MILESTONE_TOUR && mw >= MILESTONE_TOUR) {
+              state.theme = 'tournament';
+              transientErrors.message = t.statusUnlock10;
+            } else if (prevMaster < MILESTONE_SYMBOLS && mw >= MILESTONE_SYMBOLS) {
+              state.displayMode = 'symbols';
+              transientErrors.message = t.statusUnlock15;
+            } else if (prevMaster < MILESTONE_PIPS && mw >= MILESTONE_PIPS) {
+              state.displayMode = 'pips';
+              transientErrors.message = t.statusUnlock20;
+            } else if (prevMaster < MILESTONE_ROYAL && mw >= MILESTONE_ROYAL) {
+              state.theme = 'royal';
+              transientErrors.message = t.statusUnlock30;
+            } else {
+              transientErrors.message = t.statusWinMaster;
+            }
+          } else {
+            transientErrors.message = t.statusWinTrain.replace('{max}', state.maxPip);
+          }
+          return;
+        }
+
+        if (autoFormed) {
+          transientErrors.message = t.statusAutoFormed;
+          transientErrors.type = 'success';
+        }
+      }
+
+      function useHint() {
+        if (state.won) return;
+        const t = I18N[state.lang];
+        transientErrors.cells.clear();
+        transientErrors.edges.clear();
+
+        const counts = {};
+        for (const d of state.dominoes) {
+          const pk = pairKey(state.grid[d.r1][d.c1], state.grid[d.r2][d.c2]);
+          counts[pk] = (counts[pk] || 0) + 1;
+        }
+        for (const d of state.dominoes) {
+          const v1 = state.grid[d.r1][d.c1];
+          const v2 = state.grid[d.r2][d.c2];
+          const pk = pairKey(v1, v2);
+          if (counts[pk] > 1) {
+            transientErrors.cells.add(`${d.r1},${d.c1}`);
+            transientErrors.cells.add(`${d.r2},${d.c2}`);
+            transientErrors.message = t.statusHintErrDup.replace('{pair}', formatPairLabel(v1, v2));
+            transientErrors.type = 'error';
+            renderAll();
+            return;
+          }
+        }
+
+        for (let r = 0; r < state.rows; r++) {
+          for (let c = 0; c < state.cols; c++) {
+            if (findDominoAt(r, c) !== -1) continue;
+            const free = getNeighbors(r, c).filter(([nr, nc]) => !isBlockedBetween(r, c, nr, nc) && findDominoAt(nr, nc) === -1);
+            if (free.length === 0) {
+              transientErrors.cells.add(`${r},${c}`);
+              transientErrors.message = t.statusHintErrDead;
+              transientErrors.type = 'error';
+              renderAll();
+              return;
+            }
+          }
+        }
+
+        const solEdgeSet = new Set(state.solution.map(s => edgeKey(s.r1, s.c1, s.r2, s.c2)));
+        for (const wKey of Object.keys(state.walls)) {
+          if (solEdgeSet.has(wKey)) {
+            transientErrors.edges.add(wKey);
+            transientErrors.message = t.statusHintErrWall;
+            transientErrors.type = 'error';
+            renderAll();
+            return;
+          }
+        }
+
+        const candidateEdges = [];
+        for (let r = 0; r < state.rows; r++) {
+          for (let c = 0; c < state.cols; c++) {
+            if (c + 1 < state.cols) {
+              const k = edgeKey(r, c, r, c + 1);
+              if (!solEdgeSet.has(k) && !state.walls[k]) candidateEdges.push(k);
+            }
+            if (r + 1 < state.rows) {
+              const k = edgeKey(r, c, r + 1, c);
+              if (!solEdgeSet.has(k) && !state.walls[k]) candidateEdges.push(k);
+            }
+          }
+        }
+
+        if (candidateEdges.length > 0) {
+          pushHistory();
+          const chosen = candidateEdges[Math.floor(Math.random() * candidateEdges.length)];
+          state.walls[chosen] = 'hint';
+          const autoFormed = runAutoEncloseLoop();
+          evaluateBoard(autoFormed);
+          if (!state.won && !autoFormed) {
+            transientErrors.message = t.statusHintEdge;
+            transientErrors.type = 'success';
+          }
+          saveGame();
+          renderAll();
+        }
+      }
+
+      function createPipHTML(val) {
+        const map = {
+          1: [4],
+          2: [0, 8],
+          3: [0, 4, 8],
+          4: [0, 2, 6, 8],
+          5: [0, 2, 4, 6, 8],
+          6: [0, 2, 3, 5, 6, 8]
+        };
+        const active = new Set(map[val] || []);
+        let html = '<div class="pip-grid">';
+        for (let i = 0; i < 9; i++) {
+          html += active.has(i) ? '<span class="pip"></span>' : '<span></span>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      function createSymbolSVG(val, sizePx = null) {
+        const styleAttr = sizePx ? `width="${sizePx}" height="${sizePx}"` : `class="sym-icon"`;
+        const sw = sizePx ? '2.4' : '2.6';
+        switch (val) {
+          case 1:
+            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}"><circle cx="12" cy="12" r="7.5"/></svg>`;
+          case 2:
+            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>`;
+          case 3:
+            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,4.5 20,18.5 4,18.5"/></svg>`;
+          case 4:
+            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 20.5,12 12,20.5 3.5,12"/></svg>`;
+          case 5:
+            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 14.6,9 20.5,9.7 16.1,13.8 17.3,19.6 12,16.7 6.7,19.6 7.9,13.8 3.5,9.7 9.4,9"/></svg>`;
+          case 6:
+          default:
+            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 19.5,7.8 19.5,16.2 12,20.5 4.5,16.2 4.5,7.8"/></svg>`;
+        }
+      }
+
+      function renderCellValue(val) {
+        if (state.displayMode === 'letters') return LETTERS[val];
+        if (state.displayMode === 'symbols') return createSymbolSVG(val);
+        if (state.displayMode === 'pips') return createPipHTML(val);
+        return val;
+      }
+
+      function applyThemeAndI18n() {
+        document.body.classList.remove('theme-emerald', 'theme-tournament', 'theme-royal');
+        if (state.theme === 'emerald') document.body.classList.add('theme-emerald');
+        if (state.theme === 'tournament') document.body.classList.add('theme-tournament');
+        if (state.theme === 'royal') document.body.classList.add('theme-royal');
+
+        const meta = document.getElementById('meta-theme-color');
+        if (meta) {
+          const colorMap = { classic: '#f0f2f5', tournament: '#f0f2f5', emerald: '#064e3b', royal: '#0f172a' };
+          meta.setAttribute('content', colorMap[state.theme] || '#f0f2f5');
+        }
+
+        const t = I18N[state.lang];
+        document.documentElement.lang = state.lang;
+
+        document.getElementById('rotate-title').textContent = t.rotateTitle;
+        document.getElementById('rotate-sub').textContent = t.rotateSub;
+
+        document.getElementById('header-wins-label').textContent = t.winsLabel;
+        document.getElementById('header-deck-label').textContent = t.deckLabel;
+        document.getElementById('lbl-undo').textContent = t.undo;
+        document.getElementById('lbl-rules').textContent = t.rules;
+        document.getElementById('lbl-hint').textContent = t.hint;
+        document.getElementById('lbl-new').textContent = t.newGame;
+
+        document.getElementById('set-title').textContent = t.setTitle;
+        document.getElementById('set-lang-label').textContent = t.setLangLabel;
+        document.getElementById('set-diff-label').textContent = t.setDiffLabel;
+        document.getElementById('set-theme-label').textContent = t.setThemeLabel;
+        document.getElementById('set-display-label').textContent = t.setDisplayLabel;
+        document.getElementById('set-unlock-info').innerHTML = t.setUnlockInfo;
+        document.getElementById('btn-close-settings').textContent = t.saveAndClose;
+
+        const rulesModal = document.getElementById('rules-modal-content');
+        rulesModal.innerHTML = t.rulesHTML;
+        document.getElementById('btn-close-rules').addEventListener('click', () => {
+          document.getElementById('modal-rules').classList.remove('open');
+        });
+      }
+
+      function renderAll() {
+        applyThemeAndI18n();
+
+        const t = I18N[state.lang];
+        const totalDominoes = (state.rows * state.cols) / 2;
+
+        document.getElementById('wins-count').textContent = getTotalWins();
+        document.getElementById('deck-counter').textContent = `${state.dominoes.length}/${totalDominoes}`;
+        document.getElementById('btn-undo').disabled = state.won || state.history.length === 0;
+
+        const sb = document.getElementById('status-bar');
+        sb.classList.remove('is-error', 'is-success');
+        if (transientErrors.type === 'error') sb.classList.add('is-error');
+        if (transientErrors.type === 'success') sb.classList.add('is-success');
+        sb.textContent = transientErrors.message || t.statusStart;
+
+        const boardGrid = document.getElementById('board-grid');
+        boardGrid.style.setProperty('--cols', state.cols);
+        boardGrid.style.setProperty('--rows', state.rows);
+
+        const cellDominoDir = {};
+        for (const d of state.dominoes) {
+          const dir = d.r1 === d.r2 ? 'h' : 'v';
+          cellDominoDir[`${d.r1},${d.c1}`] = dir;
+          cellDominoDir[`${d.r2},${d.c2}`] = dir;
+        }
+
+        let cellsHTML = '';
+        for (let r = 0; r < state.rows; r++) {
+          for (let c = 0; c < state.cols; c++) {
+            const val = state.grid[r][c];
+            const ck = `${r},${c}`;
+            const classes = ['cell', `val-${val}`];
+            if (c === state.cols - 1) classes.push('last-col');
+            if (r === state.rows - 1) classes.push('last-row');
+            if (cellDominoDir[ck] === 'h') classes.push('in-domino-h');
+            if (cellDominoDir[ck] === 'v') classes.push('in-domino-v');
+            if (transientErrors.cells.has(ck)) classes.push('is-error');
+
+            cellsHTML += `<div class="${classes.join(' ')}" data-r="${r}" data-c="${c}">${renderCellValue(val)}</div>`;
+          }
+        }
+        boardGrid.innerHTML = cellsHTML;
+
+        const dominoOverlay = document.getElementById('domino-overlay');
+        const cellW = 100 / state.cols;
+        const cellH = 100 / state.rows;
+        const padX = cellW * 0.08;
+        const padY = cellH * 0.08;
+
+        const usedPairCounts = {};
+        for (const d of state.dominoes) {
+          const pk = pairKey(state.grid[d.r1][d.c1], state.grid[d.r2][d.c2]);
+          usedPairCounts[pk] = (usedPairCounts[pk] || 0) + 1;
+        }
+
+        let pillsHTML = '';
+        for (const d of state.dominoes) {
+          const minR = Math.min(d.r1, d.r2);
+          const minC = Math.min(d.c1, d.c2);
+          const isHoriz = d.r1 === d.r2;
+          const left = minC * cellW + padX;
+          const top = minR * cellH + padY;
+          const width = (isHoriz ? cellW * 2 : cellW) - padX * 2;
+          const height = (isHoriz ? cellH : cellH * 2) - padY * 2;
+
+          const v1 = state.grid[d.r1][d.c1];
+          const v2 = state.grid[d.r2][d.c2];
+          const pk = pairKey(v1, v2);
+          const isDouble = v1 === v2;
+          const cls = ['domino-pill', isHoriz ? 'horizontal' : 'vertical'];
+          if (isDouble) cls.push('is-double');
+          if (usedPairCounts[pk] > 1) cls.push('is-error');
+
+          let innerSVG = '';
+          if (state.theme === 'royal') {
+            const strokeRef = isDouble ? 'url(#royalPlatStroke)' : (isHoriz ? 'url(#royalGoldStroke)' : 'url(#royalRoseStroke)');
+            const fillRef = isDouble ? 'url(#royalPlatFill)' : (isHoriz ? 'url(#royalGoldFill)' : 'url(#royalRoseFill)');
+            const divLine = isHoriz
+              ? `<line x1="50" y1="16" x2="50" y2="84" stroke="${strokeRef}" stroke-width="1.4" stroke-opacity="0.45"/>`
+              : `<line x1="16" y1="50" x2="84" y2="50" stroke="${strokeRef}" stroke-width="1.4" stroke-opacity="0.45"/>`;
+            innerSVG = `<svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect x="1.5" y="1.5" width="97" height="97" rx="10" fill="${fillRef}" stroke="${strokeRef}" stroke-width="2.6" vector-effect="non-scaling-stroke"/>${divLine}</svg>`;
+          }
+
+          pillsHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;">${innerSVG}</div>`;
+        }
+        dominoOverlay.innerHTML = pillsHTML;
+
+        const edgesOverlay = document.getElementById('edges-overlay');
+        let edgesHTML = '';
+
+        for (let r = 0; r < state.rows; r++) {
+          for (let c = 0; c < state.cols - 1; c++) {
+            const k = edgeKey(r, c, r, c + 1);
+            const wType = state.walls[k];
+            const cls = ['edge-hit', 'v-edge'];
+            if (wType === 'user') cls.push('active');
+            if (wType === 'hint') cls.push('hinted');
+            if (transientErrors.edges.has(k)) cls.push('error-edge');
+
+            const left = (c + 1) * cellW;
+            const top = r * cellH;
+            edgesHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;height:${cellH}%;" data-r1="${r}" data-c1="${c}" data-r2="${r}" data-c2="${c + 1}"><div class="edge-line"></div></div>`;
+          }
+        }
+
+        for (let r = 0; r < state.rows - 1; r++) {
+          for (let c = 0; c < state.cols; c++) {
+            const k = edgeKey(r, c, r + 1, c);
+            const wType = state.walls[k];
+            const cls = ['edge-hit', 'h-edge'];
+            if (wType === 'user') cls.push('active');
+            if (wType === 'hint') cls.push('hinted');
+            if (transientErrors.edges.has(k)) cls.push('error-edge');
+
+            const left = c * cellW;
+            const top = (r + 1) * cellH;
+            edgesHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;width:${cellW}%;" data-r1="${r}" data-c1="${c}" data-r2="${r + 1}" data-c2="${c}"><div class="edge-line"></div></div>`;
+          }
+        }
+        edgesOverlay.innerHTML = edgesHTML;
+
+        const tray = document.getElementById('tray-grid');
+        tray.classList.toggle('cols-5', state.maxPip === 4 || state.maxPip === 5);
+        let trayHTML = '';
+        for (let a = 1; a <= state.maxPip; a++) {
+          for (let b = a; b <= state.maxPip; b++) {
+            const pk = `${a}-${b}`;
+            const cnt = usedPairCounts[pk] || 0;
+            const cls = ['tray-item'];
+            if (cnt === 1) cls.push('used');
+            if (cnt > 1) cls.push('duplicate');
+
+            let itemLabel = `${a}\u2013${b}`;
+            if (state.displayMode === 'letters') {
+              itemLabel = `${LETTERS[a]}\u2013${LETTERS[b]}`;
+            } else if (state.displayMode === 'symbols') {
+              itemLabel = `${createSymbolSVG(a, 9.5)}<span>\u2013</span>${createSymbolSVG(b, 9.5)}`;
+            }
+            trayHTML += `<div class="${cls.join(' ')}">${itemLabel}</div>`;
+          }
+        }
+        tray.innerHTML = trayHTML;
+
+        const mw = getMasterWins();
+        document.getElementById('stat-wins-4').textContent = state.wins[4] || 0;
+        document.getElementById('stat-wins-5').textContent = state.wins[5] || 0;
+        document.getElementById('stat-wins-6').textContent = mw;
+
+        document.getElementById('diff-4').classList.toggle('active', state.maxPip === 4);
+        document.getElementById('diff-5').classList.toggle('active', state.maxPip === 5);
+        document.getElementById('diff-6').classList.toggle('active', state.maxPip === 6);
+        document.getElementById('lang-cs').classList.toggle('active', state.lang === 'cs');
+        document.getElementById('lang-en').classList.toggle('active', state.lang === 'en');
+
+        document.getElementById('tile-digits-icon').textContent = `1\u2013${state.maxPip}`;
+        document.getElementById('tile-letters-icon').textContent = `A\u2013${LETTERS[state.maxPip]}`;
+
+        const uEmerald = mw >= MILESTONE_EMERALD;
+        const uTour = mw >= MILESTONE_TOUR;
+        const uSymbols = mw >= MILESTONE_SYMBOLS;
+        const uPips = mw >= MILESTONE_PIPS;
+        const uRoyal = mw >= MILESTONE_ROYAL;
+
+        document.getElementById('tile-classic-name').textContent = t.tileClassic;
+        document.getElementById('tile-classic-sub').textContent = t.subBase;
+
+        document.getElementById('tile-emerald-name').textContent = t.tileEmerald;
+        document.getElementById('tile-emerald-sub').textContent = uEmerald ? t.subUnlocked : `\uD83D\uDD12 ${t.subLock5}`;
+
+        document.getElementById('tile-tour-name').textContent = t.tileTour;
+        document.getElementById('tile-tour-sub').textContent = uTour ? t.subUnlocked : `\uD83D\uDD12 ${t.subLock10}`;
+
+        document.getElementById('tile-royal-name').textContent = t.tileRoyal;
+        document.getElementById('tile-royal-sub').textContent = uRoyal ? t.subUnlocked : `\uD83D\uDD12 ${t.subLock30}`;
+
+        document.getElementById('tile-digits-name').textContent = t.tileDigits;
+        document.getElementById('tile-digits-sub').textContent = t.subBase;
+
+        document.getElementById('tile-letters-name').textContent = t.tileLetters;
+        document.getElementById('tile-letters-sub').textContent = t.subBase;
+
+        document.getElementById('tile-symbols-name').textContent = t.tileSymbols;
+        document.getElementById('tile-symbols-sub').textContent = uSymbols ? t.subUnlocked : `\uD83D\uDD12 ${t.subLock15}`;
+
+        document.getElementById('tile-pips-name').textContent = t.tilePips;
+        document.getElementById('tile-pips-sub').textContent = uPips ? t.subUnlocked : `\uD83D\uDD12 ${t.subLock20}`;
+
+        document.getElementById('tile-classic').classList.toggle('active', state.theme === 'classic');
+        document.getElementById('tile-emerald').classList.toggle('locked', !uEmerald);
+        document.getElementById('tile-emerald').classList.toggle('active', state.theme === 'emerald');
+        document.getElementById('tile-tournament').classList.toggle('locked', !uTour);
+        document.getElementById('tile-tournament').classList.toggle('active', state.theme === 'tournament');
+        document.getElementById('tile-royal').classList.toggle('locked', !uRoyal);
+        document.getElementById('tile-royal').classList.toggle('active', state.theme === 'royal');
+
+        document.getElementById('tile-digits').classList.toggle('active', state.displayMode === 'digits');
+        document.getElementById('tile-letters').classList.toggle('active', state.displayMode === 'letters');
+        document.getElementById('tile-symbols').classList.toggle('locked', !uSymbols);
+        document.getElementById('tile-symbols').classList.toggle('active', state.displayMode === 'symbols');
+        document.getElementById('tile-pips').classList.toggle('locked', !uPips);
+        document.getElementById('tile-pips').classList.toggle('active', state.displayMode === 'pips');
+      }
+
+      function setupPointerInteractions() {
+        const wrapper = document.getElementById('board-wrapper');
+        let startCell = null;
+        let swiped = false;
+        let activePointerId = null;
+
+        function getCellFromPoint(clientX, clientY) {
+          const rect = wrapper.getBoundingClientRect();
+          const x = clientX - rect.left;
+          const y = clientY - rect.top;
+          if (x < 0 || y < 0 || x >= rect.width || y >= rect.height) return null;
+          const c = Math.floor((x / rect.width) * state.cols);
+          const r = Math.floor((y / rect.height) * state.rows);
+          if (r < 0 || r >= state.rows || c < 0 || c >= state.cols) return null;
+          return { r, c };
+        }
+
+        function highlightSwipeCell(cell) {
+          document.querySelectorAll('.cell.swipe-active').forEach(el => el.classList.remove('swipe-active'));
+          if (!cell) return;
+          const el = document.querySelector(`.cell[data-r="${cell.r}"][data-c="${cell.c}"]`);
+          if (el) el.classList.add('swipe-active');
+        }
+
+        wrapper.addEventListener('pointerdown', (e) => {
+          if (activePointerId !== null) return;
+          activePointerId = e.pointerId;
+          swiped = false;
+          startCell = getCellFromPoint(e.clientX, e.clientY);
+          highlightSwipeCell(startCell);
+        });
+
+        wrapper.addEventListener('pointermove', (e) => {
+          if (e.pointerId !== activePointerId || !startCell || swiped) return;
+          const curr = getCellFromPoint(e.clientX, e.clientY);
+          if (!curr) return;
+
+          const dist = Math.abs(curr.r - startCell.r) + Math.abs(curr.c - startCell.c);
+          if (dist === 1) {
+            swiped = true;
+            highlightSwipeCell(null);
+            linkDomino(startCell.r, startCell.c, curr.r, curr.c, true);
+          }
+        });
+
+        wrapper.addEventListener('pointerup', (e) => {
+          if (e.pointerId !== activePointerId) return;
+          highlightSwipeCell(null);
+
+          if (!swiped) {
+            const targetEdge = e.target.closest('.edge-hit');
+            if (targetEdge) {
+              const r1 = Number(targetEdge.dataset.r1);
+              const c1 = Number(targetEdge.dataset.c1);
+              const r2 = Number(targetEdge.dataset.r2);
+              const c2 = Number(targetEdge.dataset.c2);
+              toggleEdge(r1, c1, r2, c2);
+            }
+          }
+
+          activePointerId = null;
+          startCell = null;
+          swiped = false;
+        });
+
+        wrapper.addEventListener('pointercancel', () => {
+          highlightSwipeCell(null);
+          activePointerId = null;
+          startCell = null;
+          swiped = false;
+        });
+      }
+
+      function setupUI() {
+        document.getElementById('btn-undo').addEventListener('click', undoMove);
+        document.getElementById('btn-hint').addEventListener('click', useHint);
+        document.getElementById('btn-new').addEventListener('click', () => startNewGame(state.maxPip));
+
+        document.getElementById('btn-settings').addEventListener('click', () => {
+          document.getElementById('modal-settings').classList.add('open');
+        });
+        document.getElementById('btn-rules').addEventListener('click', () => {
+          document.getElementById('modal-rules').classList.add('open');
+        });
+
+        document.getElementById('btn-close-settings').addEventListener('click', () => {
+          document.getElementById('modal-settings').classList.remove('open');
+        });
+
+        document.querySelectorAll('.modal-backdrop').forEach(bg => {
+          bg.addEventListener('click', (e) => {
+            if (e.target === bg) bg.classList.remove('open');
+          });
+        });
+
+        let titleTapCount = 0;
+        let titleTapTimer = null;
+        document.getElementById('set-title').addEventListener('click', () => {
+          titleTapCount += 1;
+          clearTimeout(titleTapTimer);
+          if (titleTapCount >= 5) {
+            titleTapCount = 0;
+            simulateBatchWinForTesting();
+          } else {
+            titleTapTimer = setTimeout(() => {
+              titleTapCount = 0;
+            }, 1500);
+          }
+        });
+
+        let statsTapCount = 0;
+        let statsTapTimer = null;
+        document.getElementById('stats-box').addEventListener('click', () => {
+          statsTapCount += 1;
+          clearTimeout(statsTapTimer);
+          if (statsTapCount >= 5) {
+            statsTapCount = 0;
+            resetAllWinsForTesting();
+          } else {
+            statsTapTimer = setTimeout(() => {
+              statsTapCount = 0;
+            }, 1500);
+          }
+        });
+
+        document.querySelectorAll('[data-diff]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const val = Number(btn.dataset.diff);
+            if (val !== state.maxPip) startNewGame(val);
+          });
+        });
+
+        document.querySelectorAll('[data-lang]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.lang = btn.dataset.lang;
+            saveGame();
+            renderAll();
+          });
+        });
+
+        document.getElementById('tile-classic').addEventListener('click', () => {
+          state.theme = 'classic';
+          saveGame();
+          renderAll();
+        });
+
+        document.getElementById('tile-emerald').addEventListener('click', () => {
+          if (getMasterWins() < MILESTONE_EMERALD) return;
+          state.theme = 'emerald';
+          saveGame();
+          renderAll();
+        });
+
+        document.getElementById('tile-tournament').addEventListener('click', () => {
+          if (getMasterWins() < MILESTONE_TOUR) return;
+          state.theme = 'tournament';
+          saveGame();
+          renderAll();
+        });
+
+        document.getElementById('tile-royal').addEventListener('click', () => {
+          if (getMasterWins() < MILESTONE_ROYAL) return;
+          state.theme = 'royal';
+          saveGame();
+          renderAll();
+        });
+
+        document.getElementById('tile-digits').addEventListener('click', () => {
+          state.displayMode = 'digits';
+          saveGame();
+          renderAll();
+        });
+
+        document.getElementById('tile-letters').addEventListener('click', () => {
+          state.displayMode = 'letters';
+          saveGame();
+          renderAll();
+        });
+
+        document.getElementById('tile-symbols').addEventListener('click', () => {
+          if (getMasterWins() < MILESTONE_SYMBOLS) return;
+          state.displayMode = 'symbols';
+          saveGame();
+          renderAll();
+        });
+
+        document.getElementById('tile-pips').addEventListener('click', () => {
+          if (getMasterWins() < MILESTONE_PIPS) return;
+          state.displayMode = 'pips';
+          saveGame();
+          renderAll();
+        });
+      }
+
+      setupUI();
+      setupPointerInteractions();
+      if (!loadGame()) {
+        startNewGame(6);
+      } else {
+        evaluateBoard(false);
+        if (!state.won && !transientErrors.message) {
+          transientErrors.message = I18N[state.lang].statusResume;
+        }
+        renderAll();
+      }
+    })();
+  </script>
+</body>
+</html>
