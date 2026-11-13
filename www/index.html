@@ -124,7 +124,6 @@
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* Pevna sirka totozna s Diffequa (max 440px), bez roztahovani pri zmene symbolu */
     .app {
       width: 100%;
       max-width: 440px;
@@ -285,6 +284,10 @@
       width: 100%;
       position: relative;
       touch-action: none;
+    }
+
+    .board-wrapper.locked {
+      pointer-events: none;
     }
 
     .board-grid {
@@ -502,7 +505,6 @@
       display: block;
     }
 
-    /* ODSKRTAVACI PREHLED KAMENU */
     .tray-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -596,7 +598,7 @@
     }
 
     .btn:disabled {
-      opacity: 0.45;
+      opacity: 0.42;
       cursor: not-allowed;
     }
 
@@ -618,10 +620,11 @@
       color: #0f172a;
     }
 
+    /* MODALNI OKNA */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.56);
+      background: rgba(15, 23, 42, 0.58);
       display: none;
       align-items: center;
       justify-content: center;
@@ -644,6 +647,8 @@
       padding: 18px 16px 16px;
       box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
       color: var(--text);
+      position: relative;
+      z-index: 52;
     }
 
     .modal-title-center {
@@ -653,6 +658,193 @@
       margin: 0 0 12px;
       color: var(--text);
       cursor: pointer;
+    }
+
+    /* MODÁLNÍ OKNO KONCE HRY (VE STYLU DIFFEQUA) */
+    .end-modal-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-top: 4px;
+    }
+
+    .end-logo-frame {
+      width: 66px;
+      height: 66px;
+      border-radius: 18px;
+      background: var(--status-bg);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.16);
+    }
+
+    .end-logo-frame.perfect {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 2.5px solid #fbbf24;
+      box-shadow: 0 0 22px rgba(245, 158, 11, 0.45);
+    }
+
+    .end-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--status-bg);
+      color: var(--status-text);
+      border: 1px solid var(--status-border);
+      margin-bottom: 8px;
+    }
+
+    .end-badge.perfect {
+      background: linear-gradient(135deg, rgba(254, 240, 138, 0.22), rgba(245, 158, 11, 0.16));
+      color: #d97706;
+      border-color: #fbbf24;
+    }
+
+    body.theme-royal .end-badge.perfect,
+    body.theme-emerald .end-badge.perfect {
+      color: #fde68a;
+    }
+
+    .end-title {
+      font-size: 21px;
+      font-weight: 800;
+      margin: 0 0 6px;
+      color: var(--text);
+    }
+
+    .end-desc {
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin: 0 0 14px;
+    }
+
+    .end-stats-card {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .end-stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .end-stat-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .end-stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .end-stat-val.gold {
+      color: #f59e0b;
+    }
+
+    .end-unlock-banner {
+      width: 100%;
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .end-actions {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-modal-sec {
+      padding: 12px 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .btn-modal-prim {
+      padding: 12px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    body.theme-emerald .btn-modal-prim {
+      background: #fbbf24;
+      color: #022c22;
+    }
+
+    body.theme-royal .btn-modal-prim {
+      background: linear-gradient(135deg, #fde047, #f59e0b, #b45309);
+      color: #0f172a;
+    }
+
+    /* VRSTVA PADÁJÍCÍCH KONFET / SYMBOLŮ */
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 60;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -36px;
+      animation: confettiFall linear forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      85% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(108dvh) rotate(540deg) scale(0.85);
+        opacity: 0;
+      }
     }
 
     .modal-section-label {
@@ -913,7 +1105,6 @@
       color: #0f172a;
     }
 
-    /* POJISTKA PRO MOBILNI PROHLIZEC PRI OTOCENI NA SIRKU */
     .rotate-lock-overlay {
       display: none;
       position: fixed;
@@ -953,7 +1144,7 @@
       .rotate-lock-overlay {
         display: flex;
       }
-      .app, .modal-backdrop {
+      .app, .modal-backdrop, .confetti-layer {
         display: none !important;
       }
     }
@@ -970,6 +1161,9 @@
       <span id="rotate-sub">Hra Homino je navr&#382;ena pro hran&#237; na v&#253;&#353;ku.</span>
     </div>
   </div>
+
+  <!-- Vrstva konfet pri vyhre -->
+  <div class="confetti-layer" id="confetti-layer"></div>
 
   <svg width="0" height="0" style="position:absolute;pointer-events:none;" aria-hidden="true">
     <defs>
@@ -1056,12 +1250,18 @@
     </footer>
   </div>
 
+  <!-- MODALNI OKNO KONCE HRY (SHOWENDMODAL) -->
+  <div class="modal-backdrop" id="modal-end">
+    <div class="modal">
+      <div class="end-modal-inner" id="end-modal-content"></div>
+    </div>
+  </div>
+
   <!-- MODALNI OKNO: NASTAVENI HRY -->
   <div class="modal-backdrop" id="modal-settings">
     <div class="modal">
       <h2 class="modal-title-center" id="set-title">Nastaven&#237; hry</h2>
 
-      <!-- STATISTIKA VYHER (1-4, 1-5, Mistrovske 1-6) -->
       <div class="stats-grid-modal" id="stats-box">
         <div class="stat-col">
           <span class="stat-col-label">1&#8211;4</span>
@@ -1093,7 +1293,6 @@
         <button class="seg-choice" id="diff-6" data-diff="6">1&#8211;6 (6&#215;7)</button>
       </div>
 
-      <!-- BAREVNY MOTIV (2x2) -->
       <div class="modal-section-label">
         <span id="set-theme-label">Barevn&#253; motiv</span>
       </div>
@@ -1140,7 +1339,6 @@
         </div>
       </div>
 
-      <!-- ZOBRAZENI HODNOT (2x2) -->
       <div class="modal-section-label">
         <span id="set-display-label">Zobrazen&#237; hodnot</span>
       </div>
@@ -1194,7 +1392,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'homino_save_v5';
+      const STORAGE_KEY = 'homino_save_v6';
 
       const MILESTONE_EMERALD = 5;
       const MILESTONE_TOUR = 10;
@@ -1216,6 +1414,7 @@
           newGame: 'Nov\u00e1 hra',
           statusStart: 'Klepnut\u00edm ozna\u010d okraj, p\u0159ejet\u00edm spoj domino.',
           statusResume: 'Pokra\u010duje\u0161 v rozehran\u00e9 h\u0159e.',
+          statusFinishedLocked: 'Partie je dokon\u010dena. Spus\u0165 novou hru.',
           statusAutoFormed: 'Ohrani\u010den\u00e1 dvojice se automaticky spojila v domino!',
           statusHintEdge: 'N\u00e1pov\u011bda doplnila jeden okraj domina.',
           statusHintErrDup: 'Chyba: K\u00e1men {pair} u\u017e na plo\u0161e le\u017e\u00ed v\u00edcekr\u00e1t!',
@@ -1231,6 +1430,17 @@
           statusUnlock20: 'Odem\u010den bonus za 20 v\u00fdher: Dominov\u00e9 te\u010dky!',
           statusUnlock30: 'Odem\u010den bonus za 30 v\u00fdher: Kr\u00e1lovsk\u00e1 zlat\u00e1 edice!',
           statusStatsReset: 'Statistika v\u00fdher byla vynulov\u00e1na.',
+          endBadgeMaster: 'MISTROVSK\u00c1 SADA 1\u20136',
+          endTitleMaster: 'Mistrovsk\u00fd v\u00fdkon!',
+          endDescMaster: 'Dokon\u010dil jsi kompletn\u00ed mistrovskou sadu 21 kamen\u016f domina do posledn\u00edho kusu.',
+          endBadgeStandard: 'SADA 1\u2013{max} DOKON\u010cENA',
+          endTitleStandard: 'Konec kola \u2013 v\u00fdhra!',
+          endDescStandard: 'V\u0161ech {total} kamen\u016f domina v sad\u011b 1\u2013{max} je spr\u00e1vn\u011b spojen\u00fdch.',
+          endStatBoard: 'Nalezeno kamen\u016f',
+          endStatMasterWins: 'Mistrovsk\u00e9 v\u00fdhry',
+          endStatSetWins: 'V\u00fdhry v sad\u011b 1\u2013{max}',
+          endBtnView: 'Plocha',
+          endBtnAgain: 'Hr\u00e1t znovu',
           setTitle: 'Nastaven\u00ed hry',
           setLangLabel: 'Jazyk / Language',
           setDiffLabel: 'Velikost sady (Obt\u00ed\u017enost)',
@@ -1285,6 +1495,7 @@
           newGame: 'New Game',
           statusStart: 'Tap an edge to draw a border, swipe across two cells to link.',
           statusResume: 'Continuing saved game.',
+          statusFinishedLocked: 'Game completed. Start a new game.',
           statusAutoFormed: 'Surrounded pair automatically locked into a domino!',
           statusHintEdge: 'Hint revealed one border edge.',
           statusHintErrDup: 'Mistake: Domino {pair} is placed more than once!',
@@ -1300,6 +1511,17 @@
           statusUnlock20: '20-Win Bonus Unlocked: Domino Pips!',
           statusUnlock30: '30-Win Bonus Unlocked: Royal Gold Edition!',
           statusStatsReset: 'Win statistics have been reset.',
+          endBadgeMaster: 'MASTER SET 1\u20136',
+          endTitleMaster: 'Master Performance!',
+          endDescMaster: 'You partitioned the entire grid into all 21 unique dominoes.',
+          endBadgeStandard: 'SET 1\u2013{max} COMPLETED',
+          endTitleStandard: 'Round Complete!',
+          endDescStandard: 'All {total} unique dominoes in set 1\u2013{max} are locked in.',
+          endStatBoard: 'Dominoes Found',
+          endStatMasterWins: 'Master Wins',
+          endStatSetWins: 'Set 1\u2013{max} Wins',
+          endBtnView: 'View Board',
+          endBtnAgain: 'Play Again',
           setTitle: 'Game Settings',
           setLangLabel: 'Jazyk / Language',
           setDiffLabel: 'Set Size (Difficulty)',
@@ -1363,7 +1585,7 @@
         walls: {},
         dominoes: [],
         history: [],
-        won: false
+        isGameOver: false
       };
 
       let transientErrors = {
@@ -1497,6 +1719,12 @@
             if (!state.wins || typeof state.wins !== 'object') {
               state.wins = { 4: 0, 5: 0, 6: Number(parsed.masterWins) || 0 };
             }
+            if (typeof parsed.won === 'boolean' && typeof parsed.isGameOver !== 'boolean') {
+              state.isGameOver = parsed.won;
+            }
+            if (state.isGameOver) {
+              state.history = [];
+            }
             sanitizeUnlocks();
             return true;
           }
@@ -1504,7 +1732,111 @@
         return false;
       }
 
+      function clearConfetti() {
+        const layer = document.getElementById('confetti-layer');
+        if (layer) layer.innerHTML = '';
+      }
+
+      function launchConfetti() {
+        const layer = document.getElementById('confetti-layer');
+        if (!layer) return;
+        clearConfetti();
+
+        const colors = ['#fde047', '#f59e0b', '#fbbf24', '#f472b6', '#38bdf8', '#34d399'];
+        const count = 44;
+        for (let i = 0; i < count; i++) {
+          const piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          const left = Math.random() * 100;
+          const delay = Math.random() * 0.65;
+          const duration = 2.1 + Math.random() * 1.4;
+          const color = colors[i % colors.length];
+          const symVal = (i % 6) + 1;
+
+          piece.style.left = `${left}%`;
+          piece.style.color = color;
+          piece.style.animationDelay = `${delay}s`;
+          piece.style.animationDuration = `${duration}s`;
+          piece.innerHTML = createSymbolSVG(symVal, 18);
+          layer.appendChild(piece);
+        }
+      }
+
+      function showEndModal({ isMaster, unlockText }) {
+        const t = I18N[state.lang];
+        const totalDominoes = (state.rows * state.cols) / 2;
+        const setWins = Number(state.wins[state.maxPip]) || 0;
+
+        const badgeText = isMaster
+          ? `\uD83D\uDC51 ${t.endBadgeMaster}`
+          : t.endBadgeStandard.replace('{max}', state.maxPip);
+        const titleText = isMaster ? t.endTitleMaster : t.endTitleStandard;
+        const descText = isMaster
+          ? t.endDescMaster
+          : t.endDescStandard.replace('{total}', totalDominoes).replace('{max}', state.maxPip);
+        const statWinsLabel = isMaster
+          ? t.endStatMasterWins
+          : t.endStatSetWins.replace('{max}', state.maxPip);
+
+        const logoAccent = isMaster ? '#fbbf24' : 'var(--accent)';
+        const logoInner = isMaster ? '#0f172a' : 'var(--card)';
+
+        const unlockHTML = unlockText
+          ? `<div class="end-unlock-banner">\u2728 ${unlockText}</div>`
+          : '';
+
+        const container = document.getElementById('end-modal-content');
+        container.innerHTML = `
+          <div class="end-logo-frame ${isMaster ? 'perfect' : ''}">
+            <svg width="38" height="38" viewBox="0 0 64 64" fill="none">
+              <rect x="5" y="13" width="54" height="38" rx="10" fill="${logoAccent}"/>
+              <rect x="8.5" y="16.5" width="47" height="31" rx="7" fill="${logoInner}"/>
+              <line x1="32" y1="19" x2="32" y2="45" stroke="${logoAccent}" stroke-width="2.6" stroke-linecap="round"/>
+              <circle cx="16.5" cy="24.5" r="2.7" fill="${logoAccent}"/>
+              <circle cx="23.5" cy="39.5" r="2.7" fill="${logoAccent}"/>
+              <circle cx="40.5" cy="24.5" r="2.7" fill="${logoAccent}"/>
+              <circle cx="44" cy="32" r="2.7" fill="${logoAccent}"/>
+              <circle cx="47.5" cy="39.5" r="2.7" fill="${logoAccent}"/>
+            </svg>
+          </div>
+          <div class="end-badge ${isMaster ? 'perfect' : ''}">${badgeText}</div>
+          <h2 class="end-title">${titleText}</h2>
+          <p class="end-desc">${descText}</p>
+          ${unlockHTML}
+          <div class="end-stats-card">
+            <div class="end-stat-item">
+              <span class="end-stat-label">${t.endStatBoard}</span>
+              <span class="end-stat-val">${totalDominoes}/${totalDominoes}</span>
+            </div>
+            <div class="end-stat-item">
+              <span class="end-stat-label">${statWinsLabel}</span>
+              <span class="end-stat-val ${isMaster ? 'gold' : ''}">${setWins}</span>
+            </div>
+          </div>
+          <div class="end-actions">
+            <button class="btn-modal-sec" id="btn-end-view">${t.endBtnView}</button>
+            <button class="btn-modal-prim" id="btn-end-again">${t.endBtnAgain}</button>
+          </div>
+        `;
+
+        document.getElementById('btn-end-view').addEventListener('click', () => {
+          document.getElementById('modal-end').classList.remove('open');
+        });
+
+        document.getElementById('btn-end-again').addEventListener('click', () => {
+          startNewGame(state.maxPip);
+        });
+
+        document.getElementById('modal-end').classList.add('open');
+        if (isMaster) {
+          launchConfetti();
+        }
+      }
+
       function startNewGame(maxPip = state.maxPip) {
+        clearConfetti();
+        document.getElementById('modal-end').classList.remove('open');
+
         const puzzle = generatePuzzle(maxPip);
         state.maxPip = maxPip;
         state.rows = puzzle.rows;
@@ -1514,7 +1846,7 @@
         state.walls = {};
         state.dominoes = [];
         state.history = [];
-        state.won = false;
+        state.isGameOver = false;
         transientErrors = {
           cells: new Set(),
           edges: new Set(),
@@ -1526,7 +1858,8 @@
       }
 
       function simulateBatchWinForTesting() {
-        if (state.won) {
+        document.getElementById('modal-settings').classList.remove('open');
+        if (state.isGameOver) {
           startNewGame(state.maxPip);
         }
         const solEdgeSet = new Set(state.solution.map(s => edgeKey(s.r1, s.c1, s.r2, s.c2)));
@@ -1545,7 +1878,7 @@
         }
         state.dominoes = state.solution.map(s => ({ ...s }));
         state.wins[state.maxPip] = (Number(state.wins[state.maxPip]) || 0) + 4;
-        evaluateBoard(false);
+        evaluateBoard(false, true);
         saveGame();
         renderAll();
       }
@@ -1562,7 +1895,7 @@
       }
 
       function pushHistory() {
-        if (state.won) return;
+        if (state.isGameOver) return;
         state.history.push({
           walls: { ...state.walls },
           dominoes: state.dominoes.map(d => ({ ...d }))
@@ -1571,7 +1904,7 @@
       }
 
       function undoMove() {
-        if (state.won || state.history.length === 0) return;
+        if (state.isGameOver || state.history.length === 0) return;
         const prev = state.history.pop();
         state.walls = prev.walls;
         state.dominoes = prev.dominoes;
@@ -1610,7 +1943,7 @@
       }
 
       function linkDomino(r1, c1, r2, c2, recordHistory = true) {
-        if (state.won) return;
+        if (state.isGameOver) return;
         if (Math.abs(r1 - r2) + Math.abs(c1 - c2) !== 1) return;
 
         const existingIdx = state.dominoes.findIndex(
@@ -1622,7 +1955,7 @@
 
         if (existingIdx !== -1) {
           removeDominoAndOuterWalls(existingIdx);
-          evaluateBoard();
+          evaluateBoard(false, true);
           saveGame();
           renderAll();
           return;
@@ -1646,13 +1979,13 @@
         }
 
         runAutoEncloseLoop();
-        evaluateBoard();
+        evaluateBoard(false, true);
         saveGame();
         renderAll();
       }
 
       function toggleEdge(r1, c1, r2, c2) {
-        if (state.won) return;
+        if (state.isGameOver) return;
         const k = edgeKey(r1, c1, r2, c2);
         pushHistory();
 
@@ -1668,7 +2001,7 @@
         }
 
         const autoFormed = runAutoEncloseLoop();
-        evaluateBoard(autoFormed);
+        evaluateBoard(autoFormed, true);
         saveGame();
         renderAll();
       }
@@ -1709,7 +2042,7 @@
         return formedAny;
       }
 
-      function evaluateBoard(autoFormed = false) {
+      function evaluateBoard(autoFormed = false, triggerWinCelebration = false) {
         const t = I18N[state.lang];
         transientErrors.cells.clear();
         transientErrors.edges.clear();
@@ -1760,36 +2093,52 @@
           return;
         }
 
+        // Vyhodnoceni kompletniho dokonceni partie
         if (state.dominoes.length === totalDominoes && Object.keys(counts).length === totalDominoes) {
-          state.won = true;
+          const wasAlreadyOver = state.isGameOver;
+          state.isGameOver = true;
           state.history = [];
           transientErrors.type = 'success';
 
-          const prevMaster = getMasterWins();
-          state.wins[state.maxPip] = (Number(state.wins[state.maxPip]) || 0) + 1;
+          let unlockText = null;
+          if (!wasAlreadyOver && triggerWinCelebration) {
+            const prevMaster = getMasterWins();
+            state.wins[state.maxPip] = (Number(state.wins[state.maxPip]) || 0) + 1;
 
-          if (state.maxPip === 6) {
-            const mw = getMasterWins();
-            if (prevMaster < MILESTONE_EMERALD && mw >= MILESTONE_EMERALD) {
-              state.theme = 'emerald';
-              transientErrors.message = t.statusUnlock5;
-            } else if (prevMaster < MILESTONE_TOUR && mw >= MILESTONE_TOUR) {
-              state.theme = 'tournament';
-              transientErrors.message = t.statusUnlock10;
-            } else if (prevMaster < MILESTONE_SYMBOLS && mw >= MILESTONE_SYMBOLS) {
-              state.displayMode = 'symbols';
-              transientErrors.message = t.statusUnlock15;
-            } else if (prevMaster < MILESTONE_PIPS && mw >= MILESTONE_PIPS) {
-              state.displayMode = 'pips';
-              transientErrors.message = t.statusUnlock20;
-            } else if (prevMaster < MILESTONE_ROYAL && mw >= MILESTONE_ROYAL) {
-              state.theme = 'royal';
-              transientErrors.message = t.statusUnlock30;
-            } else {
-              transientErrors.message = t.statusWinMaster;
+            if (state.maxPip === 6) {
+              const mw = getMasterWins();
+              if (prevMaster < MILESTONE_EMERALD && mw >= MILESTONE_EMERALD) {
+                state.theme = 'emerald';
+                unlockText = t.statusUnlock5;
+              } else if (prevMaster < MILESTONE_TOUR && mw >= MILESTONE_TOUR) {
+                state.theme = 'tournament';
+                unlockText = t.statusUnlock10;
+              } else if (prevMaster < MILESTONE_SYMBOLS && mw >= MILESTONE_SYMBOLS) {
+                state.displayMode = 'symbols';
+                unlockText = t.statusUnlock15;
+              } else if (prevMaster < MILESTONE_PIPS && mw >= MILESTONE_PIPS) {
+                state.displayMode = 'pips';
+                unlockText = t.statusUnlock20;
+              } else if (prevMaster < MILESTONE_ROYAL && mw >= MILESTONE_ROYAL) {
+                state.theme = 'royal';
+                unlockText = t.statusUnlock30;
+              }
             }
+          }
+
+          if (unlockText) {
+            transientErrors.message = unlockText;
+          } else if (state.maxPip === 6) {
+            transientErrors.message = t.statusWinMaster;
           } else {
             transientErrors.message = t.statusWinTrain.replace('{max}', state.maxPip);
+          }
+
+          if (triggerWinCelebration) {
+            showEndModal({
+              isMaster: state.maxPip === 6,
+              unlockText
+            });
           }
           return;
         }
@@ -1801,7 +2150,7 @@
       }
 
       function useHint() {
-        if (state.won) return;
+        if (state.isGameOver) return;
         const t = I18N[state.lang];
         transientErrors.cells.clear();
         transientErrors.edges.clear();
@@ -1869,8 +2218,8 @@
           const chosen = candidateEdges[Math.floor(Math.random() * candidateEdges.length)];
           state.walls[chosen] = 'hint';
           const autoFormed = runAutoEncloseLoop();
-          evaluateBoard(autoFormed);
-          if (!state.won && !autoFormed) {
+          evaluateBoard(autoFormed, true);
+          if (!state.isGameOver && !autoFormed) {
             transientErrors.message = t.statusHintEdge;
             transientErrors.type = 'success';
           }
@@ -1972,13 +2321,17 @@
 
         document.getElementById('wins-count').textContent = getTotalWins();
         document.getElementById('deck-counter').textContent = `${state.dominoes.length}/${totalDominoes}`;
-        document.getElementById('btn-undo').disabled = state.won || state.history.length === 0;
+
+        // Stavove uzamceni ovladacich prvku pri isGameOver
+        document.getElementById('btn-undo').disabled = state.isGameOver || state.history.length === 0;
+        document.getElementById('btn-hint').disabled = state.isGameOver;
+        document.getElementById('board-wrapper').classList.toggle('locked', state.isGameOver);
 
         const sb = document.getElementById('status-bar');
         sb.classList.remove('is-error', 'is-success');
         if (transientErrors.type === 'error') sb.classList.add('is-error');
         if (transientErrors.type === 'success') sb.classList.add('is-success');
-        sb.textContent = transientErrors.message || t.statusStart;
+        sb.textContent = transientErrors.message || (state.isGameOver ? t.statusFinishedLocked : t.statusStart);
 
         const boardGrid = document.getElementById('board-grid');
         boardGrid.style.setProperty('--cols', state.cols);
@@ -2168,11 +2521,12 @@
         document.getElementById('tile-pips').classList.toggle('active', state.displayMode === 'pips');
       }
 
-      function setupPointerInteractions() {
+    function setupPointerInteractions() {
         const wrapper = document.getElementById('board-wrapper');
         let startCell = null;
         let swiped = false;
         let activePointerId = null;
+        let lastPointerTime = 0;
 
         function getCellFromPoint(clientX, clientY) {
           const rect = wrapper.getBoundingClientRect();
@@ -2192,16 +2546,39 @@
           if (el) el.classList.add('swipe-active');
         }
 
+        function resetPointerState() {
+          highlightSwipeCell(null);
+          if (activePointerId !== null && wrapper.hasPointerCapture && wrapper.hasPointerCapture(activePointerId)) {
+            try { wrapper.releasePointerCapture(activePointerId); } catch (err) {}
+          }
+          activePointerId = null;
+          startCell = null;
+          swiped = false;
+        }
+
         wrapper.addEventListener('pointerdown', (e) => {
+          if (state.isGameOver) return;
+          const now = Date.now();
+          // Pojistka: pokud predchozi dotyk "visel" dele nez 1.2 s (napr. po systemovem gestu Androidu), uvolnime ho
+          if (activePointerId !== null && (now - lastPointerTime > 1200)) {
+            resetPointerState();
+          }
           if (activePointerId !== null) return;
+
           activePointerId = e.pointerId;
+          lastPointerTime = now;
           swiped = false;
           startCell = getCellFromPoint(e.clientX, e.clientY);
           highlightSwipeCell(startCell);
+
+          if (wrapper.setPointerCapture) {
+            try { wrapper.setPointerCapture(e.pointerId); } catch (err) {}
+          }
         });
 
         wrapper.addEventListener('pointermove', (e) => {
-          if (e.pointerId !== activePointerId || !startCell || swiped) return;
+          if (state.isGameOver || e.pointerId !== activePointerId || !startCell || swiped) return;
+          lastPointerTime = Date.now();
           const curr = getCellFromPoint(e.clientX, e.clientY);
           if (!curr) return;
 
@@ -2215,10 +2592,13 @@
 
         wrapper.addEventListener('pointerup', (e) => {
           if (e.pointerId !== activePointerId) return;
-          highlightSwipeCell(null);
+          const wasSwiped = swiped;
+          resetPointerState();
 
-          if (!swiped) {
-            const targetEdge = e.target.closest('.edge-hit');
+          if (!state.isGameOver && !wasSwiped) {
+            // Pri setPointerCapture ukazuje e.target na wrapper, proto hledame hranu pres elementFromPoint
+            const elUnderFinger = document.elementFromPoint(e.clientX, e.clientY);
+            const targetEdge = elUnderFinger ? elUnderFinger.closest('.edge-hit') : e.target.closest('.edge-hit');
             if (targetEdge) {
               const r1 = Number(targetEdge.dataset.r1);
               const c1 = Number(targetEdge.dataset.c1);
@@ -2227,20 +2607,16 @@
               toggleEdge(r1, c1, r2, c2);
             }
           }
-
-          activePointerId = null;
-          startCell = null;
-          swiped = false;
         });
 
-        wrapper.addEventListener('pointercancel', () => {
-          highlightSwipeCell(null);
-          activePointerId = null;
-          startCell = null;
-          swiped = false;
+        wrapper.addEventListener('pointercancel', resetPointerState);
+        wrapper.addEventListener('lostpointercapture', resetPointerState);
+        window.addEventListener('blur', resetPointerState);
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) resetPointerState();
         });
       }
-
+      
       function setupUI() {
         document.getElementById('btn-undo').addEventListener('click', undoMove);
         document.getElementById('btn-hint').addEventListener('click', useHint);
@@ -2367,8 +2743,11 @@
       if (!loadGame()) {
         startNewGame(6);
       } else {
-        evaluateBoard(false);
-        if (!state.won && !transientErrors.message) {
+        evaluateBoard(false, false);
+        if (state.isGameOver) {
+          transientErrors.message = I18N[state.lang].statusFinishedLocked;
+          transientErrors.type = 'success';
+        } else if (!transientErrors.message) {
           transientErrors.message = I18N[state.lang].statusResume;
         }
         renderAll();
