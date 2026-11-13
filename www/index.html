@@ -19,6 +19,9 @@
       --status-bg: #e8f0fe;
       --status-text: #1d4ed8;
       --status-border: #d2e3fc;
+      --trial-bg: #fffbeb;
+      --trial-border: #f59e0b;
+      --trial-text: #b45309;
       --wall: #0f172a;
       --wall-hint: #d97706;
       --domino-bg: #eff6ff;
@@ -48,6 +51,9 @@
       --status-bg: rgba(251, 191, 36, 0.14);
       --status-text: #fef08a;
       --status-border: rgba(251, 191, 36, 0.35);
+      --trial-bg: rgba(56, 189, 248, 0.16);
+      --trial-border: #38bdf8;
+      --trial-text: #bae6fd;
       --wall: #fef3c7;
       --wall-hint: #38bdf8;
       --domino-bg: #fefce8;
@@ -87,6 +93,9 @@
       --status-bg: rgba(245, 158, 11, 0.14);
       --status-text: #fde68a;
       --status-border: rgba(251, 191, 36, 0.4);
+      --trial-bg: rgba(56, 189, 248, 0.16);
+      --trial-border: #38bdf8;
+      --trial-text: #bae6fd;
       --wall: #fbbf24;
       --wall-hint: #f8fafc;
       --domino-bg: rgba(245, 158, 11, 0.12);
@@ -220,6 +229,7 @@
       transform: scale(0.94);
     }
 
+    /* STAVOVY RADEK S OVLADANIM ZKUSEBNI VETVE (TUZKY) */
     .status-bar {
       background: var(--status-bg);
       border: 1px solid var(--status-border);
@@ -229,18 +239,35 @@
       max-height: 46px;
       flex-shrink: 0;
       overflow: hidden;
-      padding: 0 12px;
+      padding: 0 8px 0 11px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 13px;
-      line-height: 1.25;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12.5px;
+      line-height: 1.22;
       font-weight: 500;
       color: var(--status-text);
       width: 100%;
       min-width: 0;
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .status-text {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .status-bar.is-trial {
+      background: var(--trial-bg);
+      border-color: var(--trial-border);
+      color: var(--trial-text);
+      font-weight: 600;
     }
 
     .status-bar.is-error {
@@ -255,6 +282,50 @@
       border-color: var(--success-border);
       color: var(--success-text);
       font-weight: 600;
+    }
+
+    .trial-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .trial-btn {
+      border: 1px solid currentColor;
+      background: rgba(255, 255, 255, 0.45);
+      color: inherit;
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+      transition: transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    body.theme-royal .trial-btn,
+    body.theme-emerald .trial-btn {
+      background: rgba(15, 23, 42, 0.45);
+    }
+
+    .trial-btn:active {
+      transform: scale(0.94);
+    }
+
+    .trial-btn.accept {
+      background: #16a34a;
+      border-color: #15803d;
+      color: #ffffff;
+    }
+
+    .trial-btn.discard {
+      background: #dc2626;
+      border-color: #b91c1c;
+      color: #ffffff;
     }
 
     .board-card {
@@ -359,9 +430,13 @@
 
     .cell.in-domino-h { background: var(--domino-bg); }
     .cell.in-domino-v { background: var(--domino-bg-v); }
+    .cell.in-trial {
+      opacity: 0.86;
+    }
     .cell.is-error {
       background: var(--error-bg) !important;
       color: var(--error-text) !important;
+      opacity: 1 !important;
     }
     .cell.swipe-active {
       background: var(--status-bg);
@@ -387,9 +462,18 @@
       border-color: var(--domino-border-v);
     }
 
+    /* Pokusny kamen v rezimu zkousky (tuzka = carkovany obrys) */
+    .domino-pill.is-trial {
+      border-style: dashed;
+      border-width: 2px;
+      opacity: 0.88;
+    }
+
     .domino-pill.is-error {
       border-color: var(--error-border) !important;
+      border-style: solid !important;
       box-shadow: 0 0 0 1px var(--error-border);
+      opacity: 1 !important;
     }
 
     .domino-pill::after {
@@ -471,6 +555,27 @@
 
     .edge-hit.active .edge-line {
       background: var(--wall);
+    }
+
+    /* Pokusna okrajova cara v rezimu zkousky (tuzka = prerusovana cara) */
+    .edge-hit.trial-edge.v-edge .edge-line {
+      background: repeating-linear-gradient(
+        to bottom,
+        var(--trial-border) 0px,
+        var(--trial-border) 5px,
+        transparent 5px,
+        transparent 9px
+      );
+    }
+
+    .edge-hit.trial-edge.h-edge .edge-line {
+      background: repeating-linear-gradient(
+        to right,
+        var(--trial-border) 0px,
+        var(--trial-border) 5px,
+        transparent 5px,
+        transparent 9px
+      );
     }
 
     .edge-hit.hinted .edge-line {
@@ -557,6 +662,11 @@
       border-color: transparent;
       text-decoration: line-through;
       opacity: 0.6;
+    }
+
+    .tray-item.used.trial-used {
+      border: 1px dashed var(--trial-border);
+      opacity: 0.78;
     }
 
     .tray-item.duplicate {
@@ -660,7 +770,7 @@
       cursor: pointer;
     }
 
-    /* MODÁLNÍ OKNO KONCE HRY (VE STYLU DIFFEQUA) */
+    /* MODÁLNÍ OKNO KONCE HRY */
     .end-modal-inner {
       display: flex;
       flex-direction: column;
@@ -817,7 +927,6 @@
       color: #0f172a;
     }
 
-    /* VRSTVA PADÁJÍCÍCH KONFET / SYMBOLŮ */
     .confetti-layer {
       position: fixed;
       inset: 0;
@@ -1162,7 +1271,6 @@
     </div>
   </div>
 
-  <!-- Vrstva konfet pri vyhre -->
   <div class="confetti-layer" id="confetti-layer"></div>
 
   <svg width="0" height="0" style="position:absolute;pointer-events:none;" aria-hidden="true">
@@ -1228,7 +1336,11 @@
       </div>
     </header>
 
-    <div class="status-bar" id="status-bar"></div>
+    <!-- STAVOVY RADEK S TLACITKEM REZIMU ZKOUSKY (TUZKA) -->
+    <div class="status-bar" id="status-bar">
+      <div class="status-text" id="status-text"></div>
+      <div class="trial-actions" id="trial-actions"></div>
+    </div>
 
     <main class="board-card">
       <div class="board-wrapper" id="board-wrapper">
@@ -1250,7 +1362,7 @@
     </footer>
   </div>
 
-  <!-- MODALNI OKNO KONCE HRY (SHOWENDMODAL) -->
+  <!-- MODALNI OKNO KONCE HRY -->
   <div class="modal-backdrop" id="modal-end">
     <div class="modal">
       <div class="end-modal-inner" id="end-modal-content"></div>
@@ -1392,7 +1504,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'homino_save_v6';
+      const STORAGE_KEY = 'homino_save_v7';
 
       const MILESTONE_EMERALD = 5;
       const MILESTONE_TOUR = 10;
@@ -1412,6 +1524,12 @@
           rules: 'N\u00e1vod',
           hint: 'N\u00e1pov\u011bda',
           newGame: 'Nov\u00e1 hra',
+          trialStartBtn: '\u270e Zkusit',
+          trialAcceptBtn: '\u2713 Potvrdit',
+          trialDiscardBtn: '\u2715 Zahodit',
+          statusTrialActive: 'Re\u017eim zkou\u0161ky: pokusn\u00e9 tahy jsou \u010d\u00e1rkovan\u00e9.',
+          statusTrialAccepted: 'Pokusn\u00e9 tahy potvrzeny jako jist\u00e9.',
+          statusTrialDiscarded: 'Pokus zahozen, n\u00e1vrat na rozcest\u00ed.',
           statusStart: 'Klepnut\u00edm ozna\u010d okraj, p\u0159ejet\u00edm spoj domino.',
           statusResume: 'Pokra\u010duje\u0161 v rozehran\u00e9 h\u0159e.',
           statusFinishedLocked: 'Partie je dokon\u010dena. Spus\u0165 novou hru.',
@@ -1466,11 +1584,12 @@
           rulesHTML: `
             <h2 class="modal-title-center">Jak hr\u00e1t Homino</h2>
             <p class="rules-intro">C\u00edlem hry je rozd\u011blit m\u0159\u00ed\u017eku na kompletn\u00ed sadu <strong>unik\u00e1tn\u00edch kamen\u016f domina</strong> (nap\u0159. 21 kamen\u016f od 1\u20131 a\u017e po 6\u20136).</p>
-            <p class="rules-intro"><strong>Ovl\u00e1d\u00e1n\u00ed m\u00e1 3 jednoduch\u00e9 prvky:</strong></p>
+            <p class="rules-intro"><strong>Ovl\u00e1d\u00e1n\u00ed a n\u00e1stroje:</strong></p>
             <div class="rules-box-gray">
               <ul>
                 <li><strong>Klepnut\u00ed na hranu:</strong> nakresl\u00ed nebo sma\u017ee okrajovou \u010d\u00e1ru mezi dv\u011bma pol\u00ed\u010dky.</li>
-                <li><strong>Pota\u017een\u00ed prstem (swipe):</strong> p\u0159eje\u010f z jednoho pol\u00ed\u010dka na sousedn\u00ed pro okam\u017eit\u00e9 spojen\u00ed (nebo \u00fapln\u00e9 zru\u0161en\u00ed) domina.</li>
+                <li><strong>Pota\u017een\u00ed prstem (swipe):</strong> p\u0159eje\u010f z jednoho pol\u00ed\u010dka na sousedn\u00ed pro okam\u017eit\u00e9 spojen\u00ed (nebo zru\u0161en\u00ed) domina.</li>
+                <li><strong>Re\u017eim zkou\u0161ky (\u270e Zkusit):</strong> na rozcest\u00ed ulo\u017e\u00ed jist\u00fd stav; dal\u0161\u00ed tahy jsou \u010d\u00e1rkovan\u00e9 a lze je jedním klepnut\u00edm <strong>potvrdit</strong> nebo <strong>zahodit</strong>.</li>
                 <li><strong>N\u00e1pov\u011bda:</strong> nejprve upozorn\u00ed na chybu; jinak dopln\u00ed jeden spr\u00e1vn\u00fd okraj.</li>
               </ul>
             </div>
@@ -1493,6 +1612,12 @@
           rules: 'Rules',
           hint: 'Hint',
           newGame: 'New Game',
+          trialStartBtn: '\u270e Try',
+          trialAcceptBtn: '\u2713 Keep',
+          trialDiscardBtn: '\u2715 Drop',
+          statusTrialActive: 'Trial mode: tentative moves are dashed.',
+          statusTrialAccepted: 'Tentative moves confirmed.',
+          statusTrialDiscarded: 'Trial dropped, returned to checkpoint.',
           statusStart: 'Tap an edge to draw a border, swipe across two cells to link.',
           statusResume: 'Continuing saved game.',
           statusFinishedLocked: 'Game completed. Start a new game.',
@@ -1547,11 +1672,12 @@
           rulesHTML: `
             <h2 class="modal-title-center">How to Play Homino</h2>
             <p class="rules-intro">Partition the grid into a complete set of <strong>unique dominoes</strong> (e.g. 21 dominoes from 1\u20131 to 6\u20136).</p>
-            <p class="rules-intro"><strong>Controls have 3 simple actions:</strong></p>
+            <p class="rules-intro"><strong>Controls & Tools:</strong></p>
             <div class="rules-box-gray">
               <ul>
                 <li><strong>Tap an edge:</strong> draws or removes a border line between two cells.</li>
-                <li><strong>Swipe across cells:</strong> drag from one cell to an adjacent cell to link (or completely unlink) a domino.</li>
+                <li><strong>Swipe across cells:</strong> drag from one cell to an adjacent cell to link (or unlink) a domino.</li>
+                <li><strong>Trial mode (\u270e Try):</strong> saves a checkpoint; subsequent moves appear dashed and can be <strong>kept</strong> or <strong>dropped</strong> in one tap.</li>
                 <li><strong>Hint:</strong> highlights any mistake first; otherwise reveals one true border edge.</li>
               </ul>
             </div>
@@ -1582,8 +1708,9 @@
         cols: 6,
         grid: [],
         solution: [],
-        walls: {},
-        dominoes: [],
+        walls: {},        // klic => 'user' | 'hint' | 'trial'
+        dominoes: [],     // { r1, c1, r2, c2, trial?: boolean }
+        checkpoint: null, // { walls, dominoes } pri aktivnim rezimu zkousky
         history: [],
         isGameOver: false
       };
@@ -1724,12 +1851,62 @@
             }
             if (state.isGameOver) {
               state.history = [];
+              state.checkpoint = null;
             }
             sanitizeUnlocks();
             return true;
           }
         } catch (e) {}
         return false;
+      }
+
+      // REZIM ZKOUSKY (TUZKA): spustit / potvrdit / zahodit
+      function startTrialMode() {
+        if (state.isGameOver || state.checkpoint) return;
+        pushHistory();
+        state.checkpoint = {
+          walls: { ...state.walls },
+          dominoes: state.dominoes.map(d => ({ ...d }))
+        };
+        transientErrors.message = I18N[state.lang].statusTrialActive;
+        transientErrors.type = 'normal';
+        saveGame();
+        renderAll();
+      }
+
+      function acceptTrialMode(silent = false) {
+        if (!state.checkpoint) return;
+        if (!silent) pushHistory();
+        // Vsechny pokusne kameny a steny se stanou jistymi
+        state.dominoes = state.dominoes.map(d => ({ r1: d.r1, c1: d.c1, r2: d.r2, c2: d.c2, trial: false }));
+        for (const k of Object.keys(state.walls)) {
+          if (state.walls[k] === 'trial') {
+            state.walls[k] = 'user';
+          }
+        }
+        state.checkpoint = null;
+        if (!silent) {
+          evaluateBoard(false, true);
+          if (!state.isGameOver && !transientErrors.message) {
+            transientErrors.message = I18N[state.lang].statusTrialAccepted;
+            transientErrors.type = 'success';
+          }
+          saveGame();
+          renderAll();
+        }
+      }
+
+      function discardTrialMode() {
+        if (!state.checkpoint) return;
+        pushHistory();
+        state.walls = { ...state.checkpoint.walls };
+        state.dominoes = state.checkpoint.dominoes.map(d => ({ ...d }));
+        state.checkpoint = null;
+        evaluateBoard(false, false);
+        transientErrors.message = I18N[state.lang].statusTrialDiscarded;
+        transientErrors.type = 'normal';
+        saveGame();
+        renderAll();
       }
 
       function clearConfetti() {
@@ -1845,6 +2022,7 @@
         state.solution = puzzle.solution;
         state.walls = {};
         state.dominoes = [];
+        state.checkpoint = null;
         state.history = [];
         state.isGameOver = false;
         transientErrors = {
@@ -1862,6 +2040,7 @@
         if (state.isGameOver) {
           startNewGame(state.maxPip);
         }
+        state.checkpoint = null;
         const solEdgeSet = new Set(state.solution.map(s => edgeKey(s.r1, s.c1, s.r2, s.c2)));
         state.walls = {};
         for (let r = 0; r < state.rows; r++) {
@@ -1876,7 +2055,7 @@
             }
           }
         }
-        state.dominoes = state.solution.map(s => ({ ...s }));
+        state.dominoes = state.solution.map(s => ({ ...s, trial: false }));
         state.wins[state.maxPip] = (Number(state.wins[state.maxPip]) || 0) + 4;
         evaluateBoard(false, true);
         saveGame();
@@ -1898,7 +2077,11 @@
         if (state.isGameOver) return;
         state.history.push({
           walls: { ...state.walls },
-          dominoes: state.dominoes.map(d => ({ ...d }))
+          dominoes: state.dominoes.map(d => ({ ...d })),
+          checkpoint: state.checkpoint ? {
+            walls: { ...state.checkpoint.walls },
+            dominoes: state.checkpoint.dominoes.map(d => ({ ...d }))
+          } : null
         });
         if (state.history.length > 120) state.history.shift();
       }
@@ -1908,6 +2091,7 @@
         const prev = state.history.pop();
         state.walls = prev.walls;
         state.dominoes = prev.dominoes;
+        state.checkpoint = prev.checkpoint || null;
         transientErrors.cells.clear();
         transientErrors.edges.clear();
         transientErrors.message = null;
@@ -1935,7 +2119,7 @@
             if ((nr === d.r1 && nc === d.c1) || (nr === d.r2 && nc === d.c2)) continue;
             if (findDominoAt(nr, nc) !== -1) continue;
             const k = edgeKey(cr, cc, nr, nc);
-            if (state.walls[k] === 'user') {
+            if (state.walls[k] === 'user' || state.walls[k] === 'trial') {
               delete state.walls[k];
             }
           }
@@ -1966,15 +2150,16 @@
         const idx2 = findDominoAt(r2, c2);
         if (idx2 !== -1) removeDominoAndOuterWalls(idx2);
 
+        const isTrial = Boolean(state.checkpoint);
         delete state.walls[edgeKey(r1, c1, r2, c2)];
-        state.dominoes.push({ r1, c1, r2, c2 });
+        state.dominoes.push({ r1, c1, r2, c2, trial: isTrial });
 
         const cells = [[r1, c1], [r2, c2]];
         for (const [cr, cc] of cells) {
           for (const [nr, nc] of getNeighbors(cr, cc)) {
             if ((nr === r1 && nc === c1) || (nr === r2 && nc === c2)) continue;
             const k = edgeKey(cr, cc, nr, nc);
-            if (!state.walls[k]) state.walls[k] = 'user';
+            if (!state.walls[k]) state.walls[k] = isTrial ? 'trial' : 'user';
           }
         }
 
@@ -1992,7 +2177,7 @@
         if (state.walls[k]) {
           delete state.walls[k];
         } else {
-          state.walls[k] = 'user';
+          state.walls[k] = state.checkpoint ? 'trial' : 'user';
           const dIdx = state.dominoes.findIndex(
             d => (d.r1 === r1 && d.c1 === c1 && d.r2 === r2 && d.c2 === c2) ||
                  (d.r1 === r2 && d.c1 === c2 && d.r2 === r1 && d.c2 === c1)
@@ -2009,6 +2194,7 @@
       function runAutoEncloseLoop() {
         let formedAny = false;
         let changed = true;
+        const isTrial = Boolean(state.checkpoint);
 
         while (changed) {
           changed = false;
@@ -2031,7 +2217,7 @@
                 });
 
                 if (backNeighbors.length === 1 && backNeighbors[0][0] === r && backNeighbors[0][1] === c) {
-                  state.dominoes.push({ r1: r, c1: c, r2: nr, c2: nc });
+                  state.dominoes.push({ r1: r, c1: c, r2: nr, c2: nc, trial: isTrial });
                   formedAny = true;
                   changed = true;
                 }
@@ -2095,6 +2281,9 @@
 
         // Vyhodnoceni kompletniho dokonceni partie
         if (state.dominoes.length === totalDominoes && Object.keys(counts).length === totalDominoes) {
+          if (state.checkpoint) {
+            acceptTrialMode(true);
+          }
           const wasAlreadyOver = state.isGameOver;
           state.isGameOver = true;
           state.history = [];
@@ -2322,26 +2511,59 @@
         document.getElementById('wins-count').textContent = getTotalWins();
         document.getElementById('deck-counter').textContent = `${state.dominoes.length}/${totalDominoes}`;
 
-        // Stavove uzamceni ovladacich prvku pri isGameOver
         document.getElementById('btn-undo').disabled = state.isGameOver || state.history.length === 0;
         document.getElementById('btn-hint').disabled = state.isGameOver;
         document.getElementById('board-wrapper').classList.toggle('locked', state.isGameOver);
 
+        // Stavovy radek a ovladani rezimu zkousky (tuzky)
         const sb = document.getElementById('status-bar');
-        sb.classList.remove('is-error', 'is-success');
+        const stText = document.getElementById('status-text');
+        const trialActions = document.getElementById('trial-actions');
+        const inTrial = Boolean(state.checkpoint) && !state.isGameOver;
+
+        sb.classList.remove('is-error', 'is-success', 'is-trial');
         if (transientErrors.type === 'error') sb.classList.add('is-error');
-        if (transientErrors.type === 'success') sb.classList.add('is-success');
-        sb.textContent = transientErrors.message || (state.isGameOver ? t.statusFinishedLocked : t.statusStart);
+        else if (transientErrors.type === 'success') sb.classList.add('is-success');
+        else if (inTrial) sb.classList.add('is-trial');
+
+        if (transientErrors.message) {
+          stText.textContent = transientErrors.message;
+        } else if (state.isGameOver) {
+          stText.textContent = t.statusFinishedLocked;
+        } else if (inTrial) {
+          stText.textContent = t.statusTrialActive;
+        } else {
+          stText.textContent = t.statusStart;
+        }
+
+        if (state.isGameOver) {
+          trialActions.innerHTML = '';
+        } else if (inTrial) {
+          trialActions.innerHTML = `
+            <button class="trial-btn accept" id="btn-trial-accept">${t.trialAcceptBtn}</button>
+            <button class="trial-btn discard" id="btn-trial-discard">${t.trialDiscardBtn}</button>
+          `;
+          document.getElementById('btn-trial-accept').addEventListener('click', () => acceptTrialMode(false));
+          document.getElementById('btn-trial-discard').addEventListener('click', discardTrialMode);
+        } else {
+          trialActions.innerHTML = `<button class="trial-btn" id="btn-trial-start">${t.trialStartBtn}</button>`;
+          document.getElementById('btn-trial-start').addEventListener('click', startTrialMode);
+        }
 
         const boardGrid = document.getElementById('board-grid');
         boardGrid.style.setProperty('--cols', state.cols);
         boardGrid.style.setProperty('--rows', state.rows);
 
         const cellDominoDir = {};
+        const cellInTrial = {};
         for (const d of state.dominoes) {
           const dir = d.r1 === d.r2 ? 'h' : 'v';
           cellDominoDir[`${d.r1},${d.c1}`] = dir;
           cellDominoDir[`${d.r2},${d.c2}`] = dir;
+          if (d.trial) {
+            cellInTrial[`${d.r1},${d.c1}`] = true;
+            cellInTrial[`${d.r2},${d.c2}`] = true;
+          }
         }
 
         let cellsHTML = '';
@@ -2354,6 +2576,7 @@
             if (r === state.rows - 1) classes.push('last-row');
             if (cellDominoDir[ck] === 'h') classes.push('in-domino-h');
             if (cellDominoDir[ck] === 'v') classes.push('in-domino-v');
+            if (cellInTrial[ck]) classes.push('in-trial');
             if (transientErrors.cells.has(ck)) classes.push('is-error');
 
             cellsHTML += `<div class="${classes.join(' ')}" data-r="${r}" data-c="${c}">${renderCellValue(val)}</div>`;
@@ -2368,9 +2591,11 @@
         const padY = cellH * 0.08;
 
         const usedPairCounts = {};
+        const trialPairSet = new Set();
         for (const d of state.dominoes) {
           const pk = pairKey(state.grid[d.r1][d.c1], state.grid[d.r2][d.c2]);
           usedPairCounts[pk] = (usedPairCounts[pk] || 0) + 1;
+          if (d.trial) trialPairSet.add(pk);
         }
 
         let pillsHTML = '';
@@ -2389,16 +2614,18 @@
           const isDouble = v1 === v2;
           const cls = ['domino-pill', isHoriz ? 'horizontal' : 'vertical'];
           if (isDouble) cls.push('is-double');
+          if (d.trial) cls.push('is-trial');
           if (usedPairCounts[pk] > 1) cls.push('is-error');
 
           let innerSVG = '';
           if (state.theme === 'royal') {
             const strokeRef = isDouble ? 'url(#royalPlatStroke)' : (isHoriz ? 'url(#royalGoldStroke)' : 'url(#royalRoseStroke)');
             const fillRef = isDouble ? 'url(#royalPlatFill)' : (isHoriz ? 'url(#royalGoldFill)' : 'url(#royalRoseFill)');
+            const dashAttr = d.trial ? 'stroke-dasharray="5 3"' : '';
             const divLine = isHoriz
               ? `<line x1="50" y1="16" x2="50" y2="84" stroke="${strokeRef}" stroke-width="1.4" stroke-opacity="0.45"/>`
               : `<line x1="16" y1="50" x2="84" y2="50" stroke="${strokeRef}" stroke-width="1.4" stroke-opacity="0.45"/>`;
-            innerSVG = `<svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect x="1.5" y="1.5" width="97" height="97" rx="10" fill="${fillRef}" stroke="${strokeRef}" stroke-width="2.6" vector-effect="non-scaling-stroke"/>${divLine}</svg>`;
+            innerSVG = `<svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect x="1.5" y="1.5" width="97" height="97" rx="10" fill="${fillRef}" stroke="${strokeRef}" stroke-width="2.6" ${dashAttr} vector-effect="non-scaling-stroke"/>${divLine}</svg>`;
           }
 
           pillsHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;">${innerSVG}</div>`;
@@ -2414,6 +2641,7 @@
             const wType = state.walls[k];
             const cls = ['edge-hit', 'v-edge'];
             if (wType === 'user') cls.push('active');
+            if (wType === 'trial') cls.push('trial-edge');
             if (wType === 'hint') cls.push('hinted');
             if (transientErrors.edges.has(k)) cls.push('error-edge');
 
@@ -2429,6 +2657,7 @@
             const wType = state.walls[k];
             const cls = ['edge-hit', 'h-edge'];
             if (wType === 'user') cls.push('active');
+            if (wType === 'trial') cls.push('trial-edge');
             if (wType === 'hint') cls.push('hinted');
             if (transientErrors.edges.has(k)) cls.push('error-edge');
 
@@ -2447,7 +2676,10 @@
             const pk = `${a}-${b}`;
             const cnt = usedPairCounts[pk] || 0;
             const cls = ['tray-item'];
-            if (cnt === 1) cls.push('used');
+            if (cnt === 1) {
+              cls.push('used');
+              if (trialPairSet.has(pk)) cls.push('trial-used');
+            }
             if (cnt > 1) cls.push('duplicate');
 
             let itemLabel = `${a}\u2013${b}`;
@@ -2521,7 +2753,8 @@
         document.getElementById('tile-pips').classList.toggle('active', state.displayMode === 'pips');
       }
 
-    function setupPointerInteractions() {
+      // Odolne dotykove ovladani (s ochranou proti zamrznuti pointeru na Androidu)
+      function setupPointerInteractions() {
         const wrapper = document.getElementById('board-wrapper');
         let startCell = null;
         let swiped = false;
@@ -2559,7 +2792,6 @@
         wrapper.addEventListener('pointerdown', (e) => {
           if (state.isGameOver) return;
           const now = Date.now();
-          // Pojistka: pokud predchozi dotyk "visel" dele nez 1.2 s (napr. po systemovem gestu Androidu), uvolnime ho
           if (activePointerId !== null && (now - lastPointerTime > 1200)) {
             resetPointerState();
           }
@@ -2596,7 +2828,6 @@
           resetPointerState();
 
           if (!state.isGameOver && !wasSwiped) {
-            // Pri setPointerCapture ukazuje e.target na wrapper, proto hledame hranu pres elementFromPoint
             const elUnderFinger = document.elementFromPoint(e.clientX, e.clientY);
             const targetEdge = elUnderFinger ? elUnderFinger.closest('.edge-hit') : e.target.closest('.edge-hit');
             if (targetEdge) {
@@ -2616,7 +2847,7 @@
           if (document.hidden) resetPointerState();
         });
       }
-      
+
       function setupUI() {
         document.getElementById('btn-undo').addEventListener('click', undoMove);
         document.getElementById('btn-hint').addEventListener('click', useHint);
