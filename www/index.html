@@ -463,7 +463,6 @@
       border-color: var(--domino-border-v);
     }
 
-    /* Pokusny kamen v rezimu zkousky (tuzka = carkovany obrys) */
     .domino-pill.is-trial {
       border-style: dashed;
       border-width: 2px;
@@ -530,12 +529,12 @@
     }
 
     .edge-hit.v-edge {
-      width: 22px;
+      width: 24px;
       transform: translateX(-50%);
     }
 
     .edge-hit.h-edge {
-      height: 22px;
+      height: 24px;
       transform: translateY(-50%);
     }
 
@@ -558,7 +557,6 @@
       background: var(--wall);
     }
 
-    /* Pokusna okrajova cara v rezimu zkousky (tuzka = prerusovana cara) */
     .edge-hit.trial-edge.v-edge .edge-line {
       background: repeating-linear-gradient(
         to bottom,
@@ -648,7 +646,7 @@
       justify-content: center;
       gap: 1px;
       min-width: 0;
-      min-height: 23px;
+      min-height: 24px;
       overflow: hidden;
       transition: all 0.15s ease;
     }
@@ -662,7 +660,7 @@
       color: var(--tray-used-text);
       border-color: transparent;
       text-decoration: line-through;
-      opacity: 0.6;
+      opacity: 0.55;
     }
 
     .tray-item.used.trial-used {
@@ -768,6 +766,36 @@
       font-weight: 700;
       margin: 0 0 12px;
       color: var(--text);
+      cursor: pointer;
+    }
+
+    /* POTVRZOVACI MODAL */
+    .confirm-modal-inner {
+      text-align: center;
+      padding: 6px 4px 2px;
+    }
+
+    .confirm-desc {
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin: 0 0 18px;
+    }
+
+    .confirm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .btn-danger {
+      padding: 12px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: none;
+      background: #dc2626;
+      color: #ffffff;
       cursor: pointer;
     }
 
@@ -1205,6 +1233,19 @@
       margin-top: 10px;
     }
 
+    .btn-modal-outline {
+      width: 100%;
+      padding: 11px;
+      font-size: 13.5px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
     body.theme-emerald .btn-modal-full {
       background: #fbbf24;
       color: #022c22;
@@ -1345,7 +1386,6 @@
       </div>
     </header>
 
-    <!-- STAVOVY RADEK S TLACITKEM REZIMU ZKOUSKY (TUZKA) -->
     <div class="status-bar" id="status-bar">
       <div class="status-text" id="status-text"></div>
       <div class="trial-actions" id="trial-actions"></div>
@@ -1369,6 +1409,20 @@
       <button class="btn" id="btn-hint"><span id="lbl-hint">N&#225;pov&#283;da</span></button>
       <button class="btn btn-primary" id="btn-new"><span id="lbl-new">Nov&#225; hra</span></button>
     </footer>
+  </div>
+
+  <!-- MODALNI OKNO POTVRZENI UKONCENI / RESTARTU HRY -->
+  <div class="modal-backdrop" id="modal-confirm">
+    <div class="modal">
+      <div class="confirm-modal-inner">
+        <h2 class="modal-title-center" id="confirm-title">Ukon&#269;it rozehranou hru?</h2>
+        <p class="confirm-desc" id="confirm-desc">M&#225;&#353; rozehranou partii. Opravdu ji chce&#353; ukon&#269;it?</p>
+        <div class="confirm-actions">
+          <button class="btn-modal-sec" id="btn-confirm-cancel">Pokra&#269;ovat v h&#345;e</button>
+          <button class="btn-danger" id="btn-confirm-ok">Ano, ukon&#269;it</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODALNI OKNO KONCE HRY -->
@@ -1503,6 +1557,7 @@
 
       <div class="info-box-modal" id="set-unlock-info"></div>
 
+      <button class="btn-modal-outline" id="btn-restart-same">&#8635; Restartovat tuto hru</button>
       <button class="btn-modal-full" id="btn-close-settings">Ulo&#382;it a zav&#345;&#237;t</button>
       <div class="author-footer">&copy; 2026 Ondrandy</div>
     </div>
@@ -1514,7 +1569,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'homino_save_v7';
+      const STORAGE_KEY = 'homino_save_v8';
 
       const MILESTONE_EMERALD = 5;
       const MILESTONE_TOUR = 10;
@@ -1534,12 +1589,21 @@
           rules: 'N\u00e1vod',
           hint: 'N\u00e1pov\u011bda',
           newGame: 'Nov\u00e1 hra',
+          restartSameBtn: '\u21bb Restartovat tuto hru',
+          confirmNewTitle: 'Ukon\u010dit rozehranou hru?',
+          confirmNewDesc: 'M\u00e1\u0161 rozehranou partii. Opravdu ji chce\u0161 ukon\u010dit a spustit novou?',
+          confirmRestartTitle: 'Restartovat tuto hru?',
+          confirmRestartDesc: 'V\u0161echny tv\u00e9 dosavadn\u00ed tahy v t\u00e9to partii se vyma\u017eou a za\u010dne\u0161 tut\u00e9\u017e hru od za\u010d\u00e1tku.',
+          confirmCancel: 'Pokra\u010dovat v h\u0159e',
+          confirmOkNew: 'Ano, nov\u00e1 hra',
+          confirmOkRestart: 'Ano, restartovat',
           trialStartBtn: '\u270e Zkusit',
           trialAcceptBtn: '\u2713 Potvrdit',
           trialDiscardBtn: '\u2715 Zahodit',
           statusTrialActive: 'Re\u017eim zkou\u0161ky: pokusn\u00e9 tahy jsou \u010d\u00e1rkovan\u00e9.',
           statusTrialAccepted: 'Pokusn\u00e9 tahy potvrzeny jako jist\u00e9.',
           statusTrialDiscarded: 'Pokus zahozen, n\u00e1vrat na rozcest\u00ed.',
+          statusRestarted: 'Hra byla restartov\u00e1na od za\u010d\u00e1tku.',
           statusStart: 'Klepnut\u00edm ozna\u010d okraj, p\u0159ejet\u00edm spoj domino.',
           statusResume: 'Pokra\u010duje\u0161 v rozehran\u00e9 h\u0159e.',
           statusFinishedLocked: 'Partie je dokon\u010dena. Spus\u0165 novou hru.',
@@ -1611,6 +1675,7 @@
             <p class="rules-warn"><strong>Pozor:</strong> Pokud vytvo\u0159\u00ed\u0161 stejn\u00fd k\u00e1men dvakr\u00e1t nebo n\u011bkter\u00e9 pol\u00ed\u010dko zcela od\u0159\u00edzne\u0161 od okol\u00ed, hra t\u011b okam\u017eit\u011b upozorn\u00ed!</p>
             <p class="rules-rewards"><strong>Odm\u011bny:</strong> V\u00fdhry v mistrovsk\u00e9 sad\u011b 1\u20136 postupn\u011b odemykaj\u00ed Smaragdov\u00fd st\u016fl (5), Turnajov\u00fd motiv (10), Symboly Diffequa (15), Te\u010dky (20) a Kr\u00e1lovskou zlatou edici (30).</p>
             <button class="btn-modal-full" id="btn-close-rules">Rozum\u00edm, hr\u00e1t</button>
+            <div class="author-footer">&copy; 2026 Ondrandy</div>
           `
         },
         en: {
@@ -1622,12 +1687,21 @@
           rules: 'Rules',
           hint: 'Hint',
           newGame: 'New Game',
+          restartSameBtn: '\u21bb Restart This Game',
+          confirmNewTitle: 'Abandon current game?',
+          confirmNewDesc: 'You have a game in progress. Do you really want to end it and start a new one?',
+          confirmRestartTitle: 'Restart this game?',
+          confirmRestartDesc: 'All your moves in this game will be cleared so you can play the exact same puzzle from the start.',
+          confirmCancel: 'Keep Playing',
+          confirmOkNew: 'Yes, New Game',
+          confirmOkRestart: 'Yes, Restart',
           trialStartBtn: '\u270e Try',
           trialAcceptBtn: '\u2713 Keep',
           trialDiscardBtn: '\u2715 Drop',
           statusTrialActive: 'Trial mode: tentative moves are dashed.',
           statusTrialAccepted: 'Tentative moves confirmed.',
           statusTrialDiscarded: 'Trial dropped, returned to checkpoint.',
+          statusRestarted: 'Game restarted from the beginning.',
           statusStart: 'Tap an edge to draw a border, swipe across two cells to link.',
           statusResume: 'Continuing saved game.',
           statusFinishedLocked: 'Game completed. Start a new game.',
@@ -1699,6 +1773,7 @@
             <p class="rules-warn"><strong>Watch out:</strong> Placing the same domino twice or isolating a single cell triggers an immediate warning!</p>
             <p class="rules-rewards"><strong>Rewards:</strong> Master wins progressively unlock Emerald Table (5), Tournament Colors (10), Diffequa Symbols (15), Domino Pips (20), and Royal Gold Edition (30).</p>
             <button class="btn-modal-full" id="btn-close-rules">Got it, play</button>
+            <div class="author-footer">&copy; 2026 Ondrandy</div>
           `
         }
       };
@@ -1718,9 +1793,9 @@
         cols: 6,
         grid: [],
         solution: [],
-        walls: {},        // klic => 'user' | 'hint' | 'trial'
-        dominoes: [],     // { r1, c1, r2, c2, trial?: boolean }
-        checkpoint: null, // { walls, dominoes } pri aktivnim rezimu zkousky
+        walls: {},
+        dominoes: [],
+        checkpoint: null,
         history: [],
         isGameOver: false
       };
@@ -1731,6 +1806,39 @@
         message: null,
         type: 'normal'
       };
+
+      let pendingConfirmAction = null;
+
+      function isGameInProgress() {
+        if (state.isGameOver) return false;
+        return state.dominoes.length > 0 || Object.keys(state.walls).length > 0 || state.history.length > 0;
+      }
+
+      function requestConfirmAction(type, onConfirm) {
+        if (!isGameInProgress()) {
+          onConfirm();
+          return;
+        }
+        const t = I18N[state.lang];
+        const titleEl = document.getElementById('confirm-title');
+        const descEl = document.getElementById('confirm-desc');
+        const cancelEl = document.getElementById('btn-confirm-cancel');
+        const okEl = document.getElementById('btn-confirm-ok');
+
+        if (type === 'restart') {
+          titleEl.textContent = t.confirmRestartTitle;
+          descEl.textContent = t.confirmRestartDesc;
+          okEl.textContent = t.confirmOkRestart;
+        } else {
+          titleEl.textContent = t.confirmNewTitle;
+          descEl.textContent = t.confirmNewDesc;
+          okEl.textContent = t.confirmOkNew;
+        }
+        cancelEl.textContent = t.confirmCancel;
+
+        pendingConfirmAction = onConfirm;
+        document.getElementById('modal-confirm').classList.add('open');
+      }
 
       function getMasterWins() {
         return Number(state.wins && state.wins[6]) || 0;
@@ -1862,6 +1970,7 @@
             if (state.isGameOver) {
               state.history = [];
               state.checkpoint = null;
+              state.walls = {};
             }
             sanitizeUnlocks();
             return true;
@@ -1870,7 +1979,6 @@
         return false;
       }
 
-      // REZIM ZKOUSKY (TUZKA): spustit / potvrdit / zahodit
       function startTrialMode() {
         if (state.isGameOver || state.checkpoint) return;
         pushHistory();
@@ -2019,6 +2127,27 @@
         }
       }
 
+      // F) Restartovat tutez hru od zacatku (zachova grid a solution)
+      function restartCurrentGame() {
+        clearConfetti();
+        document.getElementById('modal-end').classList.remove('open');
+        document.getElementById('modal-settings').classList.remove('open');
+
+        state.walls = {};
+        state.dominoes = [];
+        state.checkpoint = null;
+        state.history = [];
+        state.isGameOver = false;
+        transientErrors = {
+          cells: new Set(),
+          edges: new Set(),
+          message: I18N[state.lang].statusRestarted,
+          type: 'normal'
+        };
+        saveGame();
+        renderAll();
+      }
+
       function startNewGame(maxPip = state.maxPip) {
         clearConfetti();
         document.getElementById('modal-end').classList.remove('open');
@@ -2050,20 +2179,7 @@
           startNewGame(state.maxPip);
         }
         state.checkpoint = null;
-        const solEdgeSet = new Set(state.solution.map(s => edgeKey(s.r1, s.c1, s.r2, s.c2)));
         state.walls = {};
-        for (let r = 0; r < state.rows; r++) {
-          for (let c = 0; c < state.cols; c++) {
-            if (c + 1 < state.cols) {
-              const k = edgeKey(r, c, r, c + 1);
-              if (!solEdgeSet.has(k)) state.walls[k] = 'user';
-            }
-            if (r + 1 < state.rows) {
-              const k = edgeKey(r, c, r + 1, c);
-              if (!solEdgeSet.has(k)) state.walls[k] = 'user';
-            }
-          }
-        }
         state.dominoes = state.solution.map(s => ({ ...s, trial: false }));
         state.wins[state.maxPip] = (Number(state.wins[state.maxPip]) || 0) + 4;
         evaluateBoard(false, true);
@@ -2200,6 +2316,7 @@
         renderAll();
       }
 
+      // B) Oprava: bezpecne uzavreni dvou sousednich bunek bez vzniku pulky domina
       function runAutoEncloseLoop() {
         let formedAny = false;
         let changed = true;
@@ -2225,7 +2342,14 @@
                   return true;
                 });
 
-                if (backNeighbors.length === 1 && backNeighbors[0][0] === r && backNeighbors[0][1] === c) {
+                if (
+                  backNeighbors.length === 1 &&
+                  backNeighbors[0][0] === r &&
+                  backNeighbors[0][1] === c &&
+                  findDominoAt(r, c) === -1 &&
+                  findDominoAt(nr, nc) === -1
+                ) {
+                  delete state.walls[edgeKey(r, c, nr, nc)];
                   state.dominoes.push({ r1: r, c1: c, r2: nr, c2: nc, trial: isTrial });
                   formedAny = true;
                   changed = true;
@@ -2288,6 +2412,7 @@
           return;
         }
 
+        // Vyhodnoceni kompletniho dokonceni partie
         if (state.dominoes.length === totalDominoes && Object.keys(counts).length === totalDominoes) {
           if (state.checkpoint) {
             acceptTrialMode(true);
@@ -2295,6 +2420,8 @@
           const wasAlreadyOver = state.isGameOver;
           state.isGameOver = true;
           state.history = [];
+          // H) Po dohrani hry odstranit vsechny oznacene hrany a nechat jen nalezena domina
+          state.walls = {};
           transientErrors.type = 'success';
 
           let unlockText = null;
@@ -2443,23 +2570,25 @@
         return html;
       }
 
-      function createSymbolSVG(val, sizePx = null) {
+      // D) V odskrtavacim seznamu (withFill = true) maji symboly jemnou barevnou vypln a silnejsi tah
+      function createSymbolSVG(val, sizePx = null, withFill = false) {
         const styleAttr = sizePx ? `width="${sizePx}" height="${sizePx}"` : `class="sym-icon"`;
-        const sw = sizePx ? '2.4' : '2.6';
+        const sw = sizePx ? '2.8' : '2.6';
+        const fillAttr = withFill ? `fill="currentColor" fill-opacity="0.22"` : `fill="none"`;
         switch (val) {
           case 1:
-            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}"><circle cx="12" cy="12" r="7.5"/></svg>`;
+            return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}"><circle cx="12" cy="12" r="7.5"/></svg>`;
           case 2:
-            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>`;
+            return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>`;
           case 3:
-            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,4.5 20,18.5 4,18.5"/></svg>`;
+            return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,4.5 20,18.5 4,18.5"/></svg>`;
           case 4:
-            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 20.5,12 12,20.5 3.5,12"/></svg>`;
+            return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 20.5,12 12,20.5 3.5,12"/></svg>`;
           case 5:
-            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 14.6,9 20.5,9.7 16.1,13.8 17.3,19.6 12,16.7 6.7,19.6 7.9,13.8 3.5,9.7 9.4,9"/></svg>`;
+            return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 14.6,9 20.5,9.7 16.1,13.8 17.3,19.6 12,16.7 6.7,19.6 7.9,13.8 3.5,9.7 9.4,9"/></svg>`;
           case 6:
           default:
-            return `<svg ${styleAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 19.5,7.8 19.5,16.2 12,20.5 4.5,16.2 4.5,7.8"/></svg>`;
+            return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 19.5,7.8 19.5,16.2 12,20.5 4.5,16.2 4.5,7.8"/></svg>`;
         }
       }
 
@@ -2501,6 +2630,7 @@
         document.getElementById('set-theme-label').textContent = t.setThemeLabel;
         document.getElementById('set-display-label').textContent = t.setDisplayLabel;
         document.getElementById('set-unlock-info').innerHTML = t.setUnlockInfo;
+        document.getElementById('btn-restart-same').textContent = t.restartSameBtn;
         document.getElementById('btn-close-settings').textContent = t.saveAndClose;
 
         const rulesModal = document.getElementById('rules-modal-content');
@@ -2564,6 +2694,7 @@
         const cellDominoDir = {};
         const cellInTrial = {};
         for (const d of state.dominoes) {
+          if (Math.abs(d.r1 - d.r2) + Math.abs(d.c1 - d.c2) !== 1) continue;
           const dir = d.r1 === d.r2 ? 'h' : 'v';
           cellDominoDir[`${d.r1},${d.c1}`] = dir;
           cellDominoDir[`${d.r2},${d.c2}`] = dir;
@@ -2607,6 +2738,7 @@
 
         let pillsHTML = '';
         for (const d of state.dominoes) {
+          if (Math.abs(d.r1 - d.r2) + Math.abs(d.c1 - d.c2) !== 1) continue;
           const minR = Math.min(d.r1, d.r2);
           const minC = Math.min(d.c1, d.c2);
           const isHoriz = d.r1 === d.r2;
@@ -2642,35 +2774,38 @@
         const edgesOverlay = document.getElementById('edges-overlay');
         let edgesHTML = '';
 
-        for (let r = 0; r < state.rows; r++) {
-          for (let c = 0; c < state.cols - 1; c++) {
-            const k = edgeKey(r, c, r, c + 1);
-            const wType = state.walls[k];
-            const cls = ['edge-hit', 'v-edge'];
-            if (wType === 'user') cls.push('active');
-            if (wType === 'trial') cls.push('trial-edge');
-            if (wType === 'hint') cls.push('hinted');
-            if (transientErrors.edges.has(k)) cls.push('error-edge');
+        // Po dohrani hry nezobrazujeme zadne okrajove cary
+        if (!state.isGameOver) {
+          for (let r = 0; r < state.rows; r++) {
+            for (let c = 0; c < state.cols - 1; c++) {
+              const k = edgeKey(r, c, r, c + 1);
+              const wType = state.walls[k];
+              const cls = ['edge-hit', 'v-edge'];
+              if (wType === 'user') cls.push('active');
+              if (wType === 'trial') cls.push('trial-edge');
+              if (wType === 'hint') cls.push('hinted');
+              if (transientErrors.edges.has(k)) cls.push('error-edge');
 
-            const left = (c + 1) * cellW;
-            const top = r * cellH;
-            edgesHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;height:${cellH}%;" data-r1="${r}" data-c1="${c}" data-r2="${r}" data-c2="${c + 1}"><div class="edge-line"></div></div>`;
+              const left = (c + 1) * cellW;
+              const top = r * cellH;
+              edgesHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;height:${cellH}%;" data-r1="${r}" data-c1="${c}" data-r2="${r}" data-c2="${c + 1}"><div class="edge-line"></div></div>`;
+            }
           }
-        }
 
-        for (let r = 0; r < state.rows - 1; r++) {
-          for (let c = 0; c < state.cols; c++) {
-            const k = edgeKey(r, c, r + 1, c);
-            const wType = state.walls[k];
-            const cls = ['edge-hit', 'h-edge'];
-            if (wType === 'user') cls.push('active');
-            if (wType === 'trial') cls.push('trial-edge');
-            if (wType === 'hint') cls.push('hinted');
-            if (transientErrors.edges.has(k)) cls.push('error-edge');
+          for (let r = 0; r < state.rows - 1; r++) {
+            for (let c = 0; c < state.cols; c++) {
+              const k = edgeKey(r, c, r + 1, c);
+              const wType = state.walls[k];
+              const cls = ['edge-hit', 'h-edge'];
+              if (wType === 'user') cls.push('active');
+              if (wType === 'trial') cls.push('trial-edge');
+              if (wType === 'hint') cls.push('hinted');
+              if (transientErrors.edges.has(k)) cls.push('error-edge');
 
-            const left = c * cellW;
-            const top = (r + 1) * cellH;
-            edgesHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;width:${cellW}%;" data-r1="${r}" data-c1="${c}" data-r2="${r + 1}" data-c2="${c}"><div class="edge-line"></div></div>`;
+              const left = c * cellW;
+              const top = (r + 1) * cellH;
+              edgesHTML += `<div class="${cls.join(' ')}" style="left:${left}%;top:${top}%;width:${cellW}%;" data-r1="${r}" data-c1="${c}" data-r2="${r + 1}" data-c2="${c}"><div class="edge-line"></div></div>`;
+            }
           }
         }
         edgesOverlay.innerHTML = edgesHTML;
@@ -2693,7 +2828,8 @@
             if (state.displayMode === 'letters') {
               itemLabel = `${LETTERS[a]}\u2013${LETTERS[b]}`;
             } else if (state.displayMode === 'symbols') {
-              itemLabel = `${createSymbolSVG(a, 9.5)}<span>\u2013</span>${createSymbolSVG(b, 9.5)}`;
+              // D) Zvetsene a vyplnene symboly Diffequa pro jasnou citelnost
+              itemLabel = `${createSymbolSVG(a, 11.5, true)}<span>\u2013</span>${createSymbolSVG(b, 11.5, true)}`;
             }
             trayHTML += `<div class="${cls.join(' ')}">${itemLabel}</div>`;
           }
@@ -2760,10 +2896,13 @@
         document.getElementById('tile-pips').classList.toggle('active', state.displayMode === 'pips');
       }
 
-      // Odolne dotykove ovladani (s ochranou proti zamrznuti pointeru na Androidu)
+      // C) Vylepsena citlivost: vyzaduje vyraznejsi tah prstu pro swipe, aby nechtene nechytal klepnuti na hranu
       function setupPointerInteractions() {
         const wrapper = document.getElementById('board-wrapper');
         let startCell = null;
+        let startX = 0;
+        let startY = 0;
+        let startedOnEdge = false;
         let swiped = false;
         let activePointerId = null;
         let lastPointerTime = 0;
@@ -2793,6 +2932,7 @@
           }
           activePointerId = null;
           startCell = null;
+          startedOnEdge = false;
           swiped = false;
         }
 
@@ -2806,9 +2946,15 @@
 
           activePointerId = e.pointerId;
           lastPointerTime = now;
+          startX = e.clientX;
+          startY = e.clientY;
           swiped = false;
+          startedOnEdge = Boolean(e.target.closest('.edge-hit'));
           startCell = getCellFromPoint(e.clientX, e.clientY);
-          highlightSwipeCell(startCell);
+
+          if (!startedOnEdge) {
+            highlightSwipeCell(startCell);
+          }
 
           if (wrapper.setPointerCapture) {
             try { wrapper.setPointerCapture(e.pointerId); } catch (err) {}
@@ -2818,14 +2964,32 @@
         wrapper.addEventListener('pointermove', (e) => {
           if (state.isGameOver || e.pointerId !== activePointerId || !startCell || swiped) return;
           lastPointerTime = Date.now();
-          const curr = getCellFromPoint(e.clientX, e.clientY);
-          if (!curr) return;
 
-          const dist = Math.abs(curr.r - startCell.r) + Math.abs(curr.c - startCell.c);
-          if (dist === 1) {
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          const moveDist = Math.hypot(dx, dy);
+
+          // Vyzadujeme delsi tah prstem (alespon 34 % sirky policka, min. 18 px),
+          // a pokud uzivatel zacal primo na hrane, vyzadujeme jeste zretelnejsi tah (48 % sirky policka)
+          const rect = wrapper.getBoundingClientRect();
+          const cellSizePx = rect.width / state.cols;
+          const thresholdPx = startedOnEdge ? Math.max(24, cellSizePx * 0.48) : Math.max(18, cellSizePx * 0.34);
+
+          if (moveDist < thresholdPx) return;
+
+          // Zjistime cilovou bunku podle dominantniho smeru tahu ze startCell
+          let targetR = startCell.r;
+          let targetC = startCell.c;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            targetC += dx > 0 ? 1 : -1;
+          } else {
+            targetR += dy > 0 ? 1 : -1;
+          }
+
+          if (targetR >= 0 && targetR < state.rows && targetC >= 0 && targetC < state.cols) {
             swiped = true;
             highlightSwipeCell(null);
-            linkDomino(startCell.r, startCell.c, curr.r, curr.c, true);
+            linkDomino(startCell.r, startCell.c, targetR, targetC, true);
           }
         });
 
@@ -2858,7 +3022,30 @@
       function setupUI() {
         document.getElementById('btn-undo').addEventListener('click', undoMove);
         document.getElementById('btn-hint').addEventListener('click', useHint);
-        document.getElementById('btn-new').addEventListener('click', () => startNewGame(state.maxPip));
+
+        // A) Potvrzeni pred ukoncenim rozehrane hry
+        document.getElementById('btn-new').addEventListener('click', () => {
+          requestConfirmAction('new', () => startNewGame(state.maxPip));
+        });
+
+        // F) Restartovat tutez hru od zacatku
+        document.getElementById('btn-restart-same').addEventListener('click', () => {
+          requestConfirmAction('restart', () => restartCurrentGame());
+        });
+
+        document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+          pendingConfirmAction = null;
+          document.getElementById('modal-confirm').classList.remove('open');
+        });
+
+        document.getElementById('btn-confirm-ok').addEventListener('click', () => {
+          document.getElementById('modal-confirm').classList.remove('open');
+          if (typeof pendingConfirmAction === 'function') {
+            const fn = pendingConfirmAction;
+            pendingConfirmAction = null;
+            fn();
+          }
+        });
 
         document.getElementById('btn-settings').addEventListener('click', () => {
           document.getElementById('modal-settings').classList.add('open');
@@ -2873,7 +3060,10 @@
 
         document.querySelectorAll('.modal-backdrop').forEach(bg => {
           bg.addEventListener('click', (e) => {
-            if (e.target === bg) bg.classList.remove('open');
+            if (e.target === bg) {
+              if (bg.id === 'modal-confirm') pendingConfirmAction = null;
+              bg.classList.remove('open');
+            }
           });
         });
 
@@ -2910,7 +3100,9 @@
         document.querySelectorAll('[data-diff]').forEach(btn => {
           btn.addEventListener('click', () => {
             const val = Number(btn.dataset.diff);
-            if (val !== state.maxPip) startNewGame(val);
+            if (val !== state.maxPip) {
+              requestConfirmAction('new', () => startNewGame(val));
+            }
           });
         });
 
