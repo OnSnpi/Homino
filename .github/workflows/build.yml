@@ -29,12 +29,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.android/debug.keystore
-          key: homino-debug-keystore-v1
+          key: homino-debug-keystore-v2
 
       - name: Create signing key if not cached
         if: steps.cache-keystore.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/.android
+          rm -f ~/.android/debug.keystore
           keytool -genkey -v \
             -keystore ~/.android/debug.keystore \
             -storepass android \
@@ -56,8 +57,8 @@ jobs:
       - name: Set auto-incrementing versionCode
         run: |
           VERSION_CODE=$((100 + ${{ github.run_number }}))
-          sed -i "s/versionCode 1/versionCode $VERSION_CODE/g" android/app/build.gradle
-          sed -i "s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/g" android/app/build.gradle
+          sed -i -E "s/versionCode[[:space:]]*=?[[:space:]]*1/versionCode $VERSION_CODE/g" android/app/build.gradle
+          sed -i -E "s/versionName[[:space:]]*=?[[:space:]]*\"1\.0\"/versionName \"1.0.${{ github.run_number }}\"/g" android/app/build.gradle
 
       - name: Generate App Icon (Homino Domino)
         run: |
