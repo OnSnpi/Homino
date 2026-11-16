@@ -1,0 +1,80 @@
+name: Build Homino APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Restore consistent signing key from Secret
+        run: |
+          mkdir -p ~/.android
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > ~/.android/debug.keystore
+
+      - name: Initialize Capacitor and build Android project
+        run: |
+          npm init -y
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          npx cap init "Homino" "cz.homino.game" --web-dir=www
+          npx cap add android
+          sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/g' android/app/src/main/AndroidManifest.xml
+
+      - name: Set auto-incrementing versionCode
+        run: |
+          VERSION_CODE=$((100 + ${{ github.run_number }}))
+          sed -i -E "s/versionCode[[:space:]]*=?[[:space:]]*1/versionCode $VERSION_CODE/g" android/app/build.gradle
+          sed -i -E "s/versionName[[:space:]]*=?[[:space:]]*\"1\.0\"/versionName \"1.0.${{ github.run_number }}\"/g" android/app/build.gradle
+
+      - name: Generate App Icon (Homino Domino)
+        run: |
+          sudo apt-get update && sudo apt-get install -y librsvg2-bin
+          cat << 'EOF' > icon.svg
+          <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100">
+            <rect width="100" height="100" rx="22" fill="#2563eb"/>
+            <rect x="14" y="25" width="72" height="50" rx="11" fill="#ffffff"/>
+            <line x1="50" y1="29" x2="50" y2="71" stroke="#2563eb" stroke-width="3.8" stroke-linecap="round"/>
+            <circle cx="26" cy="38" r="4.2" fill="#2563eb"/>
+            <circle cx="38" cy="62" r="4.2" fill="#2563eb"/>
+            <circle cx="62" cy="38" r="4.2" fill="#2563eb"/>
+            <circle cx="68" cy="50" r="4.2" fill="#2563eb"/>
+            <circle cx="74" cy="62" r="4.2" fill="#2563eb"/>
+          </svg>
+          EOF
+          rsvg-convert -w 512 -h 512 icon.svg -o icon.png
+          for dir in mipmap-mdpi mipmap-hdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
+            mkdir -p android/app/src/main/res/$dir
+            cp icon.png android/app/src/main/res/$dir/ic_launcher.png
+            cp icon.png android/app/src/main/res/$dir/ic_launcher_round.png
+          done
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/homino.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: Homino-Android-APK
+          path: android/app/build/outputs/apk/debug/homino.apk
