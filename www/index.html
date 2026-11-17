@@ -230,7 +230,6 @@
       transform: scale(0.94);
     }
 
-    /* STAVOVY RADEK S OVLADANIM ZKUSEBNI VETVE (TUZKA) */
     .status-bar {
       background: var(--status-bg);
       border: 1px solid var(--status-border);
@@ -384,75 +383,16 @@
       box-shadow: 0 0 18px rgba(245, 158, 11, 0.14);
     }
 
-    .cell {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-right: 1px dashed rgba(148, 163, 184, 0.34);
-      border-bottom: 1px dashed rgba(148, 163, 184, 0.34);
-      font-weight: 700;
-      font-size: clamp(19px, 5.5vw, 24px);
-      color: var(--text);
-      z-index: 1;
-      transition: background-color 0.15s ease, color 0.15s ease;
-    }
-
-    .cell.last-col { border-right: none; }
-    .cell.last-row { border-bottom: none; }
-
-    body.theme-emerald .cell {
-      border-right-color: rgba(167, 243, 208, 0.22);
-      border-bottom-color: rgba(167, 243, 208, 0.22);
-    }
-    body.theme-emerald .cell.in-domino-h,
-    body.theme-emerald .cell.in-domino-v {
-      color: #064e3b;
-    }
-
-    body.theme-tournament .val-1 { color: var(--c1); }
-    body.theme-tournament .val-2 { color: var(--c2); }
-    body.theme-tournament .val-3 { color: var(--c3); }
-    body.theme-tournament .val-4 { color: var(--c4); }
-    body.theme-tournament .val-5 { color: var(--c5); }
-    body.theme-tournament .val-6 { color: var(--c6); }
-
-    body.theme-royal .cell {
-      color: #fde68a;
-      text-shadow: 0 1px 6px rgba(245, 158, 11, 0.35);
-      border-right-color: rgba(251, 191, 36, 0.16);
-      border-bottom-color: rgba(251, 191, 36, 0.16);
-    }
-
-    body.theme-royal .pip {
-      background: radial-gradient(circle at 35% 35%, #fef9c3 0%, #fbbf24 55%, #b45309 100%);
-      box-shadow: 0 0 4px rgba(251, 191, 36, 0.45);
-    }
-
-    .cell.in-domino-h { background: var(--domino-bg); }
-    .cell.in-domino-v { background: var(--domino-bg-v); }
-    .cell.in-trial {
-      opacity: 0.86;
-    }
-    .cell.is-error {
-      background: var(--error-bg) !important;
-      color: var(--error-text) !important;
-      opacity: 1 !important;
-    }
-    .cell.swipe-active {
-      background: var(--status-bg);
-      box-shadow: inset 0 0 0 2px var(--accent);
-    }
-
     .domino-overlay {
       position: absolute;
-      inset: 0;
+      inset: 2.5px;
       pointer-events: none;
-      z-index: 2;
+      z-index: 1;
     }
 
     .domino-pill {
       position: absolute;
+      background: var(--domino-bg);
       border: 2px solid var(--domino-border);
       border-radius: 8px;
       box-sizing: border-box;
@@ -460,6 +400,7 @@
     }
 
     .domino-pill.vertical {
+      background: var(--domino-bg-v);
       border-color: var(--domino-border-v);
     }
 
@@ -470,6 +411,7 @@
     }
 
     .domino-pill.is-error {
+      background: var(--error-bg) !important;
       border-color: var(--error-border) !important;
       border-style: solid !important;
       box-shadow: 0 0 0 1px var(--error-border);
@@ -510,6 +452,69 @@
       width: 100%;
       height: 100%;
       display: block;
+    }
+
+    .cell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px dashed rgba(148, 163, 184, 0.34);
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.34);
+      font-weight: 700;
+      font-size: clamp(19px, 5.5vw, 24px);
+      color: var(--text);
+      background: transparent;
+      z-index: 2;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .cell.last-col { border-right: none; }
+    .cell.last-row { border-bottom: none; }
+
+    .board-wrapper.locked .cell {
+      border-right-color: transparent;
+      border-bottom-color: transparent;
+    }
+
+    body.theme-emerald .cell {
+      border-right-color: rgba(167, 243, 208, 0.22);
+      border-bottom-color: rgba(167, 243, 208, 0.22);
+    }
+    body.theme-emerald .cell.in-domino-h,
+    body.theme-emerald .cell.in-domino-v {
+      color: #064e3b;
+    }
+
+    body.theme-tournament .val-1 { color: var(--c1); }
+    body.theme-tournament .val-2 { color: var(--c2); }
+    body.theme-tournament .val-3 { color: var(--c3); }
+    body.theme-tournament .val-4 { color: var(--c4); }
+    body.theme-tournament .val-5 { color: var(--c5); }
+    body.theme-tournament .val-6 { color: var(--c6); }
+
+    body.theme-royal .cell {
+      color: #fde68a;
+      text-shadow: 0 1px 6px rgba(245, 158, 11, 0.35);
+      border-right-color: rgba(251, 191, 36, 0.16);
+      border-bottom-color: rgba(251, 191, 36, 0.16);
+    }
+
+    body.theme-royal .pip {
+      background: radial-gradient(circle at 35% 35%, #fef9c3 0%, #fbbf24 55%, #b45309 100%);
+      box-shadow: 0 0 4px rgba(251, 191, 36, 0.45);
+    }
+
+    .cell.in-trial {
+      opacity: 0.86;
+    }
+    .cell.is-error {
+      color: var(--error-text) !important;
+      opacity: 1 !important;
+    }
+    .cell.swipe-active {
+      background: var(--status-bg);
+      box-shadow: inset 0 0 0 2px var(--accent);
     }
 
     .edges-overlay {
@@ -769,7 +774,7 @@
       cursor: pointer;
     }
 
-    /* DIALOG NOVE HRY (VE STYLU SOLITAIRE) */
+    /* DIALOG NOVE HRY */
     .newgame-dialog {
       display: flex;
       flex-direction: column;
@@ -1149,7 +1154,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
     }
 
     .seg-choice.active {
@@ -1159,10 +1164,9 @@
       font-weight: 700;
     }
 
-    .lang-code {
-      font-size: 10.5px;
-      font-weight: 800;
-      opacity: 0.75;
+    .lang-flag {
+      font-size: 16px;
+      line-height: 1;
     }
 
     .style-tile {
@@ -1464,8 +1468,8 @@
 
     <main class="board-card">
       <div class="board-wrapper" id="board-wrapper">
-        <div class="board-grid" id="board-grid"></div>
         <div class="domino-overlay" id="domino-overlay"></div>
+        <div class="board-grid" id="board-grid"></div>
         <div class="edges-overlay" id="edges-overlay"></div>
       </div>
     </main>
@@ -1482,7 +1486,7 @@
     </footer>
   </div>
 
-  <!-- DIALOG: NOVA HRA / HRAT TUTO PARTII OD ZACATKU (VE STYLU SOLITAIRE) -->
+  <!-- DIALOG: NOVA HRA / HRAT TUTO PARTII OD ZACATKU -->
   <div class="modal-backdrop" id="modal-newgame">
     <div class="modal">
       <div class="newgame-dialog">
@@ -1540,8 +1544,14 @@
 
       <div class="modal-section-label"><span id="set-lang-label">Jazyk / Language</span></div>
       <div class="segmented-2">
-        <button class="seg-choice" id="lang-cs" data-lang="cs"><span class="lang-code">CZ</span> &#268;e&#353;tina</button>
-        <button class="seg-choice" id="lang-en" data-lang="en"><span class="lang-code">GB</span> English</button>
+        <button class="seg-choice" id="lang-cs" data-lang="cs">
+          <span class="lang-flag">&#127464;&#127487;</span>
+          <span>&#268;e&#353;tina</span>
+        </button>
+        <button class="seg-choice" id="lang-en" data-lang="en">
+          <span class="lang-flag">&#127468;&#127463;</span>
+          <span>English</span>
+        </button>
       </div>
 
       <div class="modal-section-label"><span id="set-diff-label">Velikost sady (Obt&#237;&#382;nost)</span></div>
@@ -1651,7 +1661,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'homino_save_v9';
+      const STORAGE_KEY = 'homino_save_v11';
 
       const MILESTONE_EMERALD = 5;
       const MILESTONE_TOUR = 10;
@@ -2198,7 +2208,6 @@
         }
       }
 
-      // Restartovat tutez partii od zacatku
       function restartCurrentGame() {
         clearConfetti();
         document.getElementById('modal-end').classList.remove('open');
@@ -3089,9 +3098,12 @@
         document.getElementById('btn-undo').addEventListener('click', undoMove);
         document.getElementById('btn-hint').addEventListener('click', useHint);
 
-        // Otevreni dialogu "Nova hra" ve stylu Solitaire (Rozdat novou / Hrat od zacatku / Zrusit)
         document.getElementById('btn-new').addEventListener('click', () => {
-          document.getElementById('modal-newgame').classList.add('open');
+          if (state.isGameOver) {
+            startNewGame(state.maxPip);
+          } else {
+            document.getElementById('modal-newgame').classList.add('open');
+          }
         });
 
         document.getElementById('btn-ng-deal').addEventListener('click', () => {
@@ -3106,7 +3118,6 @@
           document.getElementById('modal-newgame').classList.remove('open');
         });
 
-        // Potvrzeni pri zmene velikosti sady v Nastaveni
         document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
           pendingConfirmAction = null;
           document.getElementById('modal-confirm').classList.remove('open');
