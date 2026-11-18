@@ -31,13 +31,13 @@ jobs:
             exit 1
           fi
           mkdir -p "$GITHUB_WORKSPACE/keystore"
-          echo "${{ secrets.KEYSTORE_BASE64 }}" \vert{} tr -d '\n\r ' \vert{} base64 --decode > "$GITHUB_WORKSPACE/keystore/ondrandy.keystore"
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d '\n\r ' | base64 --decode > "$GITHUB_WORKSPACE/keystore/ondrandy.keystore"
           keytool -list -keystore "$GITHUB_WORKSPACE/keystore/ondrandy.keystore" -storepass android
 
       - name: Initialize Capacitor and build Android project
         run: |
           npm init -y
-          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/preferences@6
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           npx cap init "Homino" "cz.homino.game" --web-dir=www
           npx cap add android
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/g' android/app/src/main/AndroidManifest.xml
@@ -45,7 +45,7 @@ jobs:
       - name: Configure Explicit Signing and versionCode in build.gradle
         run: |
           BUILD_GRADLE="android/app/build.gradle"
-          VERSION_CODE=$((100 +${{ github.run_number }}))
+          VERSION_CODE=$((100 + ${{ github.run_number }}))
           sed -i -E "s/versionCode[[:space:]]*=?[[:space:]]*1/versionCode $VERSION_CODE/g" "$BUILD_GRADLE"
           sed -i -E "s/versionName[[:space:]]*=?[[:space:]]*\"1\.0\"/versionName \"1.0.${{ github.run_number }}\"/g" "$BUILD_GRADLE"
           cat << 'EOF' >> "$BUILD_GRADLE"
