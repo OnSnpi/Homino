@@ -29,6 +29,8 @@
       --domino-bg-v: #f0fdf4;
       --domino-border: #2563eb;
       --domino-border-v: #16a34a;
+      --filter-bg: rgba(37, 99, 235, 0.11);
+      --filter-border: rgba(37, 99, 235, 0.45);
       --error-bg: #fef2f2;
       --error-border: #ef4444;
       --error-text: #b91c1c;
@@ -61,6 +63,8 @@
       --domino-bg-v: #fef9c3;
       --domino-border: #d97706;
       --domino-border-v: #b45309;
+      --filter-bg: rgba(251, 191, 36, 0.18);
+      --filter-border: rgba(251, 191, 36, 0.6);
       --error-bg: rgba(220, 38, 38, 0.28);
       --error-border: #fca5a5;
       --error-text: #fee2e2;
@@ -104,6 +108,8 @@
       --domino-bg-v: rgba(244, 114, 182, 0.10);
       --domino-border: #fbbf24;
       --domino-border-v: #f9a8d4;
+      --filter-bg: rgba(245, 158, 11, 0.18);
+      --filter-border: rgba(251, 191, 36, 0.6);
       --error-bg: rgba(239, 68, 68, 0.22);
       --error-border: #f87171;
       --error-text: #fca5a5;
@@ -378,6 +384,16 @@
       z-index: 1;
     }
 
+    /* Zvyrazneni kandidatu z chytreho filtru v dolnim prehledu */
+    .filter-pill {
+      position: absolute;
+      background: var(--filter-bg);
+      border: 1.5px dashed var(--filter-border);
+      border-radius: 9px;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
     .domino-pill {
       position: absolute;
       background: var(--domino-bg);
@@ -642,17 +658,24 @@
       min-width: 0;
       min-height: 21px;
       overflow: hidden;
+      cursor: pointer;
       transition: all 0.15s ease;
+    }
+
+    .tray-item:active {
+      transform: scale(0.94);
     }
 
     .tray-item svg {
       flex-shrink: 0;
     }
 
-    .tray-blank-slot {
-      display: inline-block;
-      width: 9px;
-      height: 9px;
+    .tray-item.filtered {
+      background: var(--status-bg);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      font-weight: 800;
+      box-shadow: 0 0 0 1px var(--accent);
     }
 
     .tray-item.used {
@@ -661,6 +684,7 @@
       border-color: transparent;
       text-decoration: line-through;
       opacity: 0.55;
+      cursor: default;
     }
 
     .tray-item.used.trial-used {
@@ -1079,7 +1103,6 @@
       align-items: center;
     }
 
-    /* 4 sloupce pro statistiku (1-4, 1-5, 1-6, 0-6) */
     .stats-grid-modal {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -1673,11 +1696,16 @@
       const MILESTONE_PIPS = 20;
       const MILESTONE_ROYAL = 30;
 
-      // 0 = G, 1 = A, 2 = B, 3 = C, 4 = D, 5 = E, 6 = F
-      const LETTERS = ['G', 'A', 'B', 'C', 'D', 'E', 'F'];
+      // Posunuty prevodnik pismen:
+      // Pro sadu 0-6 (diffMode === 7): 0->A, 1->B, 2->C, 3->D, 4->E, 5->F, 6->G
+      // Pro sady 1-4, 1-5, 1-6: 1->A, 2->B, 3->C, 4->D, 5->E, 6->F
+      function valueToLetter(val, diffMode = state.maxPip) {
+        if (diffMode === 7) {
+          return ['A', 'B', 'C', 'D', 'E', 'F', 'G'][val] || '';
+        }
+        return ['', 'A', 'B', 'C', 'D', 'E', 'F'][val] || '';
+      }
 
-      // Pomocne funkce pro rozsah hodnot podle typu sady:
-      // 4 => 1..4, 5 => 1..5, 6 => 1..6, 7 => 0..6
       function getValueRange(diffMode) {
         if (diffMode === 7) return { minVal: 0, maxVal: 6 };
         return { minVal: 1, maxVal: diffMode };
@@ -1772,6 +1800,7 @@
               <ul>
                 <li><strong>Klepnut\u00ed na hranu:</strong> nakresl\u00ed nebo sma\u017ee okrajovou \u010d\u00e1ru mezi dv\u011bma pol\u00ed\u010dky.</li>
                 <li><strong>Pota\u017een\u00ed prstem (swipe):</strong> p\u0159eje\u010f z jednoho pol\u00ed\u010dka na sousedn\u00ed pro okam\u017eit\u00e9 spojen\u00ed (nebo zru\u0161en\u00ed) domina.</li>
+                <li><strong>Chytr\u00fd filtr dole:</strong> klepnut\u00edm na k\u00e1men v p\u0159ehledu dole se na desce jemn\u011b zv\u00fdrazn\u00ed v\u0161echna voln\u00e1 m\u00edsta, kam lze tuto dvojici polo\u017eit.</li>
                 <li><strong>Re\u017eim zkou\u0161ky (\u270e Zkusit):</strong> na rozcest\u00ed ulo\u017e\u00ed jist\u00fd stav; dal\u0161\u00ed tahy jsou \u010d\u00e1rkovan\u00e9 a lze je jedním klepnut\u00edm <strong>potvrdit</strong> nebo <strong>zahodit</strong>.</li>
                 <li><strong>N\u00e1pov\u011bda:</strong> nejprve upozorn\u00ed na chybu; jinak dopln\u00ed jeden spr\u00e1vn\u00fd okraj.</li>
               </ul>
@@ -1870,6 +1899,7 @@
               <ul>
                 <li><strong>Tap an edge:</strong> draws or removes a border line between two cells.</li>
                 <li><strong>Swipe across cells:</strong> drag from one cell to an adjacent cell to link (or unlink) a domino.</li>
+                <li><strong>Smart tray filter:</strong> tap any domino in the tray below to highlight all available candidate pairs on the board.</li>
                 <li><strong>Trial mode (\u270e Try):</strong> saves a checkpoint; subsequent moves appear dashed and can be <strong>kept</strong> or <strong>dropped</strong> in one tap.</li>
                 <li><strong>Hint:</strong> highlights any mistake first; otherwise reveals one true border edge.</li>
               </ul>
@@ -1947,6 +1977,9 @@
         isGameOver: false
       };
 
+      // Aktivni filtr vybraneho kamene ze spodního seznamu (napr. "3-5" nebo null)
+      let activeFilterPair = null;
+
       let transientErrors = {
         cells: new Set(),
         edges: new Set(),
@@ -1976,7 +2009,6 @@
         document.getElementById('modal-confirm').classList.add('open');
       }
 
-      // Scitani mistrovskych vyher (sady 1-6 a 0-6) pro odemykani odmen
       function getMasterWins() {
         if (!state.wins) return 0;
         return (Number(state.wins[6]) || 0) + (Number(state.wins[7]) || 0);
@@ -2012,7 +2044,7 @@
         const lo = Math.min(a, b);
         const hi = Math.max(a, b);
         if (state.displayMode === 'letters') {
-          return `${LETTERS[lo]}\u2013${LETTERS[hi]}`;
+          return `${valueToLetter(lo)}\u2013${valueToLetter(hi)}`;
         }
         return `${lo}\u2013${hi}`;
       }
@@ -2027,7 +2059,7 @@
       }
 
       function generatePuzzle(diffMode) {
-        const rows = diffMode + 1; // pro 7 (sada 0-6) je to 8 radku x 7 sloupcu = 56 policek (28 kamenu)
+        const rows = diffMode + 1;
         const cols = diffMode;
         const totalCells = rows * cols;
         const used = Array.from({ length: rows }, () => Array(cols).fill(false));
@@ -2292,7 +2324,7 @@
           const delay = Math.random() * 0.65;
           const duration = 2.1 + Math.random() * 1.4;
           const color = colors[i % colors.length];
-          const symVal = (i % 6) + 1;
+          const symVal = i % 7;
 
           piece.style.left = `${left}%`;
           piece.style.color = color;
@@ -2380,6 +2412,7 @@
         document.getElementById('modal-end').classList.remove('open');
         document.getElementById('modal-newgame').classList.remove('open');
 
+        activeFilterPair = null;
         state.walls = {};
         state.dominoes = [];
         state.checkpoint = null;
@@ -2400,6 +2433,7 @@
         document.getElementById('modal-end').classList.remove('open');
         document.getElementById('modal-newgame').classList.remove('open');
 
+        activeFilterPair = null;
         const puzzle = generatePuzzle(diffMode);
         state.maxPip = diffMode;
         state.rows = puzzle.rows;
@@ -2426,6 +2460,7 @@
         if (state.isGameOver) {
           startNewGame(state.maxPip);
         }
+        activeFilterPair = null;
         state.checkpoint = null;
         state.walls = {};
         state.dominoes = state.solution.map(s => ({ ...s, trial: false }));
@@ -2621,6 +2656,11 @@
           counts[pk] = (counts[pk] || 0) + 1;
         }
 
+        // Pokud byl filtrovany kamen mezitim polozen na desku, filtr automaticky zrusime
+        if (activeFilterPair && (counts[activeFilterPair] || 0) >= 1) {
+          activeFilterPair = null;
+        }
+
         let dupLabel = null;
         for (const d of state.dominoes) {
           const v1 = state.grid[d.r1][d.c1];
@@ -2665,6 +2705,7 @@
           if (state.checkpoint) {
             acceptTrialMode(true);
           }
+          activeFilterPair = null;
           const wasAlreadyOver = state.isGameOver;
           state.isGameOver = true;
           state.history = [];
@@ -2799,7 +2840,7 @@
         }
       }
 
-      // 0 = prazdne policko bez tecek
+      // 0 = prazdne policko v teckach
       function createPipHTML(val) {
         if (val === 0) return '';
         const map = {
@@ -2819,15 +2860,14 @@
         return html;
       }
 
-      // 0 = prazdne policko v Diffequa symbolech
+      // 0 = srdce v Diffequa symbolech
       function createSymbolSVG(val, sizePx = null, withFill = false) {
-        if (val === 0) {
-          return sizePx ? `<span class="tray-blank-slot"></span>` : '';
-        }
         const styleAttr = sizePx ? `width="${sizePx}" height="${sizePx}"` : `class="sym-icon"`;
         const sw = sizePx ? '2.8' : '2.6';
         const fillAttr = withFill ? `fill="currentColor" fill-opacity="0.22"` : `fill="none"`;
         switch (val) {
+          case 0:
+            return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><path d="M12 20.5C12 20.5 4 15.2 4 9.2C4 6.5 6.1 4.5 8.6 4.5C10.2 4.5 11.4 5.3 12 6.4C12.6 5.3 13.8 4.5 15.4 4.5C17.9 4.5 20 6.5 20 9.2C20 15.2 12 20.5 12 20.5Z"/></svg>`;
           case 1:
             return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}"><circle cx="12" cy="12" r="7.5"/></svg>`;
           case 2:
@@ -2845,10 +2885,34 @@
       }
 
       function renderCellValue(val) {
-        if (state.displayMode === 'letters') return LETTERS[val];
+        if (state.displayMode === 'letters') return valueToLetter(val);
         if (state.displayMode === 'symbols') return createSymbolSVG(val);
         if (state.displayMode === 'pips') return createPipHTML(val);
         return val;
+      }
+
+      // Najde vsechny platne volne dvojice sousednich policek pro aktivni filtr
+      function getFilterCandidatePairs(targetPairKey) {
+        if (!targetPairKey || state.isGameOver) return [];
+        const candidates = [];
+        for (let r = 0; r < state.rows; r++) {
+          for (let c = 0; c < state.cols; c++) {
+            if (findDominoAt(r, c) !== -1) continue;
+            // Vpravo
+            if (c + 1 < state.cols && findDominoAt(r, c + 1) === -1 && !isBlockedBetween(r, c, r, c + 1)) {
+              if (pairKey(state.grid[r][c], state.grid[r][c + 1]) === targetPairKey) {
+                candidates.push({ r1: r, c1: c, r2: r, c2: c + 1 });
+              }
+            }
+            // Dolu
+            if (r + 1 < state.rows && findDominoAt(r + 1, c) === -1 && !isBlockedBetween(r, c, r + 1, c)) {
+              if (pairKey(state.grid[r][c], state.grid[r + 1][c]) === targetPairKey) {
+                candidates.push({ r1: r, c1: c, r2: r + 1, c2: c });
+              }
+            }
+          }
+        }
+        return candidates;
       }
 
       function applyThemeAndI18n() {
@@ -2993,6 +3057,23 @@
         }
 
         let pillsHTML = '';
+
+        // 1) Zvyrazneni kandidatu podle aktivniho filtru ze spodního prehledu
+        if (activeFilterPair && !state.isGameOver) {
+          const candidates = getFilterCandidatePairs(activeFilterPair);
+          for (const cand of candidates) {
+            const minR = Math.min(cand.r1, cand.r2);
+            const minC = Math.min(cand.c1, cand.c2);
+            const isHoriz = cand.r1 === cand.r2;
+            const left = minC * cellW + padX;
+            const top = minR * cellH + padY;
+            const width = (isHoriz ? cellW * 2 : cellW) - padX * 2;
+            const height = (isHoriz ? cellH : cellH * 2) - padY * 2;
+            pillsHTML += `<div class="filter-pill" style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;"></div>`;
+          }
+        }
+
+        // 2) Polozene kameny domina
         for (const d of state.dominoes) {
           if (Math.abs(d.r1 - d.r2) + Math.abs(d.c1 - d.c2) !== 1) continue;
           const minR = Math.min(d.r1, d.r2);
@@ -3079,17 +3160,33 @@
               if (trialPairSet.has(pk)) cls.push('trial-used');
             }
             if (cnt > 1) cls.push('duplicate');
+            if (activeFilterPair === pk && cnt === 0) cls.push('filtered');
 
             let itemLabel = `${a}\u2013${b}`;
             if (state.displayMode === 'letters') {
-              itemLabel = `${LETTERS[a]}\u2013${LETTERS[b]}`;
+              itemLabel = `${valueToLetter(a)}\u2013${valueToLetter(b)}`;
             } else if (state.displayMode === 'symbols') {
               itemLabel = `${createSymbolSVG(a, 11.5, true)}<span>\u2013</span>${createSymbolSVG(b, 11.5, true)}`;
             }
-            trayHTML += `<div class="${cls.join(' ')}">${itemLabel}</div>`;
+            trayHTML += `<div class="${cls.join(' ')}" data-pk="${pk}" data-cnt="${cnt}">${itemLabel}</div>`;
           }
         }
         tray.innerHTML = trayHTML;
+
+        // Kliknuti na kamen v dolnim prehledu zapne / vypne chytry filtr
+        tray.querySelectorAll('.tray-item').forEach(el => {
+          el.addEventListener('click', () => {
+            if (state.isGameOver) return;
+            const pk = el.dataset.pk;
+            const cnt = Number(el.dataset.cnt) || 0;
+            if (cnt > 0) {
+              activeFilterPair = null;
+            } else {
+              activeFilterPair = (activeFilterPair === pk) ? null : pk;
+            }
+            renderAll();
+          });
+        });
 
         const mw = getMasterWins();
         document.getElementById('stat-wins-4').textContent = state.wins[4] || 0;
@@ -3105,7 +3202,7 @@
         document.getElementById('lang-en').classList.toggle('active', state.lang === 'en');
 
         document.getElementById('tile-digits-icon').textContent = getSetLabel(state.maxPip);
-        document.getElementById('tile-letters-icon').textContent = state.maxPip === 7 ? 'A\u2013G' : `A\u2013${LETTERS[state.maxPip]}`;
+        document.getElementById('tile-letters-icon').textContent = state.maxPip === 7 ? 'A\u2013G' : `A\u2013${valueToLetter(state.maxPip)}`;
 
         const uEmerald = mw >= MILESTONE_EMERALD;
         const uTour = mw >= MILESTONE_TOUR;
