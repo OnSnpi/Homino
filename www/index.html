@@ -134,6 +134,7 @@
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
+    /* Usporne okraje na mobilu pro maximalni plochu domin */
     .app {
       width: 100%;
       max-width: 460px;
@@ -328,6 +329,7 @@
       color: #ffffff;
     }
 
+    /* Primo mrizka bez zbytecneho vnejsiho bileho ramecku navic */
     .board-area {
       width: 100%;
       display: flex;
@@ -1648,14 +1650,7 @@
 
   <script>
     (() => {
-      // Trvaly nemenny klic pro vyhry, odmeny a nastaveni (oddeleny od rozehrane partie)
-      const PROFILE_KEY = 'homino_profile_permanent';
-      const BOARD_KEY = 'homino_board_current';
-      const LEGACY_KEYS = [
-        'homino_save_v12', 'homino_save_v11', 'homino_save_v10',
-        'homino_save_v9', 'homino_save_v8', 'homino_save_v7',
-        'homino_save_v6', 'homino_save_v5'
-      ];
+      const STORAGE_KEY = 'homino_save_v12';
 
       const MILESTONE_EMERALD = 5;
       const MILESTONE_TOUR = 10;
@@ -1869,45 +1864,6 @@
         return (nav.startsWith('cs') || nav.startsWith('sk')) ? 'cs' : 'en';
       };
 
-      // Pristup k nativnim Android SharedPreferences (Capacitor Preferences) s fallbackem na localStorage
-      function getNativePrefs() {
-        try {
-          if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-            return window.Capacitor.Plugins.Preferences;
-          }
-        } catch (e) {}
-        return null;
-      }
-
-      async function storageRead(key) {
-        const prefs = getNativePrefs();
-        if (prefs) {
-          try {
-            const res = await prefs.get({ key });
-            if (res && res.value !== null && res.value !== undefined) {
-              return res.value;
-            }
-          } catch (e) {}
-        }
-        try {
-          return localStorage.getItem(key);
-        } catch (e) {
-          return null;
-        }
-      }
-
-      async function storageWrite(key, value) {
-        try {
-          localStorage.setItem(key, value);
-        } catch (e) {}
-        const prefs = getNativePrefs();
-        if (prefs) {
-          try {
-            await prefs.set({ key, value });
-          } catch (e) {}
-        }
-      }
-
       let state = {
         lang: detectLang(),
         maxPip: 6,
@@ -2062,139 +2018,34 @@
         return { rows, cols, grid, solution: pairs };
       }
 
-      // Oddelene ukladani trvaleho profilu a rozehrane desky
-      function saveProfile() {
-        const profileData = {
-          lang: state.lang,
-          maxPip: state.maxPip,
-          wins: {
-            4: Number(state.wins[4]) || 0,
-            5: Number(state.wins[5]) || 0,
-            6: Number(state.wins[6]) || 0
-          },
-          theme: state.theme,
-          displayMode: state.displayMode
-        };
-        storageWrite(PROFILE_KEY, JSON.stringify(profileData));
-      }
-
-      function saveBoard() {
-        const boardData = {
-          maxPip: state.maxPip,
-          rows: state.rows,
-          cols: state.cols,
-          grid: state.grid,
-          solution: state.solution,
-          walls: state.walls,
-          dominoes: state.dominoes,
-          checkpoint: state.checkpoint,
-          history: state.history,
-          isGameOver: state.isGameOver
-        };
-        storageWrite(BOARD_KEY, JSON.stringify(boardData));
-      }
-
       function saveGame() {
-        saveProfile();
-        saveBoard();
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
       }
 
-      function extractWinsFromObject(obj) {
-        if (!obj || typeof obj !== 'object') return { 4: 0, 5: 0, 6: 0 };
-        if (obj.wins && typeof obj.wins === 'object') {
-          return {
-            4: Number(obj.wins[4]) || 0,
-            5: Number(obj.wins[5]) || 0,
-            6: Number(obj.wins[6]) || 0
-          };
-        }
-        return {
-          4: 0,
-          5: 0,
-          6: Number(obj.masterWins) || 0
-        };
-      }
-
-      async function loadGame() {
-        let bestWins = { 4: 0, 5: 0, 6: 0 };
-        let loadedProfile = null;
-        let loadedBoard = null;
-
-        // 1) Nacteni trvaleho profilu (z nativnich Preferences nebo localStorage)
-        const rawProfile = await storageRead(PROFILE_KEY);
-        if (rawProfile) {
-          try {
-            loadedProfile = JSON.parse(rawProfile);
-            bestWins = extractWinsFromObject(loadedProfile);
-          } catch (e) {}
-        }
-
-        // 2) Migrace dat ze starsich verzi (pokud v nich byly nahrané vyssi vyhry)
-        for (const legacyKey of LEGACY_KEYS) {
-          const rawLegacy = await storageRead(legacyKey);
-          if (!rawLegacy) continue;
-          try {
-            const parsed = JSON.parse(rawLegacy);
-            const lw = extractWinsFromObject(parsed);
-            bestWins[4] = Math.max(bestWins[4], lw[4]);
-            bestWins[5] = Math.max(bestWins[5], lw[5]);
-            bestWins[6] = Math.max(bestWins[6], lw[6]);
-
-            if (!loadedProfile) {
-              loadedProfile = {
-                lang: parsed.lang || detectLang(),
-                maxPip: parsed.maxPip || 6,
-                theme: parsed.theme || 'classic',
-                displayMode: parsed.displayMode || 'digits'
-              };
+      function loadGame() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return false;
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.grid) && parsed.grid.length > 0) {
+            state = { ...state, ...parsed };
+            if (!state.wins || typeof state.wins !== 'object') {
+              state.wins = { 4: 0, 5: 0, 6: Number(parsed.masterWins) || 0 };
             }
-            if (!loadedBoard && Array.isArray(parsed.grid) && parsed.grid.length > 0) {
-              loadedBoard = parsed;
+            if (typeof parsed.won === 'boolean' && typeof parsed.isGameOver !== 'boolean') {
+              state.isGameOver = parsed.won;
             }
-          } catch (e) {}
-        }
-
-        // 3) Nacteni aktualni rozehrane partie
-        const rawBoard = await storageRead(BOARD_KEY);
-        if (rawBoard) {
-          try {
-            const parsedBoard = JSON.parse(rawBoard);
-            if (parsedBoard && Array.isArray(parsedBoard.grid) && parsedBoard.grid.length > 0) {
-              loadedBoard = parsedBoard;
+            if (state.isGameOver) {
+              state.history = [];
+              state.checkpoint = null;
+              state.walls = {};
             }
-          } catch (e) {}
-        }
-
-        if (loadedProfile) {
-          state.lang = loadedProfile.lang || state.lang;
-          state.maxPip = loadedProfile.maxPip || state.maxPip;
-          state.theme = loadedProfile.theme || state.theme;
-          state.displayMode = loadedProfile.displayMode || state.displayMode;
-        }
-        state.wins = bestWins;
-        sanitizeUnlocks();
-        saveProfile();
-
-        if (loadedBoard && Array.isArray(loadedBoard.grid) && loadedBoard.grid.length > 0) {
-          state.maxPip = loadedBoard.maxPip || state.maxPip;
-          state.rows = loadedBoard.rows || (state.maxPip + 1);
-          state.cols = loadedBoard.cols || state.maxPip;
-          state.grid = loadedBoard.grid;
-          state.solution = loadedBoard.solution || [];
-          state.walls = loadedBoard.walls || {};
-          state.dominoes = loadedBoard.dominoes || [];
-          state.checkpoint = loadedBoard.checkpoint || null;
-          state.history = loadedBoard.history || [];
-          state.isGameOver = Boolean(loadedBoard.isGameOver || loadedBoard.won);
-          if (state.isGameOver) {
-            state.history = [];
-            state.checkpoint = null;
-            state.walls = {};
+            sanitizeUnlocks();
+            return true;
           }
-          saveBoard();
-          return true;
-        }
-
+        } catch (e) {}
         return false;
       }
 
@@ -2207,7 +2058,7 @@
         };
         transientErrors.message = I18N[state.lang].statusTrialActive;
         transientErrors.type = 'normal';
-        saveBoard();
+        saveGame();
         renderAll();
       }
 
@@ -2241,7 +2092,7 @@
         evaluateBoard(false, false);
         transientErrors.message = I18N[state.lang].statusTrialDiscarded;
         transientErrors.type = 'normal';
-        saveBoard();
+        saveGame();
         renderAll();
       }
 
@@ -2362,7 +2213,7 @@
           message: I18N[state.lang].statusRestarted,
           type: 'normal'
         };
-        saveBoard();
+        saveGame();
         renderAll();
       }
 
@@ -2413,7 +2264,7 @@
         transientErrors.edges.clear();
         transientErrors.message = I18N[state.lang].statusStatsReset;
         transientErrors.type = 'normal';
-        saveProfile();
+        saveGame();
         renderAll();
       }
 
@@ -2440,7 +2291,7 @@
         transientErrors.edges.clear();
         transientErrors.message = null;
         transientErrors.type = 'normal';
-        saveBoard();
+        saveGame();
         renderAll();
       }
 
@@ -3332,84 +3183,79 @@
         document.querySelectorAll('[data-lang]').forEach(btn => {
           btn.addEventListener('click', () => {
             state.lang = btn.dataset.lang;
-            saveProfile();
+            saveGame();
             renderAll();
           });
         });
 
         document.getElementById('tile-classic').addEventListener('click', () => {
           state.theme = 'classic';
-          saveProfile();
+          saveGame();
           renderAll();
         });
 
         document.getElementById('tile-emerald').addEventListener('click', () => {
           if (getMasterWins() < MILESTONE_EMERALD) return;
           state.theme = 'emerald';
-          saveProfile();
+          saveGame();
           renderAll();
         });
 
         document.getElementById('tile-tournament').addEventListener('click', () => {
           if (getMasterWins() < MILESTONE_TOUR) return;
           state.theme = 'tournament';
-          saveProfile();
+          saveGame();
           renderAll();
         });
 
         document.getElementById('tile-royal').addEventListener('click', () => {
           if (getMasterWins() < MILESTONE_ROYAL) return;
           state.theme = 'royal';
-          saveProfile();
+          saveGame();
           renderAll();
         });
 
         document.getElementById('tile-digits').addEventListener('click', () => {
           state.displayMode = 'digits';
-          saveProfile();
+          saveGame();
           renderAll();
         });
 
         document.getElementById('tile-letters').addEventListener('click', () => {
           state.displayMode = 'letters';
-          saveProfile();
+          saveGame();
           renderAll();
         });
 
         document.getElementById('tile-symbols').addEventListener('click', () => {
           if (getMasterWins() < MILESTONE_SYMBOLS) return;
           state.displayMode = 'symbols';
-          saveProfile();
+          saveGame();
           renderAll();
         });
 
         document.getElementById('tile-pips').addEventListener('click', () => {
           if (getMasterWins() < MILESTONE_PIPS) return;
           state.displayMode = 'pips';
-          saveProfile();
+          saveGame();
           renderAll();
         });
       }
 
-      async function initApp() {
-        setupUI();
-        setupPointerInteractions();
-        const loaded = await loadGame();
-        if (!loaded) {
-          startNewGame(6);
-        } else {
-          evaluateBoard(false, false);
-          if (state.isGameOver) {
-            transientErrors.message = I18N[state.lang].statusFinishedLocked;
-            transientErrors.type = 'success';
-          } else if (!transientErrors.message) {
-            transientErrors.message = I18N[state.lang].statusResume;
-          }
-          renderAll();
+      setupUI();
+      setupPointerInteractions();
+      if (!loadGame()) {
+        startNewGame(6);
+      } else {
+        evaluateBoard(false, false);
+        if (state.isGameOver) {
+          transientErrors.message = I18N[state.lang].statusFinishedLocked;
+          transientErrors.type = 'success';
+        } else if (!transientErrors.message) {
+          transientErrors.message = I18N[state.lang].statusResume;
         }
+        renderAll();
       }
-
-      initApp();
     })();
   </script>
 </body>
