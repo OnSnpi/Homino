@@ -134,24 +134,25 @@
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
+    /* Usporne okraje na mobilu pro maximalni plochu domin */
     .app {
       width: 100%;
-      max-width: 440px;
-      padding: max(10px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+      max-width: 460px;
+      padding: max(6px, env(safe-area-inset-top)) 6px max(8px, env(safe-area-inset-bottom));
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      gap: 6px;
       min-width: 0;
     }
 
     .header {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px 11px;
+      border-radius: 12px;
+      padding: 6px 10px;
       display: grid;
       grid-template-columns: 1fr auto 1fr;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       box-shadow: var(--shadow);
       flex-shrink: 0;
@@ -215,9 +216,9 @@
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
-      width: 32px;
-      height: 32px;
-      border-radius: 9px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -233,19 +234,19 @@
     .status-bar {
       background: var(--status-bg);
       border: 1px solid var(--status-border);
-      border-radius: 12px;
-      height: 46px;
-      min-height: 46px;
-      max-height: 46px;
+      border-radius: 11px;
+      height: 40px;
+      min-height: 40px;
+      max-height: 40px;
       flex-shrink: 0;
       overflow: hidden;
-      padding: 0 8px 0 11px;
+      padding: 0 7px 0 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 6px;
-      font-size: 12.5px;
-      line-height: 1.22;
+      font-size: 12px;
+      line-height: 1.2;
       font-weight: 500;
       color: var(--status-text);
       width: 100%;
@@ -295,8 +296,8 @@
       border: 1px solid currentColor;
       background: rgba(255, 255, 255, 0.45);
       color: inherit;
-      border-radius: 8px;
-      padding: 5px 8px;
+      border-radius: 7px;
+      padding: 4px 7px;
       font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
@@ -328,27 +329,13 @@
       color: #ffffff;
     }
 
-    .board-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 10px;
-      box-shadow: var(--shadow);
+    /* Primo mrizka bez zbytecneho vnejsiho bileho ramecku navic */
+    .board-area {
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 100%;
       min-width: 0;
-    }
-
-    body.theme-emerald .board-card {
-      background: radial-gradient(circle at center, #065f46 0%, #022c22 100%);
-      border-color: #10b981;
-    }
-
-    body.theme-royal .board-card {
-      border-color: rgba(251, 191, 36, 0.35);
-      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
     }
 
     .board-wrapper {
@@ -369,18 +356,20 @@
       grid-template-columns: repeat(var(--cols), 1fr);
       grid-template-rows: repeat(var(--rows), 1fr);
       border: 2.5px solid var(--wall);
-      border-radius: 10px;
+      border-radius: 12px;
       background: var(--card);
+      box-shadow: var(--shadow);
       overflow: hidden;
     }
 
     body.theme-emerald .board-grid {
-      background: #064e3b;
+      background: radial-gradient(circle at center, #065f46 0%, #022c22 100%);
+      border-color: #10b981;
     }
 
     body.theme-royal .board-grid {
-      background: #0f172a;
-      box-shadow: 0 0 18px rgba(245, 158, 11, 0.14);
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.16);
     }
 
     .domino-overlay {
@@ -394,7 +383,7 @@
       position: absolute;
       background: var(--domino-bg);
       border: 2px solid var(--domino-border);
-      border-radius: 8px;
+      border-radius: 9px;
       box-sizing: border-box;
       transition: all 0.14s ease;
     }
@@ -462,7 +451,7 @@
       border-right: 1px dashed rgba(148, 163, 184, 0.34);
       border-bottom: 1px dashed rgba(148, 163, 184, 0.34);
       font-weight: 700;
-      font-size: clamp(19px, 5.5vw, 24px);
+      font-size: clamp(20px, 6vw, 26px);
       color: var(--text);
       background: transparent;
       z-index: 2;
@@ -617,8 +606,8 @@
     .tray-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px 8px;
+      border-radius: 12px;
+      padding: 6px;
       box-shadow: var(--shadow);
       width: 100%;
       min-width: 0;
@@ -628,7 +617,7 @@
     .tray-grid {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 4px;
+      gap: 3px;
       width: 100%;
     }
 
@@ -638,8 +627,8 @@
 
     .tray-item {
       border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 3px 1px;
+      border-radius: 6px;
+      padding: 2px 1px;
       text-align: center;
       font-size: 11px;
       font-weight: 600;
@@ -651,7 +640,7 @@
       justify-content: center;
       gap: 1px;
       min-width: 0;
-      min-height: 24px;
+      min-height: 22px;
       overflow: hidden;
       transition: all 0.15s ease;
     }
@@ -684,7 +673,7 @@
     .controls {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
+      gap: 6px;
       margin-top: auto;
       width: 100%;
       min-width: 0;
@@ -694,8 +683,8 @@
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 12px;
-      padding: 11px 6px;
+      border-radius: 11px;
+      padding: 10px 4px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
@@ -1466,7 +1455,7 @@
       <div class="trial-actions" id="trial-actions"></div>
     </div>
 
-    <main class="board-card">
+    <main class="board-area">
       <div class="board-wrapper" id="board-wrapper">
         <div class="domino-overlay" id="domino-overlay"></div>
         <div class="board-grid" id="board-grid"></div>
@@ -1661,7 +1650,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'homino_save_v11';
+      const STORAGE_KEY = 'homino_save_v12';
 
       const MILESTONE_EMERALD = 5;
       const MILESTONE_TOUR = 10;
@@ -2806,8 +2795,8 @@
         const dominoOverlay = document.getElementById('domino-overlay');
         const cellW = 100 / state.cols;
         const cellH = 100 / state.rows;
-        const padX = cellW * 0.08;
-        const padY = cellH * 0.08;
+        const padX = cellW * 0.065;
+        const padY = cellH * 0.065;
 
         const usedPairCounts = {};
         const trialPairSet = new Set();
