@@ -384,7 +384,6 @@
       z-index: 1;
     }
 
-    /* Zvyrazneni kandidatu z chytreho filtru v dolnim prehledu */
     .filter-pill {
       position: absolute;
       background: var(--filter-bg);
@@ -877,7 +876,7 @@
       transform: scale(0.98);
     }
 
-    /* POTVRZOVACI MODAL PRO ZMENU OBTIZNOSTI */
+    /* POTVRZOVACI MODAL PRO ZMENU OBTIZNOSTI / TYPU ZADANI */
     .confirm-modal-inner {
       text-align: center;
       padding: 6px 4px 2px;
@@ -1168,6 +1167,8 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      text-align: center;
+      line-height: 1.2;
     }
 
     .seg-choice.active {
@@ -1511,7 +1512,7 @@
     </div>
   </div>
 
-  <!-- MODALNI OKNO POTVRZENI PRI ZMENE VELIKOSTI SADY V NASTAVENI -->
+  <!-- MODALNI OKNO POTVRZENI PRI ZMENE OBTIZNOSTI / TYPU ZADANI -->
   <div class="modal-backdrop" id="modal-confirm">
     <div class="modal">
       <div class="confirm-modal-inner">
@@ -1580,6 +1581,12 @@
         <button class="seg-choice" id="diff-5" data-diff="5">1&#8211;5 (5&#215;6)</button>
         <button class="seg-choice" id="diff-6" data-diff="6">1&#8211;6 (6&#215;7)</button>
         <button class="seg-choice" id="diff-7" data-diff="7">0&#8211;6 (7&#215;8)</button>
+      </div>
+
+      <div class="modal-section-label"><span id="set-gen-label">Typ zad&#225;n&#237;</span></div>
+      <div class="segmented-2">
+        <button class="seg-choice" id="gen-classic" data-gen="classic">Klasick&#233;</button>
+        <button class="seg-choice" id="gen-unique" data-gen="unique">&#268;ist&#225; logika (1 &#345;e&#353;en&#237;)</button>
       </div>
 
       <div class="modal-section-label">
@@ -1696,9 +1703,6 @@
       const MILESTONE_PIPS = 20;
       const MILESTONE_ROYAL = 30;
 
-      // Posunuty prevodnik pismen:
-      // Pro sadu 0-6 (diffMode === 7): 0->A, 1->B, 2->C, 3->D, 4->E, 5->F, 6->G
-      // Pro sady 1-4, 1-5, 1-6: 1->A, 2->B, 3->C, 4->D, 5->E, 6->F
       function valueToLetter(val, diffMode = state.maxPip) {
         if (diffMode === 7) {
           return ['A', 'B', 'C', 'D', 'E', 'F', 'G'][val] || '';
@@ -1731,7 +1735,7 @@
           ngRestartSame: '\u21bb Hr\u00e1t tuto partii od za\u010d\u00e1tku',
           ngCancel: 'Zru\u0161it',
           confirmNewTitle: 'Ukon\u010dit rozehranou hru?',
-          confirmNewDesc: 'M\u00e1\u0161 rozehranou partii. Opravdu ji chce\u0161 ukon\u010dit a zm\u011bnit velikost sady?',
+          confirmNewDesc: 'M\u00e1\u0161 rozehranou partii. Opravdu ji chce\u0161 ukon\u010dit a rozdat novou?',
           confirmCancel: 'Pokra\u010dovat v h\u0159e',
           confirmOkNew: 'Ano, nov\u00e1 hra',
           trialStartBtn: '\u270e Zkusit',
@@ -1742,6 +1746,7 @@
           statusTrialDiscarded: 'Pokus zahozen, n\u00e1vrat na rozcest\u00ed.',
           statusRestarted: 'Partie byla rozd\u00e1na znovu od za\u010d\u00e1tku.',
           statusStart: 'Klepnut\u00edm ozna\u010d okraj, p\u0159ejet\u00edm spoj domino.',
+          statusStartUnique: 'Zad\u00e1n\u00ed s jedin\u00fdm \u0159e\u0161en\u00edm \u2013 v\u0161e lze vy\u0159e\u0161it logikou.',
           statusResume: 'Pokra\u010duje\u0161 v rozehran\u00e9 h\u0159e.',
           statusFinishedLocked: 'Partie je dokon\u010dena. Spus\u0165 novou hru.',
           statusAutoFormed: 'Ohrani\u010den\u00e1 dvojice se automaticky spojila v domino!',
@@ -1773,6 +1778,9 @@
           setTitle: 'Nastaven\u00ed hry',
           setLangLabel: 'Jazyk / Language',
           setDiffLabel: 'Velikost sady (Obt\u00ed\u017enost)',
+          setGenLabel: 'Typ zad\u00e1n\u00ed',
+          genClassic: 'Klasick\u00e9',
+          genUnique: '\u010cist\u00e1 logika (1 \u0159e\u0161en\u00ed)',
           setThemeLabel: 'Barevn\u00fd motiv',
           setDisplayLabel: 'Zobrazen\u00ed hodnot',
           tileClassic: 'Klasick\u00fd',
@@ -1830,7 +1838,7 @@
           ngRestartSame: '\u21bb Replay This Puzzle from Start',
           ngCancel: 'Cancel',
           confirmNewTitle: 'Abandon current game?',
-          confirmNewDesc: 'You have a game in progress. Do you really want to end it and change set size?',
+          confirmNewDesc: 'You have a game in progress. Do you really want to end it and deal a new one?',
           confirmCancel: 'Keep Playing',
           confirmOkNew: 'Yes, New Game',
           trialStartBtn: '\u270e Try',
@@ -1841,6 +1849,7 @@
           statusTrialDiscarded: 'Trial dropped, returned to checkpoint.',
           statusRestarted: 'Puzzle restarted from the beginning.',
           statusStart: 'Tap an edge to draw a border, swipe across two cells to link.',
+          statusStartUnique: 'Unique solution puzzle \u2013 solvable purely by logic.',
           statusResume: 'Continuing saved game.',
           statusFinishedLocked: 'Game completed. Start a new game.',
           statusAutoFormed: 'Surrounded pair automatically locked into a domino!',
@@ -1872,6 +1881,9 @@
           setTitle: 'Game Settings',
           setLangLabel: 'Jazyk / Language',
           setDiffLabel: 'Set Size (Difficulty)',
+          setGenLabel: 'Puzzle Mode',
+          genClassic: 'Classic',
+          genUnique: 'Pure Logic (1 Solution)',
           setThemeLabel: 'Color Theme',
           setDisplayLabel: 'Value Display',
           tileClassic: 'Classic',
@@ -1963,6 +1975,7 @@
       let state = {
         lang: detectLang(),
         maxPip: 6, // 4 = 1..4, 5 = 1..5, 6 = 1..6, 7 = 0..6
+        genMode: 'classic', // 'classic' | 'unique'
         wins: { 4: 0, 5: 0, 6: 0, 7: 0 },
         theme: 'classic',
         displayMode: 'digits',
@@ -1977,7 +1990,6 @@
         isGameOver: false
       };
 
-      // Aktivni filtr vybraneho kamene ze spodního seznamu (napr. "3-5" nebo null)
       let activeFilterPair = null;
 
       let transientErrors = {
@@ -2058,7 +2070,135 @@
         return res;
       }
 
-      function generatePuzzle(diffMode) {
+      // Rychly solver (MRV + unikátní kameny) overi, zda ma mrizka prave 1 reseni
+      function countSolutionsUpToTwo(grid, rows, cols, diffMode) {
+        const { minVal, maxVal } = getValueRange(diffMode);
+        const span = maxVal - minVal + 1;
+        const totalPairs = (rows * cols) / 2;
+        const covered = new Uint8Array(rows * cols);
+        const usedPair = new Uint8Array(span * span);
+
+        const pairIndex = (a, b) => {
+          const lo = a < b ? a - minVal : b - minVal;
+          const hi = a < b ? b - minVal : a - minVal;
+          return lo * span + hi;
+        };
+
+        // Predpocitame vsechny mozne sousedni dvojice pro kazdy typ kamene
+        const edgesByPair = Array.from({ length: span * span }, () => []);
+        const cellAdj = Array.from({ length: rows * cols }, () => []);
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const idx = r * cols + c;
+            if (c + 1 < cols) {
+              const nIdx = r * cols + (c + 1);
+              const pIdx = pairIndex(grid[r][c], grid[r][c + 1]);
+              edgesByPair[pIdx].push([idx, nIdx]);
+              cellAdj[idx].push([nIdx, pIdx]);
+              cellAdj[nIdx].push([idx, pIdx]);
+            }
+            if (r + 1 < rows) {
+              const nIdx = (r + 1) * cols + c;
+              const pIdx = pairIndex(grid[r][c], grid[r + 1][c]);
+              edgesByPair[pIdx].push([idx, nIdx]);
+              cellAdj[idx].push([nIdx, pIdx]);
+              cellAdj[nIdx].push([idx, pIdx]);
+            }
+          }
+        }
+
+        let solutionsFound = 0;
+
+        function solve(placedCount) {
+          if (solutionsFound >= 2) return;
+          if (placedCount === totalPairs) {
+            solutionsFound++;
+            return;
+          }
+
+          // 1) Najdeme bunku s nejmensim poctem volnych tahu (MRV)
+          let bestCell = -1;
+          let minCellMoves = 99;
+          for (let i = 0; i < rows * cols; i++) {
+            if (covered[i]) continue;
+            let moves = 0;
+            const adj = cellAdj[i];
+            for (let k = 0; k < adj.length; k++) {
+              const [nb, pIdx] = adj[k];
+              if (!covered[nb] && !usedPair[pIdx]) moves++;
+            }
+            if (moves === 0) return; // Slepa ulicka
+            if (moves < minCellMoves) {
+              minCellMoves = moves;
+              bestCell = i;
+              if (moves === 1) break;
+            }
+          }
+
+          // 2) Pokud existuje nepouzity kamen s 0 nebo 1 moznosti umisteni, uprednostnime ho
+          let bestPair = -1;
+          let minPairMoves = minCellMoves;
+          if (minPairMoves > 1) {
+            for (let a = minVal; a <= maxVal; a++) {
+              for (let b = a; b <= maxVal; b++) {
+                const pIdx = (a - minVal) * span + (b - minVal);
+                if (usedPair[pIdx]) continue;
+                const edges = edgesByPair[pIdx];
+                let moves = 0;
+                for (let k = 0; k < edges.length; k++) {
+                  const [u, v] = edges[k];
+                  if (!covered[u] && !covered[v]) moves++;
+                }
+                if (moves === 0) return; // Kamen nejde nikam umistit
+                if (moves < minPairMoves) {
+                  minPairMoves = moves;
+                  bestPair = pIdx;
+                  if (moves === 1) break;
+                }
+              }
+              if (minPairMoves === 1 && bestPair !== -1) break;
+            }
+          }
+
+          if (bestPair !== -1) {
+            const edges = edgesByPair[bestPair];
+            usedPair[bestPair] = 1;
+            for (let k = 0; k < edges.length; k++) {
+              const [u, v] = edges[k];
+              if (!covered[u] && !covered[v]) {
+                covered[u] = 1;
+                covered[v] = 1;
+                solve(placedCount + 1);
+                covered[u] = 0;
+                covered[v] = 0;
+                if (solutionsFound >= 2) break;
+              }
+            }
+            usedPair[bestPair] = 0;
+          } else {
+            const adj = cellAdj[bestCell];
+            covered[bestCell] = 1;
+            for (let k = 0; k < adj.length; k++) {
+              const [nb, pIdx] = adj[k];
+              if (!covered[nb] && !usedPair[pIdx]) {
+                covered[nb] = 1;
+                usedPair[pIdx] = 1;
+                solve(placedCount + 1);
+                usedPair[pIdx] = 0;
+                covered[nb] = 0;
+                if (solutionsFound >= 2) break;
+              }
+            }
+            covered[bestCell] = 0;
+          }
+        }
+
+        solve(0);
+        return solutionsFound;
+      }
+
+      function generateSingleRandomBoard(diffMode) {
         const rows = diffMode + 1;
         const cols = diffMode;
         const totalCells = rows * cols;
@@ -2122,10 +2262,29 @@
         return { rows, cols, grid, solution: pairs };
       }
 
+      function generatePuzzle(diffMode, genMode = state.genMode) {
+        if (genMode !== 'unique') {
+          return generateSingleRandomBoard(diffMode);
+        }
+
+        const maxAttempts = diffMode === 7 ? 350 : 200;
+        let lastBoard = null;
+
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          const candidate = generateSingleRandomBoard(diffMode);
+          lastBoard = candidate;
+          if (countSolutionsUpToTwo(candidate.grid, candidate.rows, candidate.cols, diffMode) === 1) {
+            return candidate;
+          }
+        }
+        return lastBoard;
+      }
+
       function saveProfile() {
         const profileData = {
           lang: state.lang,
           maxPip: state.maxPip,
+          genMode: state.genMode,
           wins: {
             4: Number(state.wins[4]) || 0,
             5: Number(state.wins[5]) || 0,
@@ -2205,6 +2364,7 @@
               loadedProfile = {
                 lang: parsed.lang || detectLang(),
                 maxPip: parsed.maxPip || 6,
+                genMode: 'classic',
                 theme: parsed.theme || 'classic',
                 displayMode: parsed.displayMode || 'digits'
               };
@@ -2228,6 +2388,7 @@
         if (loadedProfile) {
           state.lang = loadedProfile.lang || state.lang;
           state.maxPip = loadedProfile.maxPip || state.maxPip;
+          state.genMode = loadedProfile.genMode === 'unique' ? 'unique' : 'classic';
           state.theme = loadedProfile.theme || state.theme;
           state.displayMode = loadedProfile.displayMode || state.displayMode;
         }
@@ -2398,7 +2559,7 @@
         });
 
         document.getElementById('btn-end-again').addEventListener('click', () => {
-          startNewGame(state.maxPip);
+          startNewGame(state.maxPip, state.genMode);
         });
 
         document.getElementById('modal-end').classList.add('open');
@@ -2428,14 +2589,15 @@
         renderAll();
       }
 
-      function startNewGame(diffMode = state.maxPip) {
+      function startNewGame(diffMode = state.maxPip, genMode = state.genMode) {
         clearConfetti();
         document.getElementById('modal-end').classList.remove('open');
         document.getElementById('modal-newgame').classList.remove('open');
 
         activeFilterPair = null;
-        const puzzle = generatePuzzle(diffMode);
+        const puzzle = generatePuzzle(diffMode, genMode);
         state.maxPip = diffMode;
+        state.genMode = genMode;
         state.rows = puzzle.rows;
         state.cols = puzzle.cols;
         state.grid = puzzle.grid;
@@ -2448,7 +2610,7 @@
         transientErrors = {
           cells: new Set(),
           edges: new Set(),
-          message: I18N[state.lang].statusStart,
+          message: genMode === 'unique' ? I18N[state.lang].statusStartUnique : I18N[state.lang].statusStart,
           type: 'normal'
         };
         saveGame();
@@ -2458,7 +2620,7 @@
       function simulateBatchWinForTesting() {
         document.getElementById('modal-settings').classList.remove('open');
         if (state.isGameOver) {
-          startNewGame(state.maxPip);
+          startNewGame(state.maxPip, state.genMode);
         }
         activeFilterPair = null;
         state.checkpoint = null;
@@ -2656,7 +2818,6 @@
           counts[pk] = (counts[pk] || 0) + 1;
         }
 
-        // Pokud byl filtrovany kamen mezitim polozen na desku, filtr automaticky zrusime
         if (activeFilterPair && (counts[activeFilterPair] || 0) >= 1) {
           activeFilterPair = null;
         }
@@ -2840,7 +3001,6 @@
         }
       }
 
-      // 0 = prazdne policko v teckach
       function createPipHTML(val) {
         if (val === 0) return '';
         const map = {
@@ -2860,7 +3020,6 @@
         return html;
       }
 
-      // 0 = srdce v Diffequa symbolech
       function createSymbolSVG(val, sizePx = null, withFill = false) {
         const styleAttr = sizePx ? `width="${sizePx}" height="${sizePx}"` : `class="sym-icon"`;
         const sw = sizePx ? '2.8' : '2.6';
@@ -2891,20 +3050,17 @@
         return val;
       }
 
-      // Najde vsechny platne volne dvojice sousednich policek pro aktivni filtr
       function getFilterCandidatePairs(targetPairKey) {
         if (!targetPairKey || state.isGameOver) return [];
         const candidates = [];
         for (let r = 0; r < state.rows; r++) {
           for (let c = 0; c < state.cols; c++) {
             if (findDominoAt(r, c) !== -1) continue;
-            // Vpravo
             if (c + 1 < state.cols && findDominoAt(r, c + 1) === -1 && !isBlockedBetween(r, c, r, c + 1)) {
               if (pairKey(state.grid[r][c], state.grid[r][c + 1]) === targetPairKey) {
                 candidates.push({ r1: r, c1: c, r2: r, c2: c + 1 });
               }
             }
-            // Dolu
             if (r + 1 < state.rows && findDominoAt(r + 1, c) === -1 && !isBlockedBetween(r, c, r + 1, c)) {
               if (pairKey(state.grid[r][c], state.grid[r + 1][c]) === targetPairKey) {
                 candidates.push({ r1: r, c1: c, r2: r + 1, c2: c });
@@ -2948,6 +3104,9 @@
         document.getElementById('set-title').textContent = t.setTitle;
         document.getElementById('set-lang-label').textContent = t.setLangLabel;
         document.getElementById('set-diff-label').textContent = t.setDiffLabel;
+        document.getElementById('set-gen-label').textContent = t.setGenLabel;
+        document.getElementById('gen-classic').textContent = t.genClassic;
+        document.getElementById('gen-unique').textContent = t.genUnique;
         document.getElementById('set-theme-label').textContent = t.setThemeLabel;
         document.getElementById('set-display-label').textContent = t.setDisplayLabel;
         document.getElementById('set-unlock-info').innerHTML = t.setUnlockInfo;
@@ -2990,7 +3149,7 @@
         } else if (inTrial) {
           stText.textContent = t.statusTrialActive;
         } else {
-          stText.textContent = t.statusStart;
+          stText.textContent = state.genMode === 'unique' ? t.statusStartUnique : t.statusStart;
         }
 
         if (state.isGameOver) {
@@ -3058,7 +3217,6 @@
 
         let pillsHTML = '';
 
-        // 1) Zvyrazneni kandidatu podle aktivniho filtru ze spodního prehledu
         if (activeFilterPair && !state.isGameOver) {
           const candidates = getFilterCandidatePairs(activeFilterPair);
           for (const cand of candidates) {
@@ -3073,7 +3231,6 @@
           }
         }
 
-        // 2) Polozene kameny domina
         for (const d of state.dominoes) {
           if (Math.abs(d.r1 - d.r2) + Math.abs(d.c1 - d.c2) !== 1) continue;
           const minR = Math.min(d.r1, d.r2);
@@ -3173,7 +3330,6 @@
         }
         tray.innerHTML = trayHTML;
 
-        // Kliknuti na kamen v dolnim prehledu zapne / vypne chytry filtr
         tray.querySelectorAll('.tray-item').forEach(el => {
           el.addEventListener('click', () => {
             if (state.isGameOver) return;
@@ -3198,6 +3354,10 @@
         document.getElementById('diff-5').classList.toggle('active', state.maxPip === 5);
         document.getElementById('diff-6').classList.toggle('active', state.maxPip === 6);
         document.getElementById('diff-7').classList.toggle('active', state.maxPip === 7);
+
+        document.getElementById('gen-classic').classList.toggle('active', state.genMode === 'classic');
+        document.getElementById('gen-unique').classList.toggle('active', state.genMode === 'unique');
+
         document.getElementById('lang-cs').classList.toggle('active', state.lang === 'cs');
         document.getElementById('lang-en').classList.toggle('active', state.lang === 'en');
 
@@ -3375,14 +3535,14 @@
 
         document.getElementById('btn-new').addEventListener('click', () => {
           if (state.isGameOver) {
-            startNewGame(state.maxPip);
+            startNewGame(state.maxPip, state.genMode);
           } else {
             document.getElementById('modal-newgame').classList.add('open');
           }
         });
 
         document.getElementById('btn-ng-deal').addEventListener('click', () => {
-          startNewGame(state.maxPip);
+          startNewGame(state.maxPip, state.genMode);
         });
 
         document.getElementById('btn-ng-restart').addEventListener('click', () => {
@@ -3461,7 +3621,16 @@
           btn.addEventListener('click', () => {
             const val = Number(btn.dataset.diff);
             if (val !== state.maxPip) {
-              requestConfirmAction(() => startNewGame(val));
+              requestConfirmAction(() => startNewGame(val, state.genMode));
+            }
+          });
+        });
+
+        document.querySelectorAll('[data-gen]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const mode = btn.dataset.gen;
+            if (mode !== state.genMode) {
+              requestConfirmAction(() => startNewGame(state.maxPip, mode));
             }
           });
         });
@@ -3533,7 +3702,7 @@
         setupPointerInteractions();
         const loaded = await loadGame();
         if (!loaded) {
-          startNewGame(6);
+          startNewGame(6, state.genMode);
         } else {
           evaluateBoard(false, false);
           if (state.isGameOver) {
