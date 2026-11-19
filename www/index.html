@@ -25,6 +25,7 @@
       --trial-text: #b45309;
       --wall: #0f172a;
       --wall-hint: #d97706;
+      --hole-bg: #1e293b;
       --domino-bg: #eff6ff;
       --domino-bg-v: #f0fdf4;
       --domino-border: #2563eb;
@@ -63,6 +64,7 @@
       --trial-text: #bae6fd;
       --wall: #fef3c7;
       --wall-hint: #38bdf8;
+      --hole-bg: #022c22;
       --domino-bg: #fefce8;
       --domino-bg-v: #fef9c3;
       --domino-border: #d97706;
@@ -112,6 +114,7 @@
       --trial-text: #bae6fd;
       --wall: #fbbf24;
       --wall-hint: #f8fafc;
+      --hole-bg: #090d16;
       --domino-bg: rgba(245, 158, 11, 0.12);
       --domino-bg-v: rgba(244, 114, 182, 0.10);
       --domino-border: #fbbf24;
@@ -492,7 +495,7 @@
       border-right: 1px dashed rgba(148, 163, 184, 0.34);
       border-bottom: 1px dashed rgba(148, 163, 184, 0.34);
       font-weight: 700;
-      font-size: clamp(18px, 5.4vw, 25px);
+      font-size: clamp(16px, 5vw, 24px);
       color: var(--text);
       background: transparent;
       z-index: 2;
@@ -502,12 +505,29 @@
     .cell.last-col { border-right: none; }
     .cell.last-row { border-bottom: none; }
 
+    /* Blokovane policko (dira u clenite desky) */
+    .cell.is-hole {
+      background: var(--hole-bg);
+      border-right-color: transparent;
+      border-bottom-color: transparent;
+    }
+
+    body.theme-royal .cell.is-hole {
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.22);
+    }
+
+    body.theme-emerald .cell.is-hole {
+      background: #022c22;
+      box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.25);
+    }
+
     .board-wrapper.locked .cell {
       border-right-color: transparent;
       border-bottom-color: transparent;
     }
 
-    body.theme-emerald .cell {
+    body.theme-emerald .cell:not(.is-hole) {
       border-right-color: rgba(167, 243, 208, 0.22);
       border-bottom-color: rgba(167, 243, 208, 0.22);
     }
@@ -524,7 +544,7 @@
     body.theme-tournament .val-5 { color: var(--c5); }
     body.theme-tournament .val-6 { color: var(--c6); }
 
-    body.theme-royal .cell {
+    body.theme-royal .cell:not(.is-hole) {
       color: #fde68a;
       text-shadow: 0 1px 6px rgba(245, 158, 11, 0.35);
       border-right-color: rgba(251, 191, 36, 0.16);
@@ -627,7 +647,6 @@
       box-shadow: 0 0 6px rgba(217, 119, 6, 0.45);
     }
 
-    /* Zvyrazneni hrany pro RADA nebo prehlednuty vyskyt u nalezeneho kamene */
     .edge-hit.advice-edge.v-edge .edge-line {
       width: 4.5px;
       background: repeating-linear-gradient(
@@ -943,7 +962,7 @@
       transform: scale(0.98);
     }
 
-    /* POTVRZOVACI MODAL PRO ZMENU OBTIZNOSTI / TYPU ZADANI */
+    /* POTVRZOVACI MODAL PRO ZMENU NASTAVENI */
     .confirm-modal-inner {
       text-align: center;
       padding: 6px 4px 2px;
@@ -1579,7 +1598,7 @@
     </div>
   </div>
 
-  <!-- MODALNI OKNO POTVRZENI PRI ZMENE OBTIZNOSTI / TYPU ZADANI -->
+  <!-- MODALNI OKNO POTVRZENI PRI ZMENE NASTAVENI -->
   <div class="modal-backdrop" id="modal-confirm">
     <div class="modal">
       <div class="confirm-modal-inner">
@@ -1654,6 +1673,12 @@
         <button class="seg-choice" id="diff-5" data-diff="5">1&#8211;5 (5&#215;6)</button>
         <button class="seg-choice" id="diff-6" data-diff="6">1&#8211;6 (6&#215;7)</button>
         <button class="seg-choice" id="diff-7" data-diff="7">0&#8211;6 (7&#215;8)</button>
+      </div>
+
+      <div class="modal-section-label"><span id="set-shape-label">Tvar desky</span></div>
+      <div class="segmented-2">
+        <button class="seg-choice" id="shape-rect" data-shape="rect">Obd&#233;ln&#237;k</button>
+        <button class="seg-choice" id="shape-shaped" data-shape="shaped">&#268;lenit&#225;</button>
       </div>
 
       <div class="modal-section-label"><span id="set-gen-label">Typ zad&#225;n&#237;</span></div>
@@ -1776,6 +1801,182 @@
       const MILESTONE_PIPS = 20;
       const MILESTONE_ROYAL = 30;
 
+      // Vzory pro clenitou desku (diry 'X', aktivni pole '.')
+      // Kazdy vzor ma presne tolika der, kolik je rozmer ctverce N x N (N = 5, 6, 7, 8)
+      const SHAPED_TEMPLATES = {
+        5: [
+          // 1) Stred a 4 rohy
+          [
+            'X...X',
+            '.....',
+            '..X..',
+            '.....',
+            'X...X'
+          ],
+          // 2) Maly kriz (stredovy kříž 5 der)
+          [
+            '.....',
+            '..X..',
+            '.XXX.',
+            '..X..',
+            '.....'
+          ],
+          // 3) Diagonalni schody
+          [
+            'X....',
+            '.X...',
+            '..X..',
+            '...X.',
+            '....X'
+          ],
+          // 4) Presypaci hodiny
+          [
+            '.....',
+            'X...X',
+            'X...X',
+            'X....',
+            '.....'
+          ]
+        ],
+        6: [
+          // 1) Stredovy ostrov (6 der)
+          [
+            '......',
+            '......',
+            '..XX..',
+            '..XX..',
+            '..XX..',
+            '......'
+          ],
+          // 2) Vyrezane rohy (6 der)
+          [
+            'XX..XX',
+            '......',
+            '......',
+            '......',
+            '......',
+            'X....X'
+          ],
+          // 3) Diagonalni pilire
+          [
+            'X.....',
+            '.X....',
+            '..X...',
+            '...X..',
+            '....X.',
+            '.....X'
+          ],
+          // 4) Presypaci hodiny (zuzeny stred)
+          [
+            '......',
+            '......',
+            'XX..XX',
+            'X....X',
+            '......',
+            '......'
+          ]
+        ],
+        7: [
+          // 1) Prstenec / Donut (7 der uprostred)
+          [
+            '.......',
+            '.......',
+            '...X...',
+            '.XXXXX.',
+            '...X...',
+            '.......',
+            '.......'
+          ],
+          // 2) Velky kriz (7 der v rozich)
+          [
+            'XX...XX',
+            'X.....X',
+            '.......',
+            '.......',
+            '.......',
+            '.......',
+            'X......'
+          ],
+          // 3) Diagonalni schodiste
+          [
+            'X......',
+            '.X.....',
+            '..X....',
+            '...X...',
+            '....X..',
+            '.....X.',
+            '......X'
+          ],
+          // 4) Dva vnitrni sloupy + stred
+          [
+            '.......',
+            '.X...X.',
+            '.X...X.',
+            '...X...',
+            '.X...X.',
+            '.......',
+            '.......'
+          ]
+        ],
+        8: [
+          // 1) Prstenec / Donut (8 der uprostred)
+          [
+            '........',
+            '........',
+            '...XX...',
+            '..XXXX..',
+            '...XX...',
+            '........',
+            '........',
+            '........'
+          ],
+          // 2) Velky kriz (vykousnute rohy)
+          [
+            'XX....XX',
+            'X......X',
+            '........',
+            '........',
+            '........',
+            '........',
+            'X......X',
+            'XX....XX'
+          ],
+          // 3) Diagonalni pilire
+          [
+            'X.......',
+            '.X......',
+            '..X.....',
+            '...X....',
+            '....X...',
+            '.....X..',
+            '......X.',
+            '.......X'
+          ],
+          // 4) Ctyri sloupy
+          [
+            '........',
+            '.XX..XX.',
+            '........',
+            '........',
+            '........',
+            '........',
+            '.XX..XX.',
+            '........'
+          ],
+          // 5) Presypaci hodiny
+          [
+            '........',
+            '........',
+            'XX....XX',
+            'XX....XX',
+            'XX....XX',
+            'XX....XX',
+            '........',
+            '........'
+          ]
+        ]
+      };
+
       function valueToLetter(val, diffMode = state.maxPip) {
         if (diffMode === 7) {
           return ['A', 'B', 'C', 'D', 'E', 'F', 'G'][val] || '';
@@ -1869,6 +2070,9 @@
           hapticsOn: '\uD83D\uDCF3 Vibrace: Zap.',
           hapticsOff: '\uD83D\uDCF4 Vibrace: Vyp.',
           setDiffLabel: 'Velikost sady (Obt\u00ed\u017enost)',
+          setShapeLabel: 'Tvar desky',
+          shapeRect: 'Obd\u00e9ln\u03adk',
+          shapeShaped: '\u010clenit\u00e1',
           setGenLabel: 'Typ zad\u00e1n\u00ed',
           genClassic: 'Klasick\u00e9',
           genUnique: '\u010cist\u00e1 logika (1 \u0159e\u0161en\u00ed)',
@@ -1986,6 +2190,9 @@
           hapticsOn: '\uD83D\uDCF3 Haptics: On',
           hapticsOff: '\uD83D\uDCF4 Haptics: Off',
           setDiffLabel: 'Set Size (Difficulty)',
+          setShapeLabel: 'Board Shape',
+          shapeRect: 'Rectangle',
+          shapeShaped: 'Shaped',
           setGenLabel: 'Puzzle Mode',
           genClassic: 'Classic',
           genUnique: 'Pure Logic (1 Solution)',
@@ -2040,7 +2247,6 @@
         return (nav.startsWith('cs') || nav.startsWith('sk')) ? 'cs' : 'en';
       };
 
-      // --- HMATOVA ODEZVA (@capacitor/haptics + navigator.vibrate fallback) ---
       function getNativeHaptics() {
         try {
           if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
@@ -2072,7 +2278,6 @@
         } catch (e) {}
       }
 
-      // --- SYNTETICKY ZVUK (Web Audio API - akusticke drevo a kost) ---
       let audioCtx = null;
 
       function ensureAudioCtx() {
@@ -2140,7 +2345,6 @@
         }
       }
 
-      // --- TRVALE NATIVNI ULOZISTE ---
       function getNativePrefs() {
         try {
           if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
@@ -2182,6 +2386,7 @@
       let state = {
         lang: detectLang(),
         maxPip: 6, // 4 = 1..4, 5 = 1..5, 6 = 1..6, 7 = 0..6
+        boardShape: 'rect', // 'rect' | 'shaped'
         genMode: 'classic', // 'classic' | 'unique'
         soundEnabled: true,
         hapticsEnabled: true,
@@ -2190,7 +2395,7 @@
         displayMode: 'digits',
         rows: 7,
         cols: 6,
-        grid: [],
+        grid: [], // hodnota -1 znamena blokovanou diru
         solution: [],
         walls: {},
         dominoes: [],
@@ -2199,13 +2404,8 @@
         isGameOver: false
       };
 
-      // Aktivni filtr vybraneho kamene ze spodního seznamu (napr. "3-5" nebo null)
       let activeFilterPair = null;
-
-      // Dlouhe podrzeni na policku (rentgen hodnoty)
       let xrayValue = null;
-
-      // Dvoukrokova RADA (1. klepnuti = zvyrazneni + vysvetleni, 2. klepnuti = provedeni)
       let pendingAdvice = null;
 
       let transientErrors = {
@@ -2216,6 +2416,14 @@
       };
 
       let pendingConfirmAction = null;
+
+      function isHole(r, c, grid = state.grid) {
+        return !grid[r] || grid[r][c] === -1;
+      }
+
+      function getTotalDominoCount(diffMode = state.maxPip) {
+        return (diffMode * (diffMode + 1)) / 2;
+      }
 
       function clearAdvice() {
         pendingAdvice = null;
@@ -2281,21 +2489,31 @@
         return `${lo}\u2013${hi}`;
       }
 
-      function getNeighbors(r, c, rows = state.rows, cols = state.cols) {
+      // Vraci pouze aktivni (neblokovane) sousedy
+      function getNeighbors(r, c, rows = state.rows, cols = state.cols, grid = state.grid) {
         const res = [];
-        if (r > 0) res.push([r - 1, c]);
-        if (r < rows - 1) res.push([r + 1, c]);
-        if (c > 0) res.push([r, c - 1]);
-        if (c < cols - 1) res.push([r, c + 1]);
+        if (r > 0 && !isHole(r - 1, c, grid)) res.push([r - 1, c]);
+        if (r < rows - 1 && !isHole(r + 1, c, grid)) res.push([r + 1, c]);
+        if (c > 0 && !isHole(r, c - 1, grid)) res.push([r, c - 1]);
+        if (c < cols - 1 && !isHole(r, c + 1, grid)) res.push([r, c + 1]);
         return res;
       }
 
+      // Solver overi, zda ma mrizka (vcetne pripadnych der) prave 1 reseni
       function countSolutionsUpToTwo(grid, rows, cols, diffMode) {
         const { minVal, maxVal } = getValueRange(diffMode);
         const span = maxVal - minVal + 1;
-        const totalPairs = (rows * cols) / 2;
+        const totalPairs = getTotalDominoCount(diffMode);
         const covered = new Uint8Array(rows * cols);
         const usedPair = new Uint8Array(span * span);
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (isHole(r, c, grid)) {
+              covered[r * cols + c] = 1;
+            }
+          }
+        }
 
         const pairIndex = (a, b) => {
           const lo = a < b ? a - minVal : b - minVal;
@@ -2308,15 +2526,16 @@
 
         for (let r = 0; r < rows; r++) {
           for (let c = 0; c < cols; c++) {
+            if (isHole(r, c, grid)) continue;
             const idx = r * cols + c;
-            if (c + 1 < cols) {
+            if (c + 1 < cols && !isHole(r, c + 1, grid)) {
               const nIdx = r * cols + (c + 1);
               const pIdx = pairIndex(grid[r][c], grid[r][c + 1]);
               edgesByPair[pIdx].push([idx, nIdx]);
               cellAdj[idx].push([nIdx, pIdx]);
               cellAdj[nIdx].push([idx, pIdx]);
             }
-            if (r + 1 < rows) {
+            if (r + 1 < rows && !isHole(r + 1, c, grid)) {
               const nIdx = (r + 1) * cols + c;
               const pIdx = pairIndex(grid[r][c], grid[r + 1][c]);
               edgesByPair[pIdx].push([idx, nIdx]);
@@ -2414,11 +2633,30 @@
         return solutionsFound;
       }
 
-      function generateSingleRandomBoard(diffMode) {
-        const rows = diffMode + 1;
-        const cols = diffMode;
+      function generateSingleRandomBoard(diffMode, boardShape) {
+        const isShaped = boardShape === 'shaped';
+        const rows = isShaped ? (diffMode + 1) : (diffMode + 1);
+        const cols = isShaped ? (diffMode + 1) : diffMode;
         const totalCells = rows * cols;
         const used = Array.from({ length: rows }, () => Array(cols).fill(false));
+        const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+        // U clenite desky vybereme nahodny vzor a predem zablokujeme diry
+        if (isShaped) {
+          const templates = SHAPED_TEMPLATES[rows] || [];
+          const chosenTpl = templates[Math.floor(Math.random() * templates.length)];
+          if (chosenTpl) {
+            for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                if (chosenTpl[r][c] === 'X') {
+                  used[r][c] = true;
+                  grid[r][c] = -1;
+                }
+              }
+            }
+          }
+        }
+
         const pairs = [];
 
         function backtrack(idx) {
@@ -2463,7 +2701,6 @@
           [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
         }
 
-        const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
         pairs.forEach((p, i) => {
           const [a, b] = tiles[i];
           if (Math.random() < 0.5) {
@@ -2478,16 +2715,16 @@
         return { rows, cols, grid, solution: pairs };
       }
 
-      function generatePuzzle(diffMode, genMode = state.genMode) {
+      function generatePuzzle(diffMode, genMode = state.genMode, boardShape = state.boardShape) {
         if (genMode !== 'unique') {
-          return generateSingleRandomBoard(diffMode);
+          return generateSingleRandomBoard(diffMode, boardShape);
         }
 
         const maxAttempts = diffMode === 7 ? 350 : 200;
         let lastBoard = null;
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          const candidate = generateSingleRandomBoard(diffMode);
+          const candidate = generateSingleRandomBoard(diffMode, boardShape);
           lastBoard = candidate;
           if (countSolutionsUpToTwo(candidate.grid, candidate.rows, candidate.cols, diffMode) === 1) {
             return candidate;
@@ -2500,6 +2737,7 @@
         const profileData = {
           lang: state.lang,
           maxPip: state.maxPip,
+          boardShape: state.boardShape,
           genMode: state.genMode,
           soundEnabled: state.soundEnabled,
           hapticsEnabled: state.hapticsEnabled,
@@ -2518,6 +2756,7 @@
       function saveBoard() {
         const boardData = {
           maxPip: state.maxPip,
+          boardShape: state.boardShape,
           rows: state.rows,
           cols: state.cols,
           grid: state.grid,
@@ -2582,6 +2821,7 @@
               loadedProfile = {
                 lang: parsed.lang || detectLang(),
                 maxPip: parsed.maxPip || 6,
+                boardShape: 'rect',
                 genMode: 'classic',
                 soundEnabled: true,
                 hapticsEnabled: true,
@@ -2608,6 +2848,7 @@
         if (loadedProfile) {
           state.lang = loadedProfile.lang || state.lang;
           state.maxPip = loadedProfile.maxPip || state.maxPip;
+          state.boardShape = loadedProfile.boardShape === 'shaped' ? 'shaped' : 'rect';
           state.genMode = loadedProfile.genMode === 'unique' ? 'unique' : 'classic';
           state.soundEnabled = loadedProfile.soundEnabled !== false;
           state.hapticsEnabled = loadedProfile.hapticsEnabled !== false;
@@ -2620,8 +2861,9 @@
 
         if (loadedBoard && Array.isArray(loadedBoard.grid) && loadedBoard.grid.length > 0) {
           state.maxPip = loadedBoard.maxPip || state.maxPip;
+          state.boardShape = loadedBoard.boardShape === 'shaped' ? 'shaped' : (loadedBoard.rows === loadedBoard.cols ? 'shaped' : 'rect');
           state.rows = loadedBoard.rows || (state.maxPip + 1);
-          state.cols = loadedBoard.cols || state.maxPip;
+          state.cols = loadedBoard.cols || (state.boardShape === 'shaped' ? state.maxPip + 1 : state.maxPip);
           state.grid = loadedBoard.grid;
           state.solution = loadedBoard.solution || [];
           state.walls = loadedBoard.walls || {};
@@ -2729,7 +2971,7 @@
 
       function showEndModal({ isMaster, unlockText }) {
         const t = I18N[state.lang];
-        const totalDominoes = (state.rows * state.cols) / 2;
+        const totalDominoes = getTotalDominoCount();
         const setLabel = getSetLabel(state.maxPip);
         const setWins = isMaster ? getMasterWins() : (Number(state.wins[state.maxPip]) || 0);
 
@@ -2790,7 +3032,7 @@
         });
 
         document.getElementById('btn-end-again').addEventListener('click', () => {
-          startNewGame(state.maxPip, state.genMode);
+          startNewGame(state.maxPip, state.genMode, state.boardShape);
         });
 
         document.getElementById('modal-end').classList.add('open');
@@ -2824,7 +3066,7 @@
         renderAll();
       }
 
-      function startNewGame(diffMode = state.maxPip, genMode = state.genMode) {
+      function startNewGame(diffMode = state.maxPip, genMode = state.genMode, boardShape = state.boardShape) {
         clearConfetti();
         document.getElementById('modal-end').classList.remove('open');
         document.getElementById('modal-newgame').classList.remove('open');
@@ -2832,9 +3074,10 @@
         activeFilterPair = null;
         xrayValue = null;
         clearAdvice();
-        const puzzle = generatePuzzle(diffMode, genMode);
+        const puzzle = generatePuzzle(diffMode, genMode, boardShape);
         state.maxPip = diffMode;
         state.genMode = genMode;
+        state.boardShape = boardShape;
         state.rows = puzzle.rows;
         state.cols = puzzle.cols;
         state.grid = puzzle.grid;
@@ -2858,7 +3101,7 @@
       function simulateBatchWinForTesting() {
         document.getElementById('modal-settings').classList.remove('open');
         if (state.isGameOver) {
-          startNewGame(state.maxPip, state.genMode);
+          startNewGame(state.maxPip, state.genMode, state.boardShape);
         }
         activeFilterPair = null;
         xrayValue = null;
@@ -2918,6 +3161,7 @@
       }
 
       function isBlockedBetween(r1, c1, r2, c2) {
+        if (isHole(r1, c1) || isHole(r2, c2)) return true;
         return Boolean(state.walls[edgeKey(r1, c1, r2, c2)]);
       }
 
@@ -2941,6 +3185,7 @@
 
       function linkDomino(r1, c1, r2, c2, recordHistory = true) {
         if (state.isGameOver) return;
+        if (isHole(r1, c1) || isHole(r2, c2)) return;
         if (Math.abs(r1 - r2) + Math.abs(c1 - c2) !== 1) return;
 
         clearAdvice();
@@ -2992,6 +3237,7 @@
 
       function toggleEdge(r1, c1, r2, c2) {
         if (state.isGameOver) return;
+        if (isHole(r1, c1) || isHole(r2, c2)) return;
         clearAdvice();
         const k = edgeKey(r1, c1, r2, c2);
         pushHistory();
@@ -3029,7 +3275,7 @@
           changed = false;
           for (let r = 0; r < state.rows; r++) {
             for (let c = 0; c < state.cols; c++) {
-              if (findDominoAt(r, c) !== -1) continue;
+              if (isHole(r, c) || findDominoAt(r, c) !== -1) continue;
 
               const openNeighbors = getNeighbors(r, c).filter(([nr, nc]) => {
                 if (isBlockedBetween(r, c, nr, nc)) return false;
@@ -3064,7 +3310,6 @@
         return formedAny;
       }
 
-      // Vraci true, pokud nastala chyba na desce
       function evaluateBoard(autoFormed = false, triggerWinCelebration = false) {
         const t = I18N[state.lang];
         transientErrors.cells.clear();
@@ -3093,7 +3338,7 @@
         let hasDeadCell = false;
         for (let r = 0; r < state.rows; r++) {
           for (let c = 0; c < state.cols; c++) {
-            if (findDominoAt(r, c) !== -1) continue;
+            if (isHole(r, c) || findDominoAt(r, c) !== -1) continue;
             const free = getNeighbors(r, c).filter(([nr, nc]) => !isBlockedBetween(r, c, nr, nc) && findDominoAt(nr, nc) === -1);
             if (free.length === 0) {
               hasDeadCell = true;
@@ -3102,7 +3347,7 @@
           }
         }
 
-        const totalDominoes = (state.rows * state.cols) / 2;
+        const totalDominoes = getTotalDominoCount();
         const setLabel = getSetLabel(state.maxPip);
         const isMasterSet = state.maxPip === 6 || state.maxPip === 7;
 
@@ -3191,7 +3436,6 @@
         return false;
       }
 
-      // --- CHYTRA "RADA" (DVOUKROKOVY LOGICKY TRENER) ---
       function findLogicalAdvice() {
         const t = I18N[state.lang];
         const counts = {};
@@ -3203,7 +3447,7 @@
         // Pravidlo 1: Bunky s jedinym volnym sousedem
         for (let r = 0; r < state.rows; r++) {
           for (let c = 0; c < state.cols; c++) {
-            if (findDominoAt(r, c) !== -1) continue;
+            if (isHole(r, c) || findDominoAt(r, c) !== -1) continue;
             const freeNeighbors = getNeighbors(r, c).filter(([nr, nc]) => !isBlockedBetween(r, c, nr, nc) && findDominoAt(nr, nc) === -1);
             if (freeNeighbors.length === 1) {
               const [nr, nc] = freeNeighbors[0];
@@ -3241,8 +3485,8 @@
         // Pravidlo 3: Zakazana duplicita (kamen uz lezi jinde -> mezi volnou dvojici musi byt stena)
         for (let r = 0; r < state.rows; r++) {
           for (let c = 0; c < state.cols; c++) {
-            if (findDominoAt(r, c) !== -1) continue;
-            if (c + 1 < state.cols && findDominoAt(r, c + 1) === -1 && !isBlockedBetween(r, c, r, c + 1)) {
+            if (isHole(r, c) || findDominoAt(r, c) !== -1) continue;
+            if (c + 1 < state.cols && !isHole(r, c + 1) && findDominoAt(r, c + 1) === -1 && !isBlockedBetween(r, c, r, c + 1)) {
               const pk = pairKey(state.grid[r][c], state.grid[r][c + 1]);
               if ((counts[pk] || 0) >= 1) {
                 const lbl = formatPairLabel(state.grid[r][c], state.grid[r][c + 1]);
@@ -3255,7 +3499,7 @@
                 };
               }
             }
-            if (r + 1 < state.rows && findDominoAt(r + 1, c) === -1 && !isBlockedBetween(r, c, r + 1, c)) {
+            if (r + 1 < state.rows && !isHole(r + 1, c) && findDominoAt(r + 1, c) === -1 && !isBlockedBetween(r, c, r + 1, c)) {
               const pk = pairKey(state.grid[r][c], state.grid[r + 1][c]);
               if ((counts[pk] || 0) >= 1) {
                 const lbl = formatPairLabel(state.grid[r][c], state.grid[r + 1][c]);
@@ -3276,11 +3520,12 @@
         const candidateEdges = [];
         for (let r = 0; r < state.rows; r++) {
           for (let c = 0; c < state.cols; c++) {
-            if (c + 1 < state.cols) {
+            if (isHole(r, c)) continue;
+            if (c + 1 < state.cols && !isHole(r, c + 1)) {
               const k = edgeKey(r, c, r, c + 1);
               if (!solEdgeSet.has(k) && !state.walls[k]) candidateEdges.push({ r1: r, c1: c, r2: r, c2: c + 1, edge: k });
             }
-            if (r + 1 < state.rows) {
+            if (r + 1 < state.rows && !isHole(r + 1, c)) {
               const k = edgeKey(r, c, r + 1, c);
               if (!solEdgeSet.has(k) && !state.walls[k]) candidateEdges.push({ r1: r, c1: c, r2: r + 1, c2: c, edge: k });
             }
@@ -3306,7 +3551,6 @@
         transientErrors.cells.clear();
         transientErrors.edges.clear();
 
-        // 1) Kontrola aktualnich chyb na desce
         const counts = {};
         for (const d of state.dominoes) {
           const pk = pairKey(state.grid[d.r1][d.c1], state.grid[d.r2][d.c2]);
@@ -3331,7 +3575,7 @@
 
         for (let r = 0; r < state.rows; r++) {
           for (let c = 0; c < state.cols; c++) {
-            if (findDominoAt(r, c) !== -1) continue;
+            if (isHole(r, c) || findDominoAt(r, c) !== -1) continue;
             const free = getNeighbors(r, c).filter(([nr, nc]) => !isBlockedBetween(r, c, nr, nc) && findDominoAt(nr, nc) === -1);
             if (free.length === 0) {
               clearAdvice();
@@ -3360,7 +3604,6 @@
           }
         }
 
-        // 2) Druhe klepnuti na Radu -> provede navrzeny krok
         if (pendingAdvice) {
           const adv = pendingAdvice;
           clearAdvice();
@@ -3395,7 +3638,6 @@
           return;
         }
 
-        // 3) Prvni klepnuti na Radu -> najde logicky krok, zvyrazni ho a vysvetli
         const adv = findLogicalAdvice();
         if (adv) {
           pendingAdvice = adv;
@@ -3450,6 +3692,7 @@
       }
 
       function renderCellValue(val) {
+        if (val === -1) return '';
         if (state.displayMode === 'letters') return valueToLetter(val);
         if (state.displayMode === 'symbols') return createSymbolSVG(val);
         if (state.displayMode === 'pips') return createPipHTML(val);
@@ -3461,13 +3704,13 @@
         const candidates = [];
         for (let r = 0; r < state.rows; r++) {
           for (let c = 0; c < state.cols; c++) {
-            if (findDominoAt(r, c) !== -1) continue;
-            if (c + 1 < state.cols && findDominoAt(r, c + 1) === -1 && !isBlockedBetween(r, c, r, c + 1)) {
+            if (isHole(r, c) || findDominoAt(r, c) !== -1) continue;
+            if (c + 1 < state.cols && !isHole(r, c + 1) && findDominoAt(r, c + 1) === -1 && !isBlockedBetween(r, c, r, c + 1)) {
               if (pairKey(state.grid[r][c], state.grid[r][c + 1]) === targetPairKey) {
                 candidates.push({ r1: r, c1: c, r2: r, c2: c + 1, edge: edgeKey(r, c, r, c + 1) });
               }
             }
-            if (r + 1 < state.rows && findDominoAt(r + 1, c) === -1 && !isBlockedBetween(r, c, r + 1, c)) {
+            if (r + 1 < state.rows && !isHole(r + 1, c) && findDominoAt(r + 1, c) === -1 && !isBlockedBetween(r, c, r + 1, c)) {
               if (pairKey(state.grid[r][c], state.grid[r + 1][c]) === targetPairKey) {
                 candidates.push({ r1: r, c1: c, r2: r + 1, c2: c, edge: edgeKey(r, c, r + 1, c) });
               }
@@ -3514,6 +3757,9 @@
         document.getElementById('toggle-haptics').textContent = state.hapticsEnabled ? t.hapticsOn : t.hapticsOff;
 
         document.getElementById('set-diff-label').textContent = t.setDiffLabel;
+        document.getElementById('set-shape-label').textContent = t.setShapeLabel;
+        document.getElementById('shape-rect').textContent = t.shapeRect;
+        document.getElementById('shape-shaped').textContent = t.shapeShaped;
         document.getElementById('set-gen-label').textContent = t.setGenLabel;
         document.getElementById('gen-classic').textContent = t.genClassic;
         document.getElementById('gen-unique').textContent = t.genUnique;
@@ -3521,6 +3767,19 @@
         document.getElementById('set-display-label').textContent = t.setDisplayLabel;
         document.getElementById('set-unlock-info').innerHTML = t.setUnlockInfo;
         document.getElementById('btn-close-settings').textContent = t.saveAndClose;
+
+        // Dynamicke popisky rozmeru v Nastaveni podle tvaru desky
+        if (state.boardShape === 'shaped') {
+          document.getElementById('diff-4').textContent = '1\u20134 (5\u00d75)';
+          document.getElementById('diff-5').textContent = '1\u20135 (6\u00d76)';
+          document.getElementById('diff-6').textContent = '1\u20136 (7\u00d77)';
+          document.getElementById('diff-7').textContent = '0\u20136 (8\u00d78)';
+        } else {
+          document.getElementById('diff-4').textContent = '1\u20134 (4\u00d75)';
+          document.getElementById('diff-5').textContent = '1\u20135 (5\u00d76)';
+          document.getElementById('diff-6').textContent = '1\u20136 (6\u00d77)';
+          document.getElementById('diff-7').textContent = '0\u20136 (7\u00d78)';
+        }
 
         const rulesModal = document.getElementById('rules-modal-content');
         rulesModal.innerHTML = t.rulesHTML;
@@ -3533,7 +3792,7 @@
         applyThemeAndI18n();
 
         const t = I18N[state.lang];
-        const totalDominoes = (state.rows * state.cols) / 2;
+        const totalDominoes = getTotalDominoCount();
 
         document.getElementById('wins-count').textContent = getTotalWins();
         document.getElementById('deck-counter').textContent = `${state.dominoes.length}/${totalDominoes}`;
@@ -3550,7 +3809,6 @@
           if (d.trial) trialPairSet.add(pk);
         }
 
-        // Zjisteni stavu aktivniho filtru (nezapojeny vs. jiz nalezeny kamen)
         const filterPlacedCount = activeFilterPair ? (usedPairCounts[activeFilterPair] || 0) : 0;
         const filterCandidates = (activeFilterPair && !state.isGameOver) ? getFilterCandidatePairs(activeFilterPair) : [];
         const filterDividerEdges = new Set();
@@ -3567,7 +3825,7 @@
 
         sb.classList.remove('is-error', 'is-success', 'is-trial');
         if (xrayValue !== null) {
-          const totalOfVal = state.rows; // v kazde mrizce r x c (r = c + 1) je kazda hodnota prave r-krat
+          const totalOfVal = state.maxPip + 1; // kazda hodnota je na desce vzdy (maxPip + 1)-krat
           let usedOfVal = 0;
           for (const d of state.dominoes) {
             if (state.grid[d.r1][d.c1] === xrayValue) usedOfVal++;
@@ -3637,15 +3895,18 @@
           for (let c = 0; c < state.cols; c++) {
             const val = state.grid[r][c];
             const ck = `${r},${c}`;
-            const classes = ['cell', `val-${val}`];
+            const hole = val === -1;
+            const classes = ['cell', hole ? 'is-hole' : `val-${val}`];
             if (c === state.cols - 1) classes.push('last-col');
             if (r === state.rows - 1) classes.push('last-row');
-            if (cellDominoDir[ck] === 'h') classes.push('in-domino-h');
-            if (cellDominoDir[ck] === 'v') classes.push('in-domino-v');
-            if (cellInTrial[ck]) classes.push('in-trial');
-            if (transientErrors.cells.has(ck)) classes.push('is-error');
-            if (xrayValue !== null && val === xrayValue) {
-              classes.push(cellDominoDir[ck] ? 'xray-used' : 'xray-free');
+            if (!hole) {
+              if (cellDominoDir[ck] === 'h') classes.push('in-domino-h');
+              if (cellDominoDir[ck] === 'v') classes.push('in-domino-v');
+              if (cellInTrial[ck]) classes.push('in-trial');
+              if (transientErrors.cells.has(ck)) classes.push('is-error');
+              if (xrayValue !== null && val === xrayValue) {
+                classes.push(cellDominoDir[ck] ? 'xray-used' : 'xray-free');
+              }
             }
 
             cellsHTML += `<div class="${classes.join(' ')}" data-r="${r}" data-c="${c}">${renderCellValue(val)}</div>`;
@@ -3661,7 +3922,6 @@
 
         let pillsHTML = '';
 
-        // 1) Zvyrazneni kandidatu pro NEPOUZITY kamen z dolniho filtru
         if (activeFilterPair && filterPlacedCount === 0 && !state.isGameOver) {
           for (const cand of filterCandidates) {
             const minR = Math.min(cand.r1, cand.r2);
@@ -3675,7 +3935,6 @@
           }
         }
 
-        // 2) Zvyrazneni dvojice pro RADA (pokud navrhuje spojeni)
         if (pendingAdvice && pendingAdvice.action === 'link' && !state.isGameOver) {
           const minR = Math.min(pendingAdvice.r1, pendingAdvice.r2);
           const minC = Math.min(pendingAdvice.c1, pendingAdvice.c2);
@@ -3687,7 +3946,6 @@
           pillsHTML += `<div class="advice-pill" style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;"></div>`;
         }
 
-        // 3) Polozene kameny domina
         for (const d of state.dominoes) {
           if (Math.abs(d.r1 - d.r2) + Math.abs(d.c1 - d.c2) !== 1) continue;
           const minR = Math.min(d.r1, d.r2);
@@ -3732,6 +3990,8 @@
         if (!state.isGameOver) {
           for (let r = 0; r < state.rows; r++) {
             for (let c = 0; c < state.cols - 1; c++) {
+              // Hrany dotykajici se blokovane diry neni treba vykreslovat (dira uz tvori pevnou zed)
+              if (isHole(r, c) || isHole(r, c + 1)) continue;
               const k = edgeKey(r, c, r, c + 1);
               const wType = state.walls[k];
               const cls = ['edge-hit', 'v-edge'];
@@ -3749,6 +4009,7 @@
 
           for (let r = 0; r < state.rows - 1; r++) {
             for (let c = 0; c < state.cols; c++) {
+              if (isHole(r, c) || isHole(r + 1, c)) continue;
               const k = edgeKey(r, c, r + 1, c);
               const wType = state.walls[k];
               const cls = ['edge-hit', 'h-edge'];
@@ -3793,7 +4054,6 @@
         }
         tray.innerHTML = trayHTML;
 
-        // Vsechny kameny v dolnim seznamu jsou klikatelne (nepouzite i jiz nalezene)
         tray.querySelectorAll('.tray-item').forEach(el => {
           el.addEventListener('click', () => {
             if (state.isGameOver) return;
@@ -3817,6 +4077,9 @@
         document.getElementById('diff-5').classList.toggle('active', state.maxPip === 5);
         document.getElementById('diff-6').classList.toggle('active', state.maxPip === 6);
         document.getElementById('diff-7').classList.toggle('active', state.maxPip === 7);
+
+        document.getElementById('shape-rect').classList.toggle('active', state.boardShape === 'rect');
+        document.getElementById('shape-shaped').classList.toggle('active', state.boardShape === 'shaped');
 
         document.getElementById('gen-classic').classList.toggle('active', state.genMode === 'classic');
         document.getElementById('gen-unique').classList.toggle('active', state.genMode === 'unique');
@@ -3892,6 +4155,7 @@
           const c = Math.floor((x / rect.width) * state.cols);
           const r = Math.floor((y / rect.height) * state.rows);
           if (r < 0 || r >= state.rows || c < 0 || c >= state.cols) return null;
+          if (isHole(r, c)) return null;
           return { r, c };
         }
 
@@ -3975,7 +4239,6 @@
             longPressTimer = null;
           }
 
-          // Pokud uz bezi rentgen hodnoty a hrac tahne prstem, ukoncime rentgen a umoznime swipe
           if (xrayValue !== null && moveDist > 14) {
             xrayValue = null;
             renderAll();
@@ -3995,7 +4258,7 @@
             targetR += dy > 0 ? 1 : -1;
           }
 
-          if (targetR >= 0 && targetR < state.rows && targetC >= 0 && targetC < state.cols) {
+          if (targetR >= 0 && targetR < state.rows && targetC >= 0 && targetC < state.cols && !isHole(targetR, targetC)) {
             swiped = true;
             highlightSwipeCell(null);
             linkDomino(startCell.r, startCell.c, targetR, targetC, true);
@@ -4037,14 +4300,14 @@
 
         document.getElementById('btn-new').addEventListener('click', () => {
           if (state.isGameOver) {
-            startNewGame(state.maxPip, state.genMode);
+            startNewGame(state.maxPip, state.genMode, state.boardShape);
           } else {
             document.getElementById('modal-newgame').classList.add('open');
           }
         });
 
         document.getElementById('btn-ng-deal').addEventListener('click', () => {
-          startNewGame(state.maxPip, state.genMode);
+          startNewGame(state.maxPip, state.genMode, state.boardShape);
         });
 
         document.getElementById('btn-ng-restart').addEventListener('click', () => {
@@ -4137,7 +4400,16 @@
           btn.addEventListener('click', () => {
             const val = Number(btn.dataset.diff);
             if (val !== state.maxPip) {
-              requestConfirmAction(() => startNewGame(val, state.genMode));
+              requestConfirmAction(() => startNewGame(val, state.genMode, state.boardShape));
+            }
+          });
+        });
+
+        document.querySelectorAll('[data-shape]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const shape = btn.dataset.shape;
+            if (shape !== state.boardShape) {
+              requestConfirmAction(() => startNewGame(state.maxPip, state.genMode, shape));
             }
           });
         });
@@ -4146,7 +4418,7 @@
           btn.addEventListener('click', () => {
             const mode = btn.dataset.gen;
             if (mode !== state.genMode) {
-              requestConfirmAction(() => startNewGame(state.maxPip, mode));
+              requestConfirmAction(() => startNewGame(state.maxPip, mode, state.boardShape));
             }
           });
         });
@@ -4218,7 +4490,7 @@
         setupPointerInteractions();
         const loaded = await loadGame();
         if (!loaded) {
-          startNewGame(6, state.genMode);
+          startNewGame(6, state.genMode, state.boardShape);
         } else {
           evaluateBoard(false, false);
           if (state.isGameOver) {
