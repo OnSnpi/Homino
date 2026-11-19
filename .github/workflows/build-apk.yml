@@ -37,7 +37,7 @@ jobs:
       - name: Initialize Capacitor and build Android project
         run: |
           npm init -y
-          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/preferences@6
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/preferences@6 @capacitor/haptics@6
           npx cap init "Homino" "cz.homino.game" --web-dir=www
           npx cap add android
           sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="portrait"/g' android/app/src/main/AndroidManifest.xml
