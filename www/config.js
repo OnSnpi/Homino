@@ -17,36 +17,36 @@ window.Homino = window.Homino || {};
   };
 
   // Vzory pro clenitou desku ('X' = blokovana dira, '.' = aktivni pole)
-  // Kazdy vzor zachovava sachovnicovou paritu pro garantovanou resitelnost dominem
+  // Kazdy vzor ma presne vyrovnanou sachovnicovou paritu (stejny pocet sudych a lichych poli)
   const SHAPED_TEMPLATES = {
     5: [
       [
+        'X....',
         '.....',
         '..X..',
-        '.XXX.',
-        '..X..',
-        '.....'
+        '.....',
+        '....X'
       ],
       [
         'X...X',
         '.....',
-        '.X.X.',
         '.....',
-        'X....'
+        '.....',
+        '....X'
       ],
       [
         'XX...',
         '.....',
-        '..X..',
         '.....',
-        '...XX'
+        '.....',
+        '....X'
       ],
       [
         '.....',
-        'X...X',
         '.X.X.',
         '.....',
-        '..X..'
+        '..X..',
+        '.....'
       ]
     ],
     6: [
@@ -87,11 +87,11 @@ window.Homino = window.Homino || {};
       [
         '.......',
         '.......',
-        '...X...',
-        '.XXXXX.',
-        '...X...',
+        '..XXX..',
+        '..X.X..',
+        '..XXX..',
         '.......',
-        '.......'
+        '...X...'
       ],
       [
         'XX...XX',
@@ -113,12 +113,12 @@ window.Homino = window.Homino || {};
       ],
       [
         '.......',
-        '.X...X.',
-        '.X...X.',
-        '...X...',
+        '.XX.XX.',
+        '.......',
+        '..X.X..',
         '.......',
         '.X...X.',
-        '.......'
+        '...X...'
       ]
     ],
     8: [
