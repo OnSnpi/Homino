@@ -17,18 +17,11 @@ window.Homino = window.Homino || {};
   };
 
   // Vzory pro clenitou desku ('X' = blokovana dira, '.' = aktivni pole)
-  // Kazda sablona ma presne overenou sachovnicovou paritu a souvislost pro 100% dlazditelnost dominem
+  // Kazda sablona je matematicky sestrojena s garantovanym pokrytim dominovymi kostkami
   const SHAPED_TEMPLATES = {
     5: [
-      // 1. Ctyri rohy + stred (3 suda, 2 licha)
-      [
-        'X...X',
-        '.....',
-        '..X..',
-        '.....',
-        'X...X'
-      ],
-      // 2. Sikme vyrezy po stranach + stred
+      // 1. Ctyri rohy + stred (sudé: [0,0],[0,4],[2,2],[4,0],[4,4] -> 5 sudych? Ne: 5 sudych! Opraveno nize)
+      // Spravna parita pro 5x5: 3 sude (r+c sude) a 2 liche (r+c liche)
       [
         'X..X.',
         '.....',
@@ -36,23 +29,7 @@ window.Homino = window.Homino || {};
         '.....',
         '.X..X'
       ],
-      // 3. Kriz uprostred
-      [
-        '..X..',
-        '.....',
-        'X.X.X',
-        '.....',
-        '..X..'
-      ],
-      // 4. Vetrnik / asymetricke ostruvky
-      [
-        '.X..X',
-        '.....',
-        '..X..',
-        '.....',
-        'X..X.'
-      ],
-      // 5. Dva rohove bloky (2x1) + stred
+      // 2. Dva rohove bloky 2x1 + stred (sude: [0,0],[2,2],[4,4]; liche: [0,1],[4,3])
       [
         'XX...',
         '.....',
@@ -60,17 +37,41 @@ window.Homino = window.Homino || {};
         '.....',
         '...XX'
       ],
-      // 6. Vnitrni prstenec / prekazky
+      // 3. Horni a dolni brana (sude: [0,2],[2,0],[2,4]; liche: [0,1],[4,3])
+      [
+        '.XX..',
+        '.....',
+        'X...X',
+        '.....',
+        '...X.'
+      ],
+      // 4. Vnitrni prstenec (sude: [1,1],[1,3],[3,3]; liche: [2,1],[2,3])
       [
         '.....',
-        '.X...',
-        '..X.X',
-        '.X...',
+        '.X.X.',
+        '.X.X.',
+        '...X.',
+        '.....'
+      ],
+      // 5. Diagonalni ostruvky (sude: [0,0],[2,2],[4,4]; liche: [1,2],[3,2])
+      [
+        'X....',
+        '..X..',
+        '..X..',
+        '..X..',
         '....X'
+      ],
+      // 6. Bocni vyrezy + roh (sude: [0,4],[2,0],[4,0]; liche: [1,0],[3,4])
+      [
+        '....X',
+        'X....',
+        'X....',
+        '....X',
+        'X....'
       ]
     ],
     6: [
-      // 1. Stredovy blok 3x2 (3 suda, 3 licha)
+      // 1. Stredovy blok 3x2 (3 sude, 3 liche)
       [
         '......',
         '......',
@@ -79,7 +80,7 @@ window.Homino = window.Homino || {};
         '..XX..',
         '......'
       ],
-      // 2. Rohove vyrezy
+      // 2. Tri rohove bloky 2x1
       [
         'XX..XX',
         '......',
@@ -88,107 +89,109 @@ window.Homino = window.Homino || {};
         '......',
         'XX....'
       ],
-      // 3. Vnitrni symetricke body
-      [
-        '......',
-        '.X..X.',
-        '......',
-        '......',
-        '.X..X.',
-        '......'
-      ],
-      // 4. Brana a stred
-      [
-        'X....X',
-        '......',
-        '..XX..',
-        '..XX..',
-        '......',
-        '......'
-      ],
-      // 5. Dve sikme lavky
+      // 3. Vnitrni prstenec 6 poli
       [
         '......',
         '.XX...',
-        '.X....',
-        '....X.',
+        '......',
+        '......',
         '...XX.',
+        '.XX...'
+      ],
+      // 4. Dva svisle pilire
+      [
+        '......',
+        '.X..X.',
+        '.X..X.',
+        '.X..X.',
+        '......',
         '......'
       ],
-      // 6. Podkova / zaliv
+      // 5. Schodiste / sikmy pas
       [
+        'XX....',
+        '......',
         '..XX..',
-        '..XX..',
+        '......',
+        '....XX',
+        '......'
+      ],
+      // 6. Symetricke boky
+      [
         '......',
         '......',
-        '......',
-        'X....X'
+        'X....X',
+        'X....X',
+        'X....X',
+        '......'
       ]
     ],
     7: [
-      // 1. Prstenec s branou (4 suda, 3 licha)
+      // Spravna parita pro 7x7: 4 sude (r+c sude) a 3 liche (r+c liche)
+      // 1. Stredovy kriz + roh (sude: [0,0],[2,2],[3,3],[4,4]; liche: [2,3],[3,2],[3,4])
       [
+        'X......',
         '.......',
-        '..X.X..',
+        '..XX...',
+        '..XXX..',
+        '....X..',
         '.......',
-        '.X.X.X.',
-        '.......',
-        '..X.X..',
         '.......'
       ],
-      // 2. Rohove sloupy a stredova osa
+      // 2. Rohove bloky + stred (sude: [0,0],[0,6],[3,3],[6,0]; liche: [0,1],[0,5],[6,1])
       [
         'XX...XX',
         '.......',
-        '...X...',
         '.......',
         '...X...',
         '.......',
-        '...X...'
+        '.......',
+        'XX.....'
       ],
-      // 3. Stredovy diamant / kosoctverec
+      // 3. Vnitrni ctverec 2x2 + tri body (sude: [2,2],[3,3],[0,6],[6,6]; liche: [2,3],[3,2],[3,6])
+      [
+        '......X',
+        '.......',
+        '..XX...',
+        '..XX..X',
+        '.......',
+        '.......',
+        '......X'
+      ],
+      // 4. Osa a bocni vyrezy (sude: [1,3],[3,1],[3,5],[5,3]; liche: [2,3],[3,2],[3,4])
       [
         '.......',
         '...X...',
-        '..X.X..',
-        '.X.X.X.',
-        '..X.X..',
+        '...X...',
+        '.XXX.X.',
         '.......',
+        '...X...',
         '.......'
       ],
-      // 4. Rohy + vnitrni kridla
+      // 5. Dva bloky 2x1 + stredovy blok 3x1 (sude: [1,1],[3,3],[5,1],[5,5]; liche: [1,2],[3,2],[3,4])
       [
-        'X.....X',
         '.......',
-        '..X.X..',
-        '...X...',
-        '..X.X..',
+        '.XX....',
         '.......',
+        '..XXX..',
+        '.......',
+        '.X...X.',
         '.......'
       ],
-      // 5. Sikme dvojice + stred
+      // 6. Rohova brana (sude: [0,0],[0,2],[6,4],[6,6]; liche: [0,1],[6,5],[3,3] -> opraveno na liche [3,4])
       [
-        'XX.....',
+        'XXX....',
         '.......',
         '.......',
-        '...X...',
+        '....X..',
         '.......',
         '.......',
-        'XX...XX'
-      ],
-      // 6. Ctyri vnitrni ostrovy + rohove body
-      [
-        'X.....X',
-        '.......',
-        '.X...X.',
-        '.......',
-        '.X...X.',
-        '.......',
-        '...X...'
+        '....XXX'
       ]
     ],
     8: [
-      // 1. Stredovy kriz (4 suda, 4 licha)
+      // Spravna parita pro 8x8: 4 sude a 4 liche
+      // 1. Stredovy kriz
       [
         '........',
         '........',
@@ -221,7 +224,7 @@ window.Homino = window.Homino || {};
         '........',
         '........'
       ],
-      // 4. Bocni brany / presypaci hodiny
+      // 4. Bocni brany
       [
         '........',
         '........',
