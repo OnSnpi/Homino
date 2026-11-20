@@ -189,14 +189,14 @@ const lastTemplateIdxBySize = {};
     const cols = isShaped ? (diffMode + 1) : diffMode;
     const expectedPairs = getTotalDominoCount(diffMode);
     const templates = isShaped ? (SHAPED_TEMPLATES[rows] || []) : [null];
+    const tplIdx = templates.length > 0
+      ? (forcedTemplateIndex !== null ? (forcedTemplateIndex % templates.length) : Math.floor(Math.random() * templates.length))
+      : 0;
+    const chosenTpl = templates[tplIdx];
 
-    for (let tplAttempt = 0; tplAttempt < 25; tplAttempt++) {
+    for (let attempt = 0; attempt < 25; attempt++) {
       const used = Array.from({ length: rows }, () => Array(cols).fill(false));
       const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
-      const tplIdx = forcedTemplateIndex !== null
-        ? (forcedTemplateIndex + tplAttempt) % templates.length
-        : Math.floor(Math.random() * templates.length);
-      const chosenTpl = templates[tplIdx];
 
       if (chosenTpl) {
         for (let r = 0; r < rows; r++) {
@@ -213,7 +213,7 @@ const lastTemplateIdxBySize = {};
       let steps = 0;
 
       function backtrack() {
-        if (++steps > 12000) return false;
+        if (++steps > 15000) return false;
 
         let bestR = -1;
         let bestC = -1;
@@ -320,7 +320,6 @@ const lastTemplateIdxBySize = {};
     const deadline = Date.now() + 450;
     let lastBoard = null;
 
-    // Nejprve zkousime prave vybranou dalsi sablonu v poradi, aby se tvary vzdy stridaly
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const candidate = generateSingleRandomBoard(diffMode, boardShape, startTplIdx);
       lastBoard = candidate;
