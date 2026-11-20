@@ -16,13 +16,10 @@ window.Homino = window.Homino || {};
     MILESTONE_ROYAL: 30
   };
 
-  // Vzory pro clenitou desku ('X' = blokovana dira, '.' = aktivni pole).
-  // Kazdy vzor dodrzuje sachovnicovou paritu (N x N ctverec s N dirami vzdy pokrytelny dominem):
-  // - Pro liche N (5, 7): (N+1)/2 der se sudym (r+c) a (N-1)/2 der s lichym (r+c)
-  // - Pro sude N (6, 8): N/2 der se sudym (r+c) a N/2 der s lichym (r+c)
+  // Vzory pro clenitou desku ('X' = blokovana dira, '.' = aktivni pole)
+  // Kazdy vzor zachovava sachovnicovou paritu pro garantovanou resitelnost dominem
   const SHAPED_TEMPLATES = {
     5: [
-      // 1) Stredovy kriz (3 sude + 2 liche = 5 der)
       [
         '.....',
         '..X..',
@@ -30,7 +27,6 @@ window.Homino = window.Homino || {};
         '..X..',
         '.....'
       ],
-      // 2) Tri rohy a dve vnitrni (3 sude + 2 liche = 5 der)
       [
         'X...X',
         '.....',
@@ -38,7 +34,6 @@ window.Homino = window.Homino || {};
         '.....',
         'X....'
       ],
-      // 3) Schodiste (3 sude + 2 liche = 5 der)
       [
         'XX...',
         '.....',
@@ -46,7 +41,6 @@ window.Homino = window.Homino || {};
         '.....',
         '...XX'
       ],
-      // 4) Presypaci hodiny (3 sude + 2 liche = 5 der)
       [
         '.....',
         'X...X',
@@ -56,7 +50,6 @@ window.Homino = window.Homino || {};
       ]
     ],
     6: [
-      // 1) Stredovy ostrov 2x3 (3 sude + 3 liche = 6 der)
       [
         '......',
         '......',
@@ -65,7 +58,6 @@ window.Homino = window.Homino || {};
         '..XX..',
         '......'
       ],
-      // 2) Tri vyrezane rohy po dvojicich (3 sude + 3 liche = 6 der)
       [
         'XX..XX',
         '......',
@@ -74,7 +66,6 @@ window.Homino = window.Homino || {};
         '......',
         'XX....'
       ],
-      // 3) Presypaci hodiny (3 sude + 3 liche = 6 der)
       [
         '......',
         '......',
@@ -83,7 +74,6 @@ window.Homino = window.Homino || {};
         '......',
         '......'
       ],
-      // 4) Dva vnitrni pilire (3 sude + 3 liche = 6 der)
       [
         '......',
         '.XX...',
@@ -94,7 +84,6 @@ window.Homino = window.Homino || {};
       ]
     ],
     7: [
-      // 1) Prstenec / Donut (4 sude + 3 liche = 7 der)
       [
         '.......',
         '.......',
@@ -104,7 +93,6 @@ window.Homino = window.Homino || {};
         '.......',
         '.......'
       ],
-      // 2) Vykousnute rohy (4 sude + 3 liche = 7 der)
       [
         'XX...XX',
         'X.....X',
@@ -114,7 +102,6 @@ window.Homino = window.Homino || {};
         '.......',
         'X......'
       ],
-      // 3) Diagonalni schody po dvojicich (4 sude + 3 liche = 7 der)
       [
         'XX.....',
         '.......',
@@ -124,7 +111,6 @@ window.Homino = window.Homino || {};
         '.......',
         '......X'
       ],
-      // 4) Symetricka sin s piliri (4 sude + 3 liche = 7 der)
       [
         '.......',
         '.X...X.',
@@ -136,7 +122,6 @@ window.Homino = window.Homino || {};
       ]
     ],
     8: [
-      // 1) Prstenec / Donut (4 sude + 4 liche = 8 der)
       [
         '........',
         '........',
@@ -147,7 +132,6 @@ window.Homino = window.Homino || {};
         '........',
         '........'
       ],
-      // 2) Velky kriz - vykousnute rohy (4 sude + 4 liche = 8 der)
       [
         'XX....XX',
         'X......X',
@@ -158,7 +142,6 @@ window.Homino = window.Homino || {};
         'X......X',
         'XX....XX'
       ],
-      // 3) Diagonalni schodiste po dvojicich (4 sude + 4 liche = 8 der)
       [
         'XX......',
         '........',
@@ -169,7 +152,6 @@ window.Homino = window.Homino || {};
         '......XX',
         '........'
       ],
-      // 4) Ctyri sloupy (4 sude + 4 liche = 8 der)
       [
         '........',
         '.XX..XX.',
@@ -180,7 +162,6 @@ window.Homino = window.Homino || {};
         '.XX..XX.',
         '........'
       ],
-      // 5) Presypaci hodiny (4 sude + 4 liche = 8 der)
       [
         '........',
         '........',
