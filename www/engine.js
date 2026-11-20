@@ -181,7 +181,9 @@ window.Homino = window.Homino || {};
     return solutionsFound;
   }
 
-function generateSingleRandomBoard(diffMode, boardShape, forcedTemplateIndex = null) {
+const lastTemplateIdxBySize = {};
+
+  function generateSingleRandomBoard(diffMode, boardShape, forcedTemplateIndex = null) {
     const isShaped = boardShape === 'shaped';
     const rows = diffMode + 1;
     const cols = isShaped ? (diffMode + 1) : diffMode;
@@ -287,31 +289,52 @@ function generateSingleRandomBoard(diffMode, boardShape, forcedTemplateIndex = n
         }
       });
 
-      return { rows, cols, grid, solution: pairs };
+      return { rows, cols, grid, solution: pairs, templateIndex: tplIdx };
     }
 
     return generateSingleRandomBoard(diffMode, 'rect', null);
   }
 
   function generatePuzzle(diffMode, genMode, boardShape) {
-    const startTplIdx = boardShape === 'shaped' ? Math.floor(Math.random() * 4) : null;
+    const rows = diffMode + 1;
+    const templates = boardShape === 'shaped' ? (SHAPED_TEMPLATES[rows] || []) : [];
+    const tplCount = templates.length;
+
+    let startTplIdx = null;
+    if (tplCount > 0) {
+      const prevIdx = lastTemplateIdxBySize[rows];
+      startTplIdx = prevIdx === undefined
+        ? Math.floor(Math.random() * tplCount)
+        : (prevIdx + 1) % tplCount;
+    }
 
     if (genMode !== 'unique') {
-      return generateSingleRandomBoard(diffMode, boardShape, startTplIdx);
+      const board = generateSingleRandomBoard(diffMode, boardShape, startTplIdx);
+      if (tplCount > 0 && board.templateIndex !== undefined) {
+        lastTemplateIdxBySize[rows] = board.templateIndex;
+      }
+      return board;
     }
 
     const maxAttempts = diffMode === 7 ? 180 : 140;
     const deadline = Date.now() + 450;
     let lastBoard = null;
 
+    // Nejprve zkousime prave vybranou dalsi sablonu v poradi, aby se tvary vzdy stridaly
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const tplIdx = startTplIdx !== null ? (startTplIdx + attempt) : null;
-      const candidate = generateSingleRandomBoard(diffMode, boardShape, tplIdx);
+      const candidate = generateSingleRandomBoard(diffMode, boardShape, startTplIdx);
       lastBoard = candidate;
       if (countSolutionsUpToTwo(candidate.grid, candidate.rows, candidate.cols, diffMode) === 1) {
+        if (tplCount > 0 && candidate.templateIndex !== undefined) {
+          lastTemplateIdxBySize[rows] = candidate.templateIndex;
+        }
         return candidate;
       }
       if (Date.now() > deadline) break;
+    }
+
+    if (tplCount > 0 && lastBoard && lastBoard.templateIndex !== undefined) {
+      lastTemplateIdxBySize[rows] = lastBoard.templateIndex;
     }
     return lastBoard;
   }
