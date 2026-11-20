@@ -1594,10 +1594,13 @@ window.Homino = window.Homino || {};
     document.getElementById('btn-hint').addEventListener('click', useAdvice);
 
     document.getElementById('btn-new').addEventListener('click', () => {
-      if (state.isGameOver) startNewGame(state.maxPip, state.genMode, state.boardShape);
-      else document.getElementById('modal-newgame').classList.add('open');
+      if (isGameInProgress()) {
+        document.getElementById('modal-newgame').classList.add('open');
+      } else {
+        startNewGame(state.maxPip, state.genMode, state.boardShape);
+      }
     });
-
+    
     document.getElementById('btn-ng-deal').addEventListener('click', () => startNewGame(state.maxPip, state.genMode, state.boardShape));
     document.getElementById('btn-ng-restart').addEventListener('click', restartCurrentGame);
     document.getElementById('btn-ng-cancel').addEventListener('click', () => document.getElementById('modal-newgame').classList.remove('open'));
@@ -1674,8 +1677,10 @@ window.Homino = window.Homino || {};
         const val = Number(btn.dataset.diff);
         if (val !== state.maxPip) {
           requestConfirmAction(() => {
+            state.maxPip = val;
+            renderAll();
             document.getElementById('modal-settings').classList.remove('open');
-            startNewGame(val, state.genMode, state.boardShape);
+            setTimeout(() => startNewGame(val, state.genMode, state.boardShape), 10);
           });
         }
       });
@@ -1686,8 +1691,10 @@ window.Homino = window.Homino || {};
         const shape = btn.dataset.shape;
         if (shape !== state.boardShape) {
           requestConfirmAction(() => {
+            state.boardShape = shape;
+            renderAll();
             document.getElementById('modal-settings').classList.remove('open');
-            startNewGame(state.maxPip, state.genMode, shape);
+            setTimeout(() => startNewGame(state.maxPip, state.genMode, shape), 10);
           });
         }
       });
@@ -1698,13 +1705,15 @@ window.Homino = window.Homino || {};
         const mode = btn.dataset.gen;
         if (mode !== state.genMode) {
           requestConfirmAction(() => {
+            state.genMode = mode;
+            renderAll();
             document.getElementById('modal-settings').classList.remove('open');
-            startNewGame(state.maxPip, mode, state.boardShape);
+            setTimeout(() => startNewGame(state.maxPip, mode, state.boardShape), 10);
           });
         }
       });
     });
-
+    
     document.querySelectorAll('[data-lang]').forEach(btn => {
       btn.addEventListener('click', () => {
         state.lang = btn.dataset.lang;
