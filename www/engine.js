@@ -181,17 +181,18 @@ window.Homino = window.Homino || {};
     return solutionsFound;
   }
 
-  function generateSingleRandomBoard(diffMode, boardShape) {
+function generateSingleRandomBoard(diffMode, boardShape) {
     const isShaped = boardShape === 'shaped';
     const rows = diffMode + 1;
     const cols = isShaped ? (diffMode + 1) : diffMode;
-    const totalCells = rows * cols;
-    const used = Array.from({ length: rows }, () => Array(cols).fill(false));
-    const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+    const expectedPairs = getTotalDominoCount(diffMode);
+    const templates = isShaped ? (SHAPED_TEMPLATES[rows] || []) : [null];
 
-    if (isShaped) {
-      const templates = SHAPED_TEMPLATES[rows] || [];
+    for (let tplAttempt = 0; tplAttempt < 10; tplAttempt++) {
+      const used = Array.from({ length: rows }, () => Array(cols).fill(false));
+      const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
       const chosenTpl = templates[Math.floor(Math.random() * templates.length)];
+
       if (chosenTpl) {
         for (let r = 0; r < rows; r++) {
           for (let c = 0; c < cols; c++) {
@@ -202,64 +203,92 @@ window.Homino = window.Homino || {};
           }
         }
       }
-    }
 
-    const pairs = [];
+      const pairs = [];
+      let steps = 0;
 
-    function backtrack(idx) {
-      while (idx < totalCells && used[Math.floor(idx / cols)][idx % cols]) idx++;
-      if (idx >= totalCells) return true;
+      function backtrack() {
+        if (++steps > 4000) return false;
 
-      const r = Math.floor(idx / cols);
-      const c = idx % cols;
-      used[r][c] = true;
+        let bestR = -1;
+        let bestC = -1;
+        let minDeg = 99;
 
-      const dirs = [];
-      if (c + 1 < cols && !used[r][c + 1]) dirs.push([r, c + 1]);
-      if (r + 1 < rows && !used[r + 1][c]) dirs.push([r + 1, c]);
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (used[r][c]) continue;
+            let deg = 0;
+            if (r > 0 && !used[r - 1][c]) deg++;
+            if (r + 1 < rows && !used[r + 1][c]) deg++;
+            if (c > 0 && !used[r][c - 1]) deg++;
+            if (c + 1 < cols && !used[r][c + 1]) deg++;
+            if (deg === 0) return false;
+            if (deg < minDeg) {
+              minDeg = deg;
+              bestR = r;
+              bestC = c;
+              if (deg === 1) break;
+            }
+          }
+          if (minDeg === 1) break;
+        }
 
-      if (dirs.length === 2 && Math.random() < 0.5) {
-        [dirs[0], dirs[1]] = [dirs[1], dirs[0]];
+        if (bestR === -1) return true;
+
+        used[bestR][bestC] = true;
+        const dirs = [];
+        if (bestR > 0 && !used[bestR - 1][bestC]) dirs.push([bestR - 1, bestC]);
+        if (bestR + 1 < rows && !used[bestR + 1][bestC]) dirs.push([bestR + 1, bestC]);
+        if (bestC > 0 && !used[bestR][bestC - 1]) dirs.push([bestR, bestC - 1]);
+        if (bestC + 1 < cols && !used[bestR][bestC + 1]) dirs.push([bestR, bestC + 1]);
+
+        for (let i = dirs.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [dirs[i], dirs[j]] = [dirs[j], dirs[i]];
+        }
+
+        for (const [nr, nc] of dirs) {
+          used[nr][nc] = true;
+          pairs.push({ r1: bestR, c1: bestC, r2: nr, c2: nc });
+          if (backtrack()) return true;
+          pairs.pop();
+          used[nr][nc] = false;
+        }
+
+        used[bestR][bestC] = false;
+        return false;
       }
 
-      for (const [nr, nc] of dirs) {
-        used[nr][nc] = true;
-        pairs.push({ r1: r, c1: c, r2: nr, c2: nc });
-        if (backtrack(idx + 1)) return true;
-        pairs.pop();
-        used[nr][nc] = false;
+      if (!backtrack() || pairs.length !== expectedPairs) continue;
+
+      const { minVal, maxVal } = getValueRange(diffMode);
+      const tiles = [];
+      for (let a = minVal; a <= maxVal; a++) {
+        for (let b = a; b <= maxVal; b++) {
+          tiles.push([a, b]);
+        }
+      }
+      for (let i = tiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
       }
 
-      used[r][c] = false;
-      return false;
+      pairs.forEach((p, i) => {
+        const [a, b] = tiles[i];
+        if (Math.random() < 0.5) {
+          grid[p.r1][p.c1] = a;
+          grid[p.r2][p.c2] = b;
+        } else {
+          grid[p.r1][p.c1] = b;
+          grid[p.r2][p.c2] = a;
+        }
+      });
+
+      return { rows, cols, grid, solution: pairs };
     }
 
-    backtrack(0);
-
-    const { minVal, maxVal } = getValueRange(diffMode);
-    const tiles = [];
-    for (let a = minVal; a <= maxVal; a++) {
-      for (let b = a; b <= maxVal; b++) {
-        tiles.push([a, b]);
-      }
-    }
-    for (let i = tiles.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
-    }
-
-    pairs.forEach((p, i) => {
-      const [a, b] = tiles[i];
-      if (Math.random() < 0.5) {
-        grid[p.r1][p.c1] = a;
-        grid[p.r2][p.c2] = b;
-      } else {
-        grid[p.r1][p.c1] = b;
-        grid[p.r2][p.c2] = a;
-      }
-    });
-
-    return { rows, cols, grid, solution: pairs };
+    // Nouzovy fallback na obdelnikovou desku, kdyby selhaly sablony
+    return generateSingleRandomBoard(diffMode, 'rect');
   }
 
   function generatePuzzle(diffMode, genMode, boardShape) {
@@ -267,7 +296,8 @@ window.Homino = window.Homino || {};
       return generateSingleRandomBoard(diffMode, boardShape);
     }
 
-    const maxAttempts = diffMode === 7 ? 350 : 200;
+    const maxAttempts = diffMode === 7 ? 180 : 140;
+    const deadline = Date.now() + 450;
     let lastBoard = null;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -276,10 +306,11 @@ window.Homino = window.Homino || {};
       if (countSolutionsUpToTwo(candidate.grid, candidate.rows, candidate.cols, diffMode) === 1) {
         return candidate;
       }
+      if (Date.now() > deadline) break;
     }
     return lastBoard;
   }
-
+  
   function getFilterCandidatePairs(state, targetPairKey) {
     if (!targetPairKey || state.isGameOver) return [];
     const { rows, cols, grid, walls, dominoes } = state;
