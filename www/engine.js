@@ -183,17 +183,7 @@ window.Homino = window.Homino || {};
 
 const lastTemplateIdxBySize = {};
 
-  function generateSingleRandomBoard(diffMode, boardShape, forcedTemplateIndex = null) {
-    const isShaped = boardShape === 'shaped';
-    const rows = diffMode + 1;
-    const cols = isShaped ? (diffMode + 1) : diffMode;
-    const expectedPairs = getTotalDominoCount(diffMode);
-    const templates = isShaped ? (SHAPED_TEMPLATES[rows] || []) : [null];
-    const tplIdx = templates.length > 0
-      ? (forcedTemplateIndex !== null ? (forcedTemplateIndex % templates.length) : Math.floor(Math.random() * templates.length))
-      : 0;
-    const chosenTpl = templates[tplIdx];
-
+  function tryGenerateFromTemplate(diffMode, rows, cols, expectedPairs, chosenTpl, tplIdx) {
     for (let attempt = 0; attempt < 25; attempt++) {
       const used = Array.from({ length: rows }, () => Array(cols).fill(false));
       const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
@@ -292,7 +282,34 @@ const lastTemplateIdxBySize = {};
       return { rows, cols, grid, solution: pairs, templateIndex: tplIdx };
     }
 
-    return generateSingleRandomBoard(diffMode, 'rect', null);
+    return null;
+  }
+
+  function generateSingleRandomBoard(diffMode, boardShape, forcedTemplateIndex = null) {
+    const isShaped = boardShape === 'shaped';
+    const rows = diffMode + 1;
+    const cols = isShaped ? (diffMode + 1) : diffMode;
+    const expectedPairs = getTotalDominoCount(diffMode);
+
+    if (!isShaped) {
+      return tryGenerateFromTemplate(diffMode, rows, cols, expectedPairs, null, 0);
+    }
+
+    const templates = SHAPED_TEMPLATES[rows] || [];
+    const count = templates.length;
+    if (count > 0) {
+      const startIdx = forcedTemplateIndex !== null
+        ? (forcedTemplateIndex % count)
+        : Math.floor(Math.random() * count);
+
+      for (let offset = 0; offset < count; offset++) {
+        const idx = (startIdx + offset) % count;
+        const board = tryGenerateFromTemplate(diffMode, rows, cols, expectedPairs, templates[idx], idx);
+        if (board) return board;
+      }
+    }
+
+    return tryGenerateFromTemplate(diffMode, diffMode + 1, diffMode, expectedPairs, null, 0);
   }
 
   function generatePuzzle(diffMode, genMode, boardShape) {
@@ -310,7 +327,7 @@ const lastTemplateIdxBySize = {};
 
     if (genMode !== 'unique') {
       const board = generateSingleRandomBoard(diffMode, boardShape, startTplIdx);
-      if (tplCount > 0 && board.templateIndex !== undefined) {
+      if (tplCount > 0 && board && board.templateIndex !== undefined) {
         lastTemplateIdxBySize[rows] = board.templateIndex;
       }
       return board;
@@ -323,7 +340,7 @@ const lastTemplateIdxBySize = {};
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const candidate = generateSingleRandomBoard(diffMode, boardShape, startTplIdx);
       lastBoard = candidate;
-      if (countSolutionsUpToTwo(candidate.grid, candidate.rows, candidate.cols, diffMode) === 1) {
+      if (candidate && countSolutionsUpToTwo(candidate.grid, candidate.rows, candidate.cols, diffMode) === 1) {
         if (tplCount > 0 && candidate.templateIndex !== undefined) {
           lastTemplateIdxBySize[rows] = candidate.templateIndex;
         }
