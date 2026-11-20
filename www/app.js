@@ -1219,7 +1219,7 @@ window.Homino = window.Homino || {};
       }
     }
     boardGrid.innerHTML = cellsHTML;
-        
+
     const dominoOverlay = document.getElementById('domino-overlay');
     const cellW = 100 / state.cols;
     const cellH = 100 / state.rows;
