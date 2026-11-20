@@ -181,17 +181,20 @@ window.Homino = window.Homino || {};
     return solutionsFound;
   }
 
-function generateSingleRandomBoard(diffMode, boardShape) {
+function generateSingleRandomBoard(diffMode, boardShape, forcedTemplateIndex = null) {
     const isShaped = boardShape === 'shaped';
     const rows = diffMode + 1;
     const cols = isShaped ? (diffMode + 1) : diffMode;
     const expectedPairs = getTotalDominoCount(diffMode);
     const templates = isShaped ? (SHAPED_TEMPLATES[rows] || []) : [null];
 
-    for (let tplAttempt = 0; tplAttempt < 10; tplAttempt++) {
+    for (let tplAttempt = 0; tplAttempt < 25; tplAttempt++) {
       const used = Array.from({ length: rows }, () => Array(cols).fill(false));
       const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
-      const chosenTpl = templates[Math.floor(Math.random() * templates.length)];
+      const tplIdx = forcedTemplateIndex !== null
+        ? (forcedTemplateIndex + tplAttempt) % templates.length
+        : Math.floor(Math.random() * templates.length);
+      const chosenTpl = templates[tplIdx];
 
       if (chosenTpl) {
         for (let r = 0; r < rows; r++) {
@@ -208,7 +211,7 @@ function generateSingleRandomBoard(diffMode, boardShape) {
       let steps = 0;
 
       function backtrack() {
-        if (++steps > 4000) return false;
+        if (++steps > 12000) return false;
 
         let bestR = -1;
         let bestC = -1;
@@ -287,13 +290,14 @@ function generateSingleRandomBoard(diffMode, boardShape) {
       return { rows, cols, grid, solution: pairs };
     }
 
-    // Nouzovy fallback na obdelnikovou desku, kdyby selhaly sablony
-    return generateSingleRandomBoard(diffMode, 'rect');
+    return generateSingleRandomBoard(diffMode, 'rect', null);
   }
 
   function generatePuzzle(diffMode, genMode, boardShape) {
+    const startTplIdx = boardShape === 'shaped' ? Math.floor(Math.random() * 4) : null;
+
     if (genMode !== 'unique') {
-      return generateSingleRandomBoard(diffMode, boardShape);
+      return generateSingleRandomBoard(diffMode, boardShape, startTplIdx);
     }
 
     const maxAttempts = diffMode === 7 ? 180 : 140;
@@ -301,7 +305,8 @@ function generateSingleRandomBoard(diffMode, boardShape) {
     let lastBoard = null;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const candidate = generateSingleRandomBoard(diffMode, boardShape);
+      const tplIdx = startTplIdx !== null ? (startTplIdx + attempt) : null;
+      const candidate = generateSingleRandomBoard(diffMode, boardShape, tplIdx);
       lastBoard = candidate;
       if (countSolutionsUpToTwo(candidate.grid, candidate.rows, candidate.cols, diffMode) === 1) {
         return candidate;
