@@ -91,7 +91,7 @@ window.Homino = window.Homino || {};
     } catch (e) {}
   }
 
-  // --- SYNTETICKY ZVUK (Web Audio API) ---
+  // --- SYNTETICKY ZVUK (Web Audio API s organickymi mikro-variacemi) ---
   let audioCtx = null;
 
   function ensureAudioCtx() {
@@ -105,60 +105,73 @@ window.Homino = window.Homino || {};
     return audioCtx;
   }
 
-  function playTone(freq, duration, type = 'sine', volume = 0.08, delay = 0, endFreq = null) {
+  function jitter(val, pct) {
+    return val * (1 + (Math.random() * 2 - 1) * pct);
+  }
+
+  function playTone(freq, duration, type = 'sine', volume = 0.08, delay = 0, endFreq = null, humanize = true) {
     if (!state.soundEnabled) return;
     const ctx = ensureAudioCtx();
     if (!ctx) return;
+
+    const fStart = humanize ? jitter(freq, 0.07) : freq;
+    const fEnd = endFreq ? (humanize ? jitter(endFreq, 0.07) : endFreq) : null;
+    const dur = humanize ? jitter(duration, 0.16) : duration;
+    const vol = humanize ? jitter(volume, 0.15) : volume;
+    const attack = humanize ? (0.005 + Math.random() * 0.008) : 0.008;
 
     const now = ctx.currentTime + delay;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
     osc.type = type;
-    osc.frequency.setValueAtTime(freq, now);
-    if (endFreq) {
-      osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+    osc.frequency.setValueAtTime(fStart, now);
+    if (fEnd) {
+      osc.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), now + dur);
     }
 
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.linearRampToValueAtTime(volume, now + 0.008);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    gain.gain.linearRampToValueAtTime(vol, now + attack);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(now);
-    osc.stop(now + duration + 0.01);
+    osc.stop(now + dur + 0.015);
   }
 
   function triggerSound(kind) {
     if (!state.soundEnabled) return;
     if (kind === 'edgeAdd') {
-      playTone(540, 0.055, 'triangle', 0.075, 0, 380);
+      playTone(540, 0.055, 'triangle', 0.075, 0, 370, true);
     } else if (kind === 'edgeRemove') {
-      playTone(400, 0.055, 'triangle', 0.065, 0, 290);
+      playTone(395, 0.055, 'triangle', 0.065, 0, 285, true);
     } else if (kind === 'link') {
-      playTone(523.25, 0.07, 'triangle', 0.085, 0, 440);
-      playTone(659.25, 0.09, 'sine', 0.075, 0.035);
+      playTone(523.25, 0.07, 'triangle', 0.085, 0, 440, true);
+      playTone(659.25, 0.09, 'sine', 0.075, 0.032 + Math.random() * 0.01, null, true);
     } else if (kind === 'unlink') {
-      playTone(493.88, 0.07, 'triangle', 0.07, 0);
-      playTone(392.00, 0.08, 'sine', 0.06, 0.035);
+      playTone(493.88, 0.07, 'triangle', 0.07, 0, null, true);
+      playTone(392.00, 0.08, 'sine', 0.06, 0.032 + Math.random() * 0.01, null, true);
     } else if (kind === 'auto') {
-      playTone(523.25, 0.08, 'sine', 0.08, 0);
-      playTone(659.25, 0.08, 'sine', 0.08, 0.045);
-      playTone(783.99, 0.13, 'sine', 0.085, 0.09);
+      // Bohatejsi zaklapnuti pri automatickem uzavreni kostky
+      playTone(523.25, 0.085, 'triangle', 0.08, 0, null, true);
+      playTone(659.25, 0.095, 'sine', 0.08, 0.04, null, true);
+      playTone(783.99, 0.14, 'sine', 0.085, 0.085, null, true);
+      playTone(1046.50, 0.16, 'sine', 0.045, 0.11, null, true);
     } else if (kind === 'xray') {
-      playTone(680, 0.05, 'sine', 0.05, 0);
+      playTone(680, 0.055, 'sine', 0.05, 0, 720, true);
     } else if (kind === 'error') {
-      playTone(174.61, 0.11, 'triangle', 0.09, 0);
-      playTone(164.81, 0.14, 'triangle', 0.09, 0.09);
+      playTone(174.61, 0.11, 'triangle', 0.09, 0, 155, false);
+      playTone(164.81, 0.14, 'triangle', 0.09, 0.09, 140, false);
     } else if (kind === 'win') {
-      playTone(523.25, 0.12, 'sine', 0.09, 0);
-      playTone(659.25, 0.12, 'sine', 0.09, 0.07);
-      playTone(783.99, 0.14, 'sine', 0.09, 0.14);
-      playTone(1046.50, 0.28, 'sine', 0.10, 0.21);
+      playTone(523.25, 0.13, 'sine', 0.09, 0, null, false);
+      playTone(659.25, 0.13, 'sine', 0.09, 0.07, null, false);
+      playTone(783.99, 0.15, 'sine', 0.09, 0.14, null, false);
+      playTone(1046.50, 0.32, 'sine', 0.10, 0.21, null, false);
+      playTone(1051.00, 0.32, 'triangle', 0.04, 0.21, null, false);
     }
   }
-
+  
   // --- DVOJITE ULOZISTE ---
   function getNativePrefs() {
     try {
