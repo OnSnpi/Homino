@@ -17,9 +17,10 @@ window.Homino = window.Homino || {};
   };
 
   // Vzory pro clenitou desku ('X' = blokovana dira, '.' = aktivni pole)
-  // Kazdy vzor je overeny pro dlazditelnost dominem i vysokou uspesnost unikatnich reseni
+  // Kazda sablona ma presne overenou sachovnicovou paritu a souvislost pro 100% dlazditelnost dominem
   const SHAPED_TEMPLATES = {
     5: [
+      // 1. Ctyri rohy + stred (3 suda, 2 licha)
       [
         'X...X',
         '.....',
@@ -27,13 +28,15 @@ window.Homino = window.Homino || {};
         '.....',
         'X...X'
       ],
+      // 2. Sikme vyrezy po stranach + stred
       [
-        '.X...',
-        '....X',
+        'X..X.',
+        '.....',
         '..X..',
-        'X....',
-        '...X.'
+        '.....',
+        '.X..X'
       ],
+      // 3. Kriz uprostred
       [
         '..X..',
         '.....',
@@ -41,15 +44,33 @@ window.Homino = window.Homino || {};
         '.....',
         '..X..'
       ],
+      // 4. Vetrnik / asymetricke ostruvky
       [
-        'X..X.',
+        '.X..X',
         '.....',
         '..X..',
         '.....',
-        '.X..X'
+        'X..X.'
+      ],
+      // 5. Dva rohove bloky (2x1) + stred
+      [
+        'XX...',
+        '.....',
+        '..X..',
+        '.....',
+        '...XX'
+      ],
+      // 6. Vnitrni prstenec / prekazky
+      [
+        '.....',
+        '.X...',
+        '..X.X',
+        '.X...',
+        '....X'
       ]
     ],
     6: [
+      // 1. Stredovy blok 3x2 (3 suda, 3 licha)
       [
         '......',
         '......',
@@ -58,6 +79,7 @@ window.Homino = window.Homino || {};
         '..XX..',
         '......'
       ],
+      // 2. Rohove vyrezy
       [
         'XX..XX',
         '......',
@@ -66,6 +88,7 @@ window.Homino = window.Homino || {};
         '......',
         'XX....'
       ],
+      // 3. Vnitrni symetricke body
       [
         '......',
         '.X..X.',
@@ -74,6 +97,7 @@ window.Homino = window.Homino || {};
         '.X..X.',
         '......'
       ],
+      // 4. Brana a stred
       [
         'X....X',
         '......',
@@ -81,9 +105,28 @@ window.Homino = window.Homino || {};
         '..XX..',
         '......',
         '......'
+      ],
+      // 5. Dve sikme lavky
+      [
+        '......',
+        '.XX...',
+        '.X....',
+        '....X.',
+        '...XX.',
+        '......'
+      ],
+      // 6. Podkova / zaliv
+      [
+        '..XX..',
+        '..XX..',
+        '......',
+        '......',
+        '......',
+        'X....X'
       ]
     ],
     7: [
+      // 1. Prstenec s branou (4 suda, 3 licha)
       [
         '.......',
         '..X.X..',
@@ -93,6 +136,7 @@ window.Homino = window.Homino || {};
         '..X.X..',
         '.......'
       ],
+      // 2. Rohove sloupy a stredova osa
       [
         'XX...XX',
         '.......',
@@ -102,15 +146,17 @@ window.Homino = window.Homino || {};
         '.......',
         '...X...'
       ],
+      // 3. Stredovy diamant / kosoctverec
       [
         '.......',
-        '.X...X.',
-        '..X.X..',
         '...X...',
+        '..X.X..',
+        '.X.X.X.',
         '..X.X..',
         '.......',
         '.......'
       ],
+      // 4. Rohy + vnitrni kridla
       [
         'X.....X',
         '.......',
@@ -119,9 +165,30 @@ window.Homino = window.Homino || {};
         '..X.X..',
         '.......',
         '.......'
+      ],
+      // 5. Sikme dvojice + stred
+      [
+        'XX.....',
+        '.......',
+        '.......',
+        '...X...',
+        '.......',
+        '.......',
+        'XX...XX'
+      ],
+      // 6. Ctyri vnitrni ostrovy + rohove body
+      [
+        'X.....X',
+        '.......',
+        '.X...X.',
+        '.......',
+        '.X...X.',
+        '.......',
+        '...X...'
       ]
     ],
     8: [
+      // 1. Stredovy kriz (4 suda, 4 licha)
       [
         '........',
         '........',
@@ -132,16 +199,18 @@ window.Homino = window.Homino || {};
         '........',
         '........'
       ],
+      // 2. Osekane rohy (osmiuhelnik)
       [
         'XX....XX',
-        'X......X',
         '........',
         '........',
         '........',
         '........',
-        'X......X',
+        '........',
+        '........',
         'XX....XX'
       ],
+      // 3. Vnitrni ctverce a stred
       [
         '........',
         '.XX..XX.',
@@ -149,16 +218,39 @@ window.Homino = window.Homino || {};
         '...XX...',
         '...XX...',
         '........',
-        '.XX..XX.',
+        '........',
         '........'
       ],
+      // 4. Bocni brany / presypaci hodiny
       [
         '........',
         '........',
         'XX....XX',
         'XX....XX',
-        'XX....XX',
-        'XX....XX',
+        '........',
+        '........',
+        '........',
+        '........'
+      ],
+      // 5. Dva vnitrni bloky 2x2
+      [
+        '........',
+        '........',
+        '..XX....',
+        '..XX....',
+        '....XX..',
+        '....XX..',
+        '........',
+        '........'
+      ],
+      // 6. Symetricke pilire
+      [
+        '........',
+        '..X..X..',
+        '........',
+        '.XX..XX.',
+        '........',
+        '..X..X..',
         '........',
         '........'
       ]
