@@ -51,6 +51,7 @@ window.Homino = window.Homino || {};
   let xrayValue = null;
   let pendingAdvice = null;
   let pendingConfirmAction = null;
+  let endModalOpenedAt = 0;
 
   let transientErrors = {
     cells: new Set(),
@@ -937,6 +938,7 @@ window.Homino = window.Homino || {};
       startNewGame(state.maxPip, state.genMode, state.boardShape);
     });
 
+    endModalOpenedAt = Date.now();
     document.getElementById('modal-end').classList.add('open');
     if (isMaster) launchConfetti();
   }
@@ -1598,6 +1600,40 @@ window.Homino = window.Homino || {};
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) resetPointerState();
     });
+
+    // Gesto Zpet: swipnuti zprava doleva mimo herni desku a otevrene modaly (Varianta A)
+    let globalSwipeId = null;
+    let globalStartX = 0;
+    let globalStartY = 0;
+
+    document.addEventListener('pointerdown', (e) => {
+      if (state.isGameOver || state.history.length === 0) return;
+      if (document.querySelector('.modal-backdrop.open')) return;
+      if (e.target.closest('#board-wrapper')) return;
+      if (globalSwipeId !== null) return;
+
+      globalSwipeId = e.pointerId;
+      globalStartX = e.clientX;
+      globalStartY = e.clientY;
+    }, { passive: true });
+
+    document.addEventListener('pointerup', (e) => {
+      if (e.pointerId !== globalSwipeId) return;
+      const dx = e.clientX - globalStartX;
+      const dy = e.clientY - globalStartY;
+      globalSwipeId = null;
+
+      if (state.isGameOver || state.history.length === 0) return;
+      if (document.querySelector('.modal-backdrop.open')) return;
+
+      if (dx <= -95 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+        undoMove();
+      }
+    }, { passive: true });
+
+    document.addEventListener('pointercancel', () => {
+      globalSwipeId = null;
+    }, { passive: true });
   }
 
   function setupUI() {
@@ -1639,12 +1675,13 @@ window.Homino = window.Homino || {};
     document.querySelectorAll('.modal-backdrop').forEach(bg => {
       bg.addEventListener('click', (e) => {
         if (e.target === bg) {
+          if (bg.id === 'modal-end' && (Date.now() - endModalOpenedAt < 500)) return;
           if (bg.id === 'modal-confirm') pendingConfirmAction = null;
           bg.classList.remove('open');
         }
       });
     });
-
+    
     document.getElementById('toggle-sound').addEventListener('click', () => {
       state.soundEnabled = !state.soundEnabled;
       if (state.soundEnabled) triggerSound('edgeAdd');
