@@ -734,7 +734,11 @@ window.Homino = window.Homino || {};
       if (triggerWinCelebration) {
         triggerHaptic('win');
         triggerSound('win');
-        showEndModal({ isMaster: isMasterSet, unlockText });
+        setTimeout(() => {
+          if (state.isGameOver) {
+            showEndModal({ isMaster: isMasterSet, unlockText });
+          }
+        }, 180);
       }
       return false;
     }
@@ -1726,7 +1730,7 @@ window.Homino = window.Homino || {};
     document.querySelectorAll('.modal-backdrop').forEach(bg => {
       bg.addEventListener('click', (e) => {
         if (e.target === bg) {
-          if (bg.id === 'modal-end' && (Date.now() - endModalOpenedAt < 500)) return;
+          if (bg.id === 'modal-end') return;
           if (bg.id === 'modal-confirm') pendingConfirmAction = null;
           bg.classList.remove('open');
         }
