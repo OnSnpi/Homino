@@ -1602,40 +1602,90 @@ window.Homino = window.Homino || {};
     });
 
     // Gesto Zpet: swipnuti zprava doleva mimo herni desku a otevrene modaly (Varianta A)
-    let globalSwipeId = null;
+    let globalTouchId = null;
     let globalStartX = 0;
     let globalStartY = 0;
+    let suppressNextClick = false;
 
-    document.addEventListener('pointerdown', (e) => {
+    document.addEventListener('click', (e) => {
+      if (suppressNextClick) {
+        suppressNextClick = false;
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }, true);
+
+    document.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) {
+        globalTouchId = null;
+        return;
+      }
       if (state.isGameOver || state.history.length === 0) return;
       if (document.querySelector('.modal-backdrop.open')) return;
       if (e.target.closest('#board-wrapper')) return;
-      if (globalSwipeId !== null) return;
 
-      globalSwipeId = e.pointerId;
-      globalStartX = e.clientX;
-      globalStartY = e.clientY;
+      const touch = e.changedTouches[0];
+      globalTouchId = touch.identifier;
+      globalStartX = touch.clientX;
+      globalStartY = touch.clientY;
     }, { passive: true });
 
-    document.addEventListener('pointerup', (e) => {
-      if (e.pointerId !== globalSwipeId) return;
-      const dx = e.clientX - globalStartX;
-      const dy = e.clientY - globalStartY;
-      globalSwipeId = null;
+    document.addEventListener('touchend', (e) => {
+      if (globalTouchId === null) return;
+      const touch = Array.from(e.changedTouches).find(t => t.identifier === globalTouchId);
+      if (!touch) return;
+
+      const dx = touch.clientX - globalStartX;
+      const dy = touch.clientY - globalStartY;
+      globalTouchId = null;
 
       if (state.isGameOver || state.history.length === 0) return;
       if (document.querySelector('.modal-backdrop.open')) return;
 
-      if (dx <= -95 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+      if (dx <= -65 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        suppressNextClick = true;
+        setTimeout(() => { suppressNextClick = false; }, 350);
         undoMove();
       }
     }, { passive: true });
 
-    document.addEventListener('pointercancel', () => {
-      globalSwipeId = null;
+    document.addEventListener('touchcancel', () => {
+      globalTouchId = null;
     }, { passive: true });
-  }
 
+    // Fallback pro ovladani mysi na desktopu (mimo dotykovou obrazovku)
+    let mouseSwipeActive = false;
+    let mouseStartX = 0;
+    let mouseStartY = 0;
+
+    document.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      if (state.isGameOver || state.history.length === 0) return;
+      if (document.querySelector('.modal-backdrop.open')) return;
+      if (e.target.closest('#board-wrapper')) return;
+
+      mouseSwipeActive = true;
+      mouseStartX = e.clientX;
+      mouseStartY = e.clientY;
+    });
+
+    document.addEventListener('mouseup', (e) => {
+      if (!mouseSwipeActive) return;
+      mouseSwipeActive = false;
+
+      const dx = e.clientX - mouseStartX;
+      const dy = e.clientY - mouseStartY;
+
+      if (state.isGameOver || state.history.length === 0) return;
+      if (document.querySelector('.modal-backdrop.open')) return;
+
+      if (dx <= -65 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        suppressNextClick = true;
+        setTimeout(() => { suppressNextClick = false; }, 350);
+        undoMove();
+      }
+    });
+    
   function setupUI() {
     document.addEventListener('pointerdown', ensureAudioCtx, { passive: true });
 
