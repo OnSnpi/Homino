@@ -1688,8 +1688,6 @@ window.Homino = window.Homino || {};
   }
 
   function setupUI() {
-    
-  function setupUI() {
     document.addEventListener('pointerdown', ensureAudioCtx, { passive: true });
 
     document.getElementById('btn-undo').addEventListener('click', undoMove);
