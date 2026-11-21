@@ -1685,6 +1685,9 @@ window.Homino = window.Homino || {};
         undoMove();
       }
     });
+  }
+
+  function setupUI() {
     
   function setupUI() {
     document.addEventListener('pointerdown', ensureAudioCtx, { passive: true });
