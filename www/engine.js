@@ -181,7 +181,7 @@ window.Homino = window.Homino || {};
     return solutionsFound;
   }
 
-const lastTemplateIdxBySize = {};
+  const lastTemplateIdxBySize = {};
 
   function tryGenerateFromTemplate(diffMode, rows, cols, expectedPairs, chosenTpl, tplIdx) {
     for (let attempt = 0; attempt < 25; attempt++) {
@@ -203,7 +203,7 @@ const lastTemplateIdxBySize = {};
       let steps = 0;
 
       function backtrack() {
-        if (++steps > 15000) return false;
+        if (++steps > 18000) return false;
 
         let bestR = -1;
         let bestC = -1;
@@ -333,8 +333,8 @@ const lastTemplateIdxBySize = {};
       return board;
     }
 
-    const maxAttempts = diffMode === 7 ? 180 : 140;
-    const deadline = Date.now() + 450;
+    const maxAttempts = diffMode >= 7 ? 200 : 140;
+    const deadline = Date.now() + (diffMode >= 7 ? 550 : 450);
     let lastBoard = null;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -354,7 +354,7 @@ const lastTemplateIdxBySize = {};
     }
     return lastBoard;
   }
-  
+
   function getFilterCandidatePairs(state, targetPairKey) {
     if (!targetPairKey || state.isGameOver) return [];
     const { rows, cols, grid, walls, dominoes } = state;
