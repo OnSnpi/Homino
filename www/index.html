@@ -101,6 +101,7 @@
       --c6: #e11d48;
       --c7: #0f766e;
       --c8: #9333ea;
+      --c9: #b45309;
     }
 
     /* 30 vyher: Kralovska zlata edice */
@@ -503,7 +504,7 @@
       border-right: 1px dashed rgba(148, 163, 184, 0.34);
       border-bottom: 1px dashed rgba(148, 163, 184, 0.34);
       font-weight: 700;
-      font-size: clamp(14px, 4.4vw, 23px);
+      font-size: clamp(13px, 4vw, 22px);
       color: var(--text);
       background: transparent;
       z-index: 2;
@@ -562,6 +563,7 @@
     body.theme-tournament .val-6 { color: var(--c6); }
     body.theme-tournament .val-7 { color: var(--c7); }
     body.theme-tournament .val-8 { color: var(--c8); }
+    body.theme-tournament .val-9 { color: var(--c9); }
 
     body.theme-royal .cell:not(.is-hole) {
       color: #fde68a;
@@ -747,6 +749,11 @@
       gap: 2.5px;
     }
 
+    .tray-grid.cols-11 {
+      grid-template-columns: repeat(11, minmax(0, 1fr));
+      gap: 2px;
+    }
+
     .tray-item {
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -772,6 +779,14 @@
       font-size: 10px;
       min-height: 19px;
       border-radius: 5px;
+    }
+
+    .tray-grid.cols-11 .tray-item {
+      font-size: 9px;
+      min-height: 18px;
+      border-radius: 4px;
+      padding: 1px 0;
+      gap: 0;
     }
 
     .tray-item:active {
@@ -1229,10 +1244,10 @@
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 7px 6px;
+      padding: 6px 4px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
       cursor: pointer;
     }
 
@@ -1241,8 +1256,8 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 4px 2px;
-      border-radius: 8px;
+      padding: 4px 1px;
+      border-radius: 7px;
     }
 
     .stat-col.master-col {
@@ -1251,16 +1266,17 @@
     }
 
     .stat-col-label {
-      font-size: 11px;
+      font-size: 9.5px;
       font-weight: 600;
       color: var(--text-muted);
       display: flex;
       align-items: center;
-      gap: 2px;
+      gap: 1px;
+      white-space: nowrap;
     }
 
     .stat-col-val {
-      font-size: 15px;
+      font-size: 13.5px;
       font-weight: 800;
       color: var(--text);
       margin-top: 2px;
@@ -1277,7 +1293,10 @@
       gap: 8px;
     }
 
-    .segmented-2.mt-8 {
+    .segmented-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
       margin-top: 8px;
     }
 
@@ -1285,15 +1304,15 @@
       background: var(--card);
       border: 1.5px solid var(--border);
       color: var(--text);
-      padding: 9px 6px;
+      padding: 9px 4px;
       border-radius: 11px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
       text-align: center;
       line-height: 1.2;
     }
@@ -1676,31 +1695,38 @@
         </div>
         <div class="stat-col master-col">
           <span class="stat-col-label">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
             1&#8211;6
           </span>
           <span class="stat-col-val" id="stat-wins-6">0</span>
         </div>
         <div class="stat-col master-col">
           <span class="stat-col-label">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
             0&#8211;6
           </span>
           <span class="stat-col-val" id="stat-wins-7">0</span>
         </div>
         <div class="stat-col master-col">
           <span class="stat-col-label">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
             0&#8211;7
           </span>
           <span class="stat-col-val" id="stat-wins-8">0</span>
         </div>
         <div class="stat-col master-col">
           <span class="stat-col-label">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
             0&#8211;8
           </span>
           <span class="stat-col-val" id="stat-wins-9">0</span>
+        </div>
+        <div class="stat-col master-col">
+          <span class="stat-col-label">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="#f59e0b"><path d="M2 19h20v2H2v-2zm1-11l5 4 4-7 4 7 5-4-2 9H5L3 8z"/></svg>
+            0&#8211;9
+          </span>
+          <span class="stat-col-val" id="stat-wins-10">0</span>
         </div>
       </div>
 
@@ -1727,11 +1753,14 @@
         <button class="seg-choice" id="diff-4" data-diff="4">1&#8211;4 (4&#215;5)</button>
         <button class="seg-choice" id="diff-5" data-diff="5">1&#8211;5 (5&#215;6)</button>
       </div>
-      <div class="segmented-2 mt-8">
+      <div class="segmented-3">
         <button class="seg-choice" id="diff-6" data-diff="6">1&#8211;6 (6&#215;7)</button>
         <button class="seg-choice" id="diff-7" data-diff="7">0&#8211;6 (7&#215;8)</button>
         <button class="seg-choice" id="diff-8" data-diff="8">0&#8211;7 (8&#215;9)</button>
+      </div>
+      <div class="segmented-2" style="margin-top:8px;">
         <button class="seg-choice" id="diff-9" data-diff="9">0&#8211;8 (9&#215;10)</button>
+        <button class="seg-choice" id="diff-10" data-diff="10">0&#8211;9 (10&#215;11)</button>
       </div>
 
       <div class="modal-section-label"><span id="set-shape-label">Tvar desky</span></div>
