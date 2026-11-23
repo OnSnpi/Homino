@@ -33,7 +33,7 @@ window.Homino = window.Homino || {};
     genMode: 'classic',
     soundEnabled: true,
     hapticsEnabled: true,
-    wins: { 4: 0, 5: 0, 6: 0, 7: 0 },
+    wins: { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 },
     theme: 'classic',
     displayMode: 'digits',
     rows: 7,
@@ -51,7 +51,6 @@ window.Homino = window.Homino || {};
   let xrayValue = null;
   let pendingAdvice = null;
   let pendingConfirmAction = null;
-  let endModalOpenedAt = 0;
 
   let transientErrors = {
     cells: new Set(),
@@ -154,7 +153,6 @@ window.Homino = window.Homino || {};
       playTone(493.88, 0.07, 'triangle', 0.07, 0, null, true);
       playTone(392.00, 0.08, 'sine', 0.06, 0.032 + Math.random() * 0.01, null, true);
     } else if (kind === 'auto') {
-      // Bohatejsi zaklapnuti pri automatickem uzavreni kostky
       playTone(523.25, 0.085, 'triangle', 0.08, 0, null, true);
       playTone(659.25, 0.095, 'sine', 0.08, 0.04, null, true);
       playTone(783.99, 0.14, 'sine', 0.085, 0.085, null, true);
@@ -172,7 +170,7 @@ window.Homino = window.Homino || {};
       playTone(1051.00, 0.32, 'triangle', 0.04, 0.21, null, false);
     }
   }
-  
+
   // --- DVOJITE ULOZISTE ---
   function getNativePrefs() {
     try {
@@ -222,7 +220,8 @@ window.Homino = window.Homino || {};
         4: Number(state.wins[4]) || 0,
         5: Number(state.wins[5]) || 0,
         6: Number(state.wins[6]) || 0,
-        7: Number(state.wins[7]) || 0
+        7: Number(state.wins[7]) || 0,
+        8: Number(state.wins[8]) || 0
       },
       theme: state.theme,
       displayMode: state.displayMode
@@ -251,21 +250,22 @@ window.Homino = window.Homino || {};
   }
 
   function extractWinsFromObject(obj) {
-    if (!obj || typeof obj !== 'object') return { 4: 0, 5: 0, 6: 0, 7: 0 };
+    if (!obj || typeof obj !== 'object') return { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
     if (obj.wins && typeof obj.wins === 'object') {
       return {
         4: Number(obj.wins[4]) || 0,
         5: Number(obj.wins[5]) || 0,
         6: Number(obj.wins[6]) || 0,
-        7: Number(obj.wins[7]) || 0
+        7: Number(obj.wins[7]) || 0,
+        8: Number(obj.wins[8]) || 0
       };
     }
-    return { 4: 0, 5: 0, 6: Number(obj.masterWins) || 0, 7: 0 };
+    return { 4: 0, 5: 0, 6: Number(obj.masterWins) || 0, 7: 0, 8: 0 };
   }
 
   function getMasterWins() {
     if (!state.wins) return 0;
-    return (Number(state.wins[6]) || 0) + (Number(state.wins[7]) || 0);
+    return (Number(state.wins[6]) || 0) + (Number(state.wins[7]) || 0) + (Number(state.wins[8]) || 0);
   }
 
   function getTotalWins() {
@@ -273,7 +273,8 @@ window.Homino = window.Homino || {};
     return (Number(state.wins[4]) || 0) +
            (Number(state.wins[5]) || 0) +
            (Number(state.wins[6]) || 0) +
-           (Number(state.wins[7]) || 0);
+           (Number(state.wins[7]) || 0) +
+           (Number(state.wins[8]) || 0);
   }
 
   function sanitizeUnlocks() {
@@ -286,7 +287,7 @@ window.Homino = window.Homino || {};
   }
 
   async function loadGame() {
-    let bestWins = { 4: 0, 5: 0, 6: 0, 7: 0 };
+    let bestWins = { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
     let loadedProfile = null;
     let loadedBoard = null;
 
@@ -308,6 +309,7 @@ window.Homino = window.Homino || {};
         bestWins[5] = Math.max(bestWins[5], lw[5]);
         bestWins[6] = Math.max(bestWins[6], lw[6]);
         bestWins[7] = Math.max(bestWins[7], lw[7]);
+        bestWins[8] = Math.max(bestWins[8], lw[8]);
 
         if (!loadedProfile) {
           loadedProfile = {
@@ -664,7 +666,7 @@ window.Homino = window.Homino || {};
 
     const totalDominoes = getTotalDominoCount(state.maxPip);
     const setLabel = getSetLabel(state.maxPip);
-    const isMasterSet = state.maxPip === 6 || state.maxPip === 7;
+    const isMasterSet = state.maxPip === 6 || state.maxPip === 7 || state.maxPip === 8;
 
     if (dupLabel) {
       transientErrors.message = t.statusErrDup.replace('{pair}', dupLabel);
@@ -875,7 +877,7 @@ window.Homino = window.Homino || {};
       piece.style.color = colors[i % colors.length];
       piece.style.animationDelay = `${Math.random() * 0.65}s`;
       piece.style.animationDuration = `${2.1 + Math.random() * 1.4}s`;
-      piece.innerHTML = createSymbolSVG(i % 7, 18);
+      piece.innerHTML = createSymbolSVG(i % 8, 18);
       layer.appendChild(piece);
     }
   }
@@ -942,7 +944,6 @@ window.Homino = window.Homino || {};
       startNewGame(state.maxPip, state.genMode, state.boardShape);
     });
 
-    endModalOpenedAt = Date.now();
     document.getElementById('modal-end').classList.add('open');
     if (isMaster) launchConfetti();
   }
@@ -1020,7 +1021,7 @@ window.Homino = window.Homino || {};
   }
 
   function resetAllWinsForTesting() {
-    state.wins = { 4: 0, 5: 0, 6: 0, 7: 0 };
+    state.wins = { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
     sanitizeUnlocks();
     transientErrors.cells.clear();
     transientErrors.edges.clear();
@@ -1097,11 +1098,13 @@ window.Homino = window.Homino || {};
       document.getElementById('diff-5').textContent = '1\u20135 (6\u00d76)';
       document.getElementById('diff-6').textContent = '1\u20136 (7\u00d77)';
       document.getElementById('diff-7').textContent = '0\u20136 (8\u00d78)';
+      document.getElementById('diff-8').textContent = '0\u20137 (9\u00d79)';
     } else {
       document.getElementById('diff-4').textContent = '1\u20134 (4\u00d75)';
       document.getElementById('diff-5').textContent = '1\u20135 (5\u00d76)';
       document.getElementById('diff-6').textContent = '1\u20136 (6\u00d77)';
       document.getElementById('diff-7').textContent = '0\u20136 (7\u00d78)';
+      document.getElementById('diff-8').textContent = '0\u20137 (8\u00d79)';
     }
 
     const rulesModal = document.getElementById('rules-modal-content');
@@ -1353,6 +1356,7 @@ window.Homino = window.Homino || {};
 
     const tray = document.getElementById('tray-grid');
     tray.classList.toggle('cols-5', state.maxPip === 4 || state.maxPip === 5);
+    tray.classList.toggle('cols-6', state.maxPip === 8);
     const { minVal, maxVal } = getValueRange(state.maxPip);
     let trayHTML = '';
     for (let a = minVal; a <= maxVal; a++) {
@@ -1393,6 +1397,7 @@ window.Homino = window.Homino || {};
     document.getElementById('stat-wins-5').textContent = state.wins[5] || 0;
     document.getElementById('stat-wins-6').textContent = state.wins[6] || 0;
     document.getElementById('stat-wins-7').textContent = state.wins[7] || 0;
+    document.getElementById('stat-wins-8').textContent = state.wins[8] || 0;
 
     document.getElementById('toggle-sound').classList.toggle('active', state.soundEnabled);
     document.getElementById('toggle-haptics').classList.toggle('active', state.hapticsEnabled);
@@ -1401,6 +1406,7 @@ window.Homino = window.Homino || {};
     document.getElementById('diff-5').classList.toggle('active', state.maxPip === 5);
     document.getElementById('diff-6').classList.toggle('active', state.maxPip === 6);
     document.getElementById('diff-7').classList.toggle('active', state.maxPip === 7);
+    document.getElementById('diff-8').classList.toggle('active', state.maxPip === 8);
 
     document.getElementById('shape-rect').classList.toggle('active', state.boardShape === 'rect');
     document.getElementById('shape-shaped').classList.toggle('active', state.boardShape === 'shaped');
@@ -1412,7 +1418,9 @@ window.Homino = window.Homino || {};
     document.getElementById('lang-en').classList.toggle('active', state.lang === 'en');
 
     document.getElementById('tile-digits-icon').textContent = getSetLabel(state.maxPip);
-    document.getElementById('tile-letters-icon').textContent = state.maxPip === 7 ? 'A\u2013G' : `A\u2013${valueToLetter(state.maxPip, state.maxPip)}`;
+    document.getElementById('tile-letters-icon').textContent = state.maxPip === 8
+      ? 'A\u2013H'
+      : (state.maxPip === 7 ? 'A\u2013G' : `A\u2013${valueToLetter(state.maxPip, state.maxPip)}`);
 
     const uEmerald = mw >= CONSTANTS.MILESTONE_EMERALD;
     const uTour = mw >= CONSTANTS.MILESTONE_TOUR;
@@ -1704,7 +1712,7 @@ window.Homino = window.Homino || {};
         startNewGame(state.maxPip, state.genMode, state.boardShape);
       }
     });
-    
+
     document.getElementById('btn-ng-deal').addEventListener('click', () => startNewGame(state.maxPip, state.genMode, state.boardShape));
     document.getElementById('btn-ng-restart').addEventListener('click', restartCurrentGame);
     document.getElementById('btn-ng-cancel').addEventListener('click', () => document.getElementById('modal-newgame').classList.remove('open'));
@@ -1736,7 +1744,7 @@ window.Homino = window.Homino || {};
         }
       });
     });
-    
+
     document.getElementById('toggle-sound').addEventListener('click', () => {
       state.soundEnabled = !state.soundEnabled;
       if (state.soundEnabled) triggerSound('edgeAdd');
@@ -1818,7 +1826,7 @@ window.Homino = window.Homino || {};
         }
       });
     });
-    
+
     document.querySelectorAll('[data-lang]').forEach(btn => {
       btn.addEventListener('click', () => {
         state.lang = btn.dataset.lang;
