@@ -20,8 +20,6 @@ window.Homino = window.Homino || {};
   // Kazda sablona je matematicky sestrojena s garantovanym pokrytim dominovymi kostkami
   const SHAPED_TEMPLATES = {
     5: [
-      // 1. Ctyri rohy + stred (sudé: [0,0],[0,4],[2,2],[4,0],[4,4] -> 5 sudych? Ne: 5 sudych! Opraveno nize)
-      // Spravna parita pro 5x5: 3 sude (r+c sude) a 2 liche (r+c liche)
       [
         'X..X.',
         '.....',
@@ -29,7 +27,6 @@ window.Homino = window.Homino || {};
         '.....',
         '.X..X'
       ],
-      // 2. Dva rohove bloky 2x1 + stred (sude: [0,0],[2,2],[4,4]; liche: [0,1],[4,3])
       [
         'XX...',
         '.....',
@@ -37,7 +34,6 @@ window.Homino = window.Homino || {};
         '.....',
         '...XX'
       ],
-      // 3. Horni a dolni brana (sude: [0,2],[2,0],[2,4]; liche: [0,1],[4,3])
       [
         '.XX..',
         '.....',
@@ -45,7 +41,6 @@ window.Homino = window.Homino || {};
         '.....',
         '...X.'
       ],
-      // 4. Vnitrni prstenec (sude: [1,1],[1,3],[3,3]; liche: [2,1],[2,3])
       [
         '.....',
         '.X.X.',
@@ -53,7 +48,6 @@ window.Homino = window.Homino || {};
         '...X.',
         '.....'
       ],
-      // 5. Diagonalni ostruvky (sude: [0,0],[2,2],[4,4]; liche: [1,2],[3,2])
       [
         'X....',
         '..X..',
@@ -61,7 +55,6 @@ window.Homino = window.Homino || {};
         '..X..',
         '....X'
       ],
-      // 6. Bocni vyrezy + roh (sude: [0,4],[2,0],[4,0]; liche: [1,0],[3,4])
       [
         '....X',
         'X....',
@@ -71,7 +64,6 @@ window.Homino = window.Homino || {};
       ]
     ],
     6: [
-      // 1. Stredovy blok 3x2 (3 sude, 3 liche)
       [
         '......',
         '......',
@@ -80,7 +72,6 @@ window.Homino = window.Homino || {};
         '..XX..',
         '......'
       ],
-      // 2. Tri rohove bloky 2x1
       [
         'XX..XX',
         '......',
@@ -89,7 +80,6 @@ window.Homino = window.Homino || {};
         '......',
         'XX....'
       ],
-      // 3. Vnitrni prstenec 6 poli
       [
         '......',
         '.XX...',
@@ -98,7 +88,6 @@ window.Homino = window.Homino || {};
         '...XX.',
         '.XX...'
       ],
-      // 4. Dva svisle pilire
       [
         '......',
         '.X..X.',
@@ -107,7 +96,6 @@ window.Homino = window.Homino || {};
         '......',
         '......'
       ],
-      // 5. Schodiste / sikmy pas
       [
         'XX....',
         '......',
@@ -116,7 +104,6 @@ window.Homino = window.Homino || {};
         '....XX',
         '......'
       ],
-      // 6. Symetricke boky
       [
         '......',
         '......',
@@ -127,8 +114,6 @@ window.Homino = window.Homino || {};
       ]
     ],
     7: [
-      // Spravna parita pro 7x7: 4 sude (r+c sude) a 3 liche (r+c liche)
-      // 1. Stredovy kriz + roh (sude: [0,0],[2,2],[3,3],[4,4]; liche: [2,3],[3,2],[3,4])
       [
         'X......',
         '.......',
@@ -138,7 +123,6 @@ window.Homino = window.Homino || {};
         '.......',
         '.......'
       ],
-      // 2. Rohove bloky + stred (sude: [0,0],[0,6],[3,3],[6,0]; liche: [0,1],[0,5],[6,1])
       [
         'XX...XX',
         '.......',
@@ -148,7 +132,6 @@ window.Homino = window.Homino || {};
         '.......',
         'XX.....'
       ],
-      // 3. Vnitrni ctverec 2x2 + tri body (sude: [2,2],[3,3],[0,6],[6,6]; liche: [2,3],[3,2],[3,6])
       [
         '......X',
         '.......',
@@ -158,7 +141,6 @@ window.Homino = window.Homino || {};
         '.......',
         '......X'
       ],
-      // 4. Osa a bocni vyrezy (sude: [1,3],[3,1],[3,5],[5,3]; liche: [2,3],[3,2],[3,4])
       [
         '.......',
         '...X...',
@@ -168,7 +150,6 @@ window.Homino = window.Homino || {};
         '...X...',
         '.......'
       ],
-      // 5. Dva bloky 2x1 + stredovy blok 3x1 (sude: [1,1],[3,3],[5,1],[5,5]; liche: [1,2],[3,2],[3,4])
       [
         '.......',
         '.XX....',
@@ -178,7 +159,6 @@ window.Homino = window.Homino || {};
         '.X...X.',
         '.......'
       ],
-      // 6. Rohova brana (sude: [0,0],[0,2],[6,4],[6,6]; liche: [0,1],[6,5],[3,3] -> opraveno na liche [3,4])
       [
         'XXX....',
         '.......',
@@ -190,8 +170,6 @@ window.Homino = window.Homino || {};
       ]
     ],
     8: [
-      // Spravna parita pro 8x8: 4 sude a 4 liche
-      // 1. Stredovy kriz
       [
         '........',
         '........',
@@ -202,7 +180,6 @@ window.Homino = window.Homino || {};
         '........',
         '........'
       ],
-      // 2. Osekane rohy (osmiuhelnik)
       [
         'XX....XX',
         '........',
@@ -213,7 +190,6 @@ window.Homino = window.Homino || {};
         '........',
         'XX....XX'
       ],
-      // 3. Vnitrni ctverce a stred
       [
         '........',
         '.XX..XX.',
@@ -224,7 +200,6 @@ window.Homino = window.Homino || {};
         '........',
         '........'
       ],
-      // 4. Bocni brany
       [
         '........',
         '........',
@@ -235,7 +210,6 @@ window.Homino = window.Homino || {};
         '........',
         '........'
       ],
-      // 5. Dva vnitrni bloky 2x2
       [
         '........',
         '........',
@@ -246,7 +220,6 @@ window.Homino = window.Homino || {};
         '........',
         '........'
       ],
-      // 6. Symetricke pilire
       [
         '........',
         '..X..X..',
@@ -256,6 +229,74 @@ window.Homino = window.Homino || {};
         '..X..X..',
         '........',
         '........'
+      ]
+    ],
+    9: [
+      [
+        'X.......X',
+        '.........',
+        '.........',
+        '....X....',
+        '...XXX...',
+        '....X....',
+        '.........',
+        '.........',
+        'X.......X'
+      ],
+      [
+        'XX.....XX',
+        '.........',
+        '.........',
+        '.........',
+        '....X....',
+        '.........',
+        '.........',
+        '.........',
+        'XX.....XX'
+      ],
+      [
+        '.........',
+        '.........',
+        '..XX.XX..',
+        '.........',
+        '....X....',
+        '.........',
+        '..XX.XX..',
+        '.........',
+        '.........'
+      ],
+      [
+        '.........',
+        '..X...X..',
+        '..X...X..',
+        '.........',
+        '....X....',
+        '.........',
+        '..X...X..',
+        '..X...X..',
+        '.........'
+      ],
+      [
+        '.........',
+        '.........',
+        '.........',
+        'XX.....XX',
+        '....X....',
+        'XX.....XX',
+        '.........',
+        '.........',
+        '.........'
+      ],
+      [
+        '.........',
+        '.........',
+        '....X....',
+        '...X.X...',
+        '..X.X.X..',
+        '...X.X...',
+        '....X....',
+        '.........',
+        '.........'
       ]
     ]
   };
@@ -354,11 +395,11 @@ window.Homino = window.Homino || {};
       subLock15: '15 v\u00fdher',
       subLock20: '20 v\u00fdher',
       subLock30: '30 v\u00fdher',
-      setUnlockInfo: '<strong>Odemknut\u00ed bonus\u016f (mistrovsk\u00e9 sady 1\u20136 a 0\u20136):</strong> 5 v\u00fdher = <strong>Smaragdov\u00fd st\u016fl</strong>, 10 = <strong>Turnajov\u00fd</strong>, 15 = <strong>Symboly Diffequa</strong>, 20 = <strong>Te\u010dky</strong>, 30 = <strong>Kr\u00e1lovsk\u00e1 zlat\u00e1 edice</strong>.',
+      setUnlockInfo: '<strong>Odemknut\u00ed bonus\u016f (mistrovsk\u00e9 sady 1\u20136, 0\u20136 a 0\u20137):</strong> 5 v\u00fdher = <strong>Smaragdov\u00fd st\u016fl</strong>, 10 = <strong>Turnajov\u00fd</strong>, 15 = <strong>Symboly Diffequa</strong>, 20 = <strong>Te\u010dky</strong>, 30 = <strong>Kr\u00e1lovsk\u00e1 zlat\u00e1 edice</strong>.',
       saveAndClose: 'Ulo\u017eit a zav\u0159\u00edt',
       rulesHTML: `
         <h2 class="modal-title-center">Jak hr\u00e1t Homino</h2>
-        <p class="rules-intro">C\u00edlem hry je rozd\u011blit m\u0159\u00ed\u017eku na kompletn\u00ed sadu <strong>unik\u00e1tn\u00edch kamen\u016f domina</strong> (21 kamen\u016f v sad\u011b 1\u20136 nebo 28 kamen\u016f ve velk\u00e9 sad\u011b 0\u20136).</p>
+        <p class="rules-intro">C\u00edlem hry je rozd\u011blit m\u0159\u00ed\u017eku na kompletn\u00ed sadu <strong>unik\u00e1tn\u00edch kamen\u016f domina</strong> (21 kamen\u016f v sad\u011b 1\u20136, 28 v sad\u011b 0\u20136 nebo 36 kamen\u016f v mistrovsk\u00e9 sad\u011b 0\u20137).</p>
         <p class="rules-intro"><strong>Ovl\u00e1d\u00e1n\u00ed a n\u00e1stroje:</strong></p>
         <div class="rules-box-gray">
           <ul>
@@ -376,7 +417,7 @@ window.Homino = window.Homino || {};
           Jakmile postupn\u00fdm o\u0165uk\u00e1v\u00e1n\u00edm ohrani\u010d\u00ed\u0161 dvojici sousedn\u00edch pol\u00ed\u010dek v\u0161emi 6 vn\u011bj\u0161\u00edmi hranami, kostka domina se <strong>sama automaticky spoj\u00ed</strong> a od\u0161krtne v p\u0159ehledu dole.
         </div>
         <p class="rules-warn"><strong>Pozor:</strong> Pokud vytvo\u0159\u00ed\u0161 stejn\u00fd k\u00e1men dvakr\u00e1t nebo n\u011bkter\u00e9 pol\u00ed\u010dko zcela od\u0159\u00edzne\u0161 od okol\u00ed, hra t\u011b okam\u017eit\u011b upozorn\u00ed!</p>
-        <p class="rules-rewards"><strong>Odm\u011bny:</strong> V\u00fdhry v mistrovsk\u00fdch sad\u00e1ch 1\u20136 a 0\u20136 se s\u010d\u00edtaj\u00ed a odemykaj\u00ed Smaragdov\u00fd st\u016fl (5), Turnajov\u00fd motiv (10), Symboly Diffequa (15), Te\u010dky (20) a Kr\u00e1lovskou zlatou edici (30).</p>
+        <p class="rules-rewards"><strong>Odm\u011bny:</strong> V\u00fdhry v mistrovsk\u00fdch sad\u00e1ch 1\u20136, 0\u20136 a 0\u20137 se s\u010d\u00edtaj\u00ed a odemykaj\u00ed Smaragdov\u00fd st\u016fl (5), Turnajov\u00fd motiv (10), Symboly Diffequa (15), Te\u010dky (20) a Kr\u00e1lovskou zlatou edici (30).</p>
         <button class="btn-modal-full" id="btn-close-rules">Rozum\u00edm, hr\u00e1t</button>
         <div class="author-footer">&copy; 2026 Ondrandy</div>
       `
@@ -474,11 +515,11 @@ window.Homino = window.Homino || {};
       subLock15: '15 wins',
       subLock20: '20 wins',
       subLock30: '30 wins',
-      setUnlockInfo: '<strong>Unlock Bonuses (1\u20136 & 0\u20136 Master sets):</strong> 5 wins = <strong>Emerald Table</strong>, 10 = <strong>Tournament</strong>, 15 = <strong>Diffequa Symbols</strong>, 20 = <strong>Pips</strong>, 30 = <strong>Royal Gold Edition</strong>.',
+      setUnlockInfo: '<strong>Unlock Bonuses (1\u20136, 0\u20136 & 0\u20137 Master sets):</strong> 5 wins = <strong>Emerald Table</strong>, 10 = <strong>Tournament</strong>, 15 = <strong>Diffequa Symbols</strong>, 20 = <strong>Pips</strong>, 30 = <strong>Royal Gold Edition</strong>.',
       saveAndClose: 'Save & Close',
       rulesHTML: `
         <h2 class="modal-title-center">How to Play Homino</h2>
-        <p class="rules-intro">Partition the grid into a complete set of <strong>unique dominoes</strong> (21 dominoes in set 1\u20136 or 28 dominoes in the large 0\u20136 set).</p>
+        <p class="rules-intro">Partition the grid into a complete set of <strong>unique dominoes</strong> (21 dominoes in set 1\u20136, 28 in set 0\u20136, or 36 dominoes in the 0\u20137 master set).</p>
         <p class="rules-intro"><strong>Controls & Tools:</strong></p>
         <div class="rules-box-gray">
           <ul>
@@ -496,7 +537,7 @@ window.Homino = window.Homino || {};
           Surrounding any adjacent pair of cells with all 6 outer borders automatically locks them into a domino and checks it off below.
         </div>
         <p class="rules-warn"><strong>Watch out:</strong> Placing the same domino twice or isolating a single cell triggers an immediate warning!</p>
-        <p class="rules-rewards"><strong>Rewards:</strong> Master wins across sets 1\u20136 and 0\u20136 combine to unlock Emerald Table (5), Tournament Colors (10), Diffequa Symbols (15), Domino Pips (20), and Royal Gold Edition (30).</p>
+        <p class="rules-rewards"><strong>Rewards:</strong> Master wins across sets 1\u20136, 0\u20136, and 0\u20137 combine to unlock Emerald Table (5), Tournament Colors (10), Diffequa Symbols (15), Domino Pips (20), and Royal Gold Edition (30).</p>
         <button class="btn-modal-full" id="btn-close-rules">Got it, play</button>
         <div class="author-footer">&copy; 2026 Ondrandy</div>
       `
@@ -509,16 +550,18 @@ window.Homino = window.Homino || {};
   }
 
   function valueToLetter(val, diffMode) {
-    if (diffMode === 7) return ['A', 'B', 'C', 'D', 'E', 'F', 'G'][val] || '';
+    if (diffMode === 7 || diffMode === 8) return ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'][val] || '';
     return ['', 'A', 'B', 'C', 'D', 'E', 'F'][val] || '';
   }
 
   function getValueRange(diffMode) {
+    if (diffMode === 8) return { minVal: 0, maxVal: 7 };
     if (diffMode === 7) return { minVal: 0, maxVal: 6 };
     return { minVal: 1, maxVal: diffMode };
   }
 
   function getSetLabel(diffMode) {
+    if (diffMode === 8) return '0\u20137';
     if (diffMode === 7) return '0\u20136';
     return `1\u2013${diffMode}`;
   }
@@ -535,7 +578,8 @@ window.Homino = window.Homino || {};
       3: [0, 4, 8],
       4: [0, 2, 6, 8],
       5: [0, 2, 4, 6, 8],
-      6: [0, 2, 3, 5, 6, 8]
+      6: [0, 2, 3, 5, 6, 8],
+      7: [0, 2, 3, 4, 5, 6, 8]
     };
     const active = new Set(map[val] || []);
     let html = '<div class="pip-grid">';
@@ -564,8 +608,10 @@ window.Homino = window.Homino || {};
       case 5:
         return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 14.6,9 20.5,9.7 16.1,13.8 17.3,19.6 12,16.7 6.7,19.6 7.9,13.8 3.5,9.7 9.4,9"/></svg>`;
       case 6:
-      default:
         return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linejoin="round"><polygon points="12,3.5 19.5,7.8 19.5,16.2 12,20.5 4.5,16.2 4.5,7.8"/></svg>`;
+      case 7:
+      default:
+        return `<svg ${styleAttr} viewBox="0 0 24 24" ${fillAttr} stroke="currentColor" stroke-width="${sw}" stroke-linecap="round"><line x1="12" y1="3.5" x2="12" y2="20.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
     }
   }
 
