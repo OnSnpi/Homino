@@ -203,7 +203,7 @@ window.Homino = window.Homino || {};
       let steps = 0;
 
       function backtrack() {
-        if (++steps > 18000) return false;
+        if (++steps > 22000) return false;
 
         let bestR = -1;
         let bestC = -1;
@@ -334,7 +334,7 @@ window.Homino = window.Homino || {};
     }
 
     const maxAttempts = diffMode >= 7 ? 200 : 140;
-    const deadline = Date.now() + (diffMode >= 7 ? 550 : 450);
+    const deadline = Date.now() + (diffMode >= 7 ? 600 : 450);
     let lastBoard = null;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
