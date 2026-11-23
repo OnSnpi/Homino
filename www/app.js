@@ -33,7 +33,7 @@ window.Homino = window.Homino || {};
     genMode: 'classic',
     soundEnabled: true,
     hapticsEnabled: true,
-    wins: { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
+    wins: { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 },
     theme: 'classic',
     displayMode: 'digits',
     rows: 7,
@@ -222,7 +222,8 @@ window.Homino = window.Homino || {};
         6: Number(state.wins[6]) || 0,
         7: Number(state.wins[7]) || 0,
         8: Number(state.wins[8]) || 0,
-        9: Number(state.wins[9]) || 0
+        9: Number(state.wins[9]) || 0,
+        10: Number(state.wins[10]) || 0
       },
       theme: state.theme,
       displayMode: state.displayMode
@@ -251,7 +252,7 @@ window.Homino = window.Homino || {};
   }
 
   function extractWinsFromObject(obj) {
-    if (!obj || typeof obj !== 'object') return { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+    if (!obj || typeof obj !== 'object') return { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 };
     if (obj.wins && typeof obj.wins === 'object') {
       return {
         4: Number(obj.wins[4]) || 0,
@@ -259,10 +260,11 @@ window.Homino = window.Homino || {};
         6: Number(obj.wins[6]) || 0,
         7: Number(obj.wins[7]) || 0,
         8: Number(obj.wins[8]) || 0,
-        9: Number(obj.wins[9]) || 0
+        9: Number(obj.wins[9]) || 0,
+        10: Number(obj.wins[10]) || 0
       };
     }
-    return { 4: 0, 5: 0, 6: Number(obj.masterWins) || 0, 7: 0, 8: 0, 9: 0 };
+    return { 4: 0, 5: 0, 6: Number(obj.masterWins) || 0, 7: 0, 8: 0, 9: 0, 10: 0 };
   }
 
   function getMasterWins() {
@@ -270,7 +272,8 @@ window.Homino = window.Homino || {};
     return (Number(state.wins[6]) || 0) +
            (Number(state.wins[7]) || 0) +
            (Number(state.wins[8]) || 0) +
-           (Number(state.wins[9]) || 0);
+           (Number(state.wins[9]) || 0) +
+           (Number(state.wins[10]) || 0);
   }
 
   function getTotalWins() {
@@ -280,7 +283,8 @@ window.Homino = window.Homino || {};
            (Number(state.wins[6]) || 0) +
            (Number(state.wins[7]) || 0) +
            (Number(state.wins[8]) || 0) +
-           (Number(state.wins[9]) || 0);
+           (Number(state.wins[9]) || 0) +
+           (Number(state.wins[10]) || 0);
   }
 
   function sanitizeUnlocks() {
@@ -293,7 +297,7 @@ window.Homino = window.Homino || {};
   }
 
   async function loadGame() {
-    let bestWins = { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+    let bestWins = { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 };
     let loadedProfile = null;
     let loadedBoard = null;
 
@@ -317,6 +321,7 @@ window.Homino = window.Homino || {};
         bestWins[7] = Math.max(bestWins[7], lw[7]);
         bestWins[8] = Math.max(bestWins[8], lw[8]);
         bestWins[9] = Math.max(bestWins[9], lw[9]);
+        bestWins[10] = Math.max(bestWins[10], lw[10]);
 
         if (!loadedProfile) {
           loadedProfile = {
@@ -884,7 +889,7 @@ window.Homino = window.Homino || {};
       piece.style.color = colors[i % colors.length];
       piece.style.animationDelay = `${Math.random() * 0.65}s`;
       piece.style.animationDuration = `${2.1 + Math.random() * 1.4}s`;
-      piece.innerHTML = createSymbolSVG(i % 9, 18);
+      piece.innerHTML = createSymbolSVG(i % 10, 18);
       layer.appendChild(piece);
     }
   }
@@ -1028,7 +1033,7 @@ window.Homino = window.Homino || {};
   }
 
   function resetAllWinsForTesting() {
-    state.wins = { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+    state.wins = { 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 };
     sanitizeUnlocks();
     transientErrors.cells.clear();
     transientErrors.edges.clear();
@@ -1107,6 +1112,7 @@ window.Homino = window.Homino || {};
       document.getElementById('diff-7').textContent = '0\u20136 (8\u00d78)';
       document.getElementById('diff-8').textContent = '0\u20137 (9\u00d79)';
       document.getElementById('diff-9').textContent = '0\u20138 (10\u00d710)';
+      document.getElementById('diff-10').textContent = '0\u20139 (11\u00d711)';
     } else {
       document.getElementById('diff-4').textContent = '1\u20134 (4\u00d75)';
       document.getElementById('diff-5').textContent = '1\u20135 (5\u00d76)';
@@ -1114,6 +1120,7 @@ window.Homino = window.Homino || {};
       document.getElementById('diff-7').textContent = '0\u20136 (7\u00d78)';
       document.getElementById('diff-8').textContent = '0\u20137 (8\u00d79)';
       document.getElementById('diff-9').textContent = '0\u20138 (9\u00d710)';
+      document.getElementById('diff-10').textContent = '0\u20139 (10\u00d711)';
     }
 
     const rulesModal = document.getElementById('rules-modal-content');
@@ -1367,6 +1374,7 @@ window.Homino = window.Homino || {};
     tray.classList.toggle('cols-5', state.maxPip === 4 || state.maxPip === 5);
     tray.classList.toggle('cols-6', state.maxPip === 8);
     tray.classList.toggle('cols-9', state.maxPip === 9);
+    tray.classList.toggle('cols-11', state.maxPip === 10);
     const { minVal, maxVal } = getValueRange(state.maxPip);
     let trayHTML = '';
     for (let a = minVal; a <= maxVal; a++) {
@@ -1385,7 +1393,7 @@ window.Homino = window.Homino || {};
         if (state.displayMode === 'letters') {
           itemLabel = `${valueToLetter(a, state.maxPip)}\u2013${valueToLetter(b, state.maxPip)}`;
         } else if (state.displayMode === 'symbols') {
-          const symSize = state.maxPip === 9 ? 10 : 11.5;
+          const symSize = state.maxPip === 10 ? 9 : (state.maxPip === 9 ? 10 : 11.5);
           itemLabel = `${createSymbolSVG(a, symSize, true)}<span>\u2013</span>${createSymbolSVG(b, symSize, true)}`;
         }
         trayHTML += `<div class="${cls.join(' ')}" data-pk="${pk}">${itemLabel}</div>`;
@@ -1410,6 +1418,7 @@ window.Homino = window.Homino || {};
     document.getElementById('stat-wins-7').textContent = state.wins[7] || 0;
     document.getElementById('stat-wins-8').textContent = state.wins[8] || 0;
     document.getElementById('stat-wins-9').textContent = state.wins[9] || 0;
+    document.getElementById('stat-wins-10').textContent = state.wins[10] || 0;
 
     document.getElementById('toggle-sound').classList.toggle('active', state.soundEnabled);
     document.getElementById('toggle-haptics').classList.toggle('active', state.hapticsEnabled);
@@ -1420,6 +1429,7 @@ window.Homino = window.Homino || {};
     document.getElementById('diff-7').classList.toggle('active', state.maxPip === 7);
     document.getElementById('diff-8').classList.toggle('active', state.maxPip === 8);
     document.getElementById('diff-9').classList.toggle('active', state.maxPip === 9);
+    document.getElementById('diff-10').classList.toggle('active', state.maxPip === 10);
 
     document.getElementById('shape-rect').classList.toggle('active', state.boardShape === 'rect');
     document.getElementById('shape-shaped').classList.toggle('active', state.boardShape === 'shaped');
@@ -1431,11 +1441,9 @@ window.Homino = window.Homino || {};
     document.getElementById('lang-en').classList.toggle('active', state.lang === 'en');
 
     document.getElementById('tile-digits-icon').textContent = getSetLabel(state.maxPip);
-    document.getElementById('tile-letters-icon').textContent = state.maxPip === 9
-      ? 'A\u2013I'
-      : (state.maxPip === 8
-        ? 'A\u2013H'
-        : (state.maxPip === 7 ? 'A\u2013G' : `A\u2013${valueToLetter(state.maxPip, state.maxPip)}`));
+    document.getElementById('tile-letters-icon').textContent = state.maxPip >= 7
+      ? `A\u2013${valueToLetter(state.maxPip - 1, state.maxPip)}`
+      : `A\u2013${valueToLetter(state.maxPip, state.maxPip)}`;
 
     const uEmerald = mw >= CONSTANTS.MILESTONE_EMERALD;
     const uTour = mw >= CONSTANTS.MILESTONE_TOUR;
