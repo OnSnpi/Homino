@@ -25,6 +25,8 @@
       --trial-text: #b45309;
       --wall: #0f172a;
       --wall-hint: #d97706;
+      --advice-wall: #9333ea;
+      --advice-wall-glow: rgba(147, 51, 234, 0.55);
       --hole-bg: #eef2f6;
       --hole-stripe: rgba(100, 116, 139, 0.16);
       --hole-border: #64748b;
@@ -32,10 +34,10 @@
       --domino-bg-v: #f0fdf4;
       --domino-border: #2563eb;
       --domino-border-v: #16a34a;
-      --filter-bg: rgba(37, 99, 235, 0.11);
-      --filter-border: rgba(37, 99, 235, 0.45);
-      --advice-bg: rgba(217, 119, 6, 0.14);
-      --advice-border: #d97706;
+      --filter-bg: rgba(245, 158, 11, 0.19);
+      --filter-border: #d97706;
+      --advice-bg: rgba(147, 51, 234, 0.14);
+      --advice-border: #9333ea;
       --xray-free-bg: rgba(37, 99, 235, 0.16);
       --xray-used-bg: rgba(100, 116, 139, 0.10);
       --error-bg: #fef2f2;
@@ -66,6 +68,8 @@
       --trial-text: #bae6fd;
       --wall: #fef3c7;
       --wall-hint: #38bdf8;
+      --advice-wall: #f472b6;
+      --advice-wall-glow: rgba(244, 114, 182, 0.65);
       --hole-bg: #033d2e;
       --hole-stripe: rgba(167, 243, 208, 0.14);
       --hole-border: #34d399;
@@ -73,10 +77,10 @@
       --domino-bg-v: #fef9c3;
       --domino-border: #d97706;
       --domino-border-v: #b45309;
-      --filter-bg: rgba(251, 191, 36, 0.18);
-      --filter-border: rgba(251, 191, 36, 0.6);
-      --advice-bg: rgba(56, 189, 248, 0.22);
-      --advice-border: #38bdf8;
+      --filter-bg: rgba(56, 189, 248, 0.24);
+      --filter-border: #38bdf8;
+      --advice-bg: rgba(244, 114, 182, 0.22);
+      --advice-border: #f472b6;
       --xray-free-bg: rgba(251, 191, 36, 0.24);
       --xray-used-bg: rgba(167, 243, 208, 0.10);
       --error-bg: rgba(220, 38, 38, 0.28);
@@ -121,6 +125,8 @@
       --trial-text: #bae6fd;
       --wall: #fbbf24;
       --wall-hint: #f8fafc;
+      --advice-wall: #f472b6;
+      --advice-wall-glow: rgba(244, 114, 182, 0.65);
       --hole-bg: #0b1220;
       --hole-stripe: rgba(251, 191, 36, 0.12);
       --hole-border: rgba(251, 191, 36, 0.55);
@@ -128,10 +134,10 @@
       --domino-bg-v: rgba(244, 114, 182, 0.10);
       --domino-border: #fbbf24;
       --domino-border-v: #f9a8d4;
-      --filter-bg: rgba(245, 158, 11, 0.18);
-      --filter-border: rgba(251, 191, 36, 0.6);
-      --advice-bg: rgba(56, 189, 248, 0.20);
-      --advice-border: #38bdf8;
+      --filter-bg: rgba(56, 189, 248, 0.24);
+      --filter-border: #38bdf8;
+      --advice-bg: rgba(244, 114, 182, 0.22);
+      --advice-border: #f472b6;
       --xray-free-bg: rgba(251, 191, 36, 0.24);
       --xray-used-bg: rgba(203, 213, 225, 0.08);
       --error-bg: rgba(239, 68, 68, 0.22);
@@ -411,10 +417,12 @@
     .filter-pill {
       position: absolute;
       background: var(--filter-bg);
-      border: 1.5px dashed var(--filter-border);
+      border: 2px dashed var(--filter-border);
       border-radius: 9px;
       box-sizing: border-box;
       pointer-events: none;
+      box-shadow: inset 0 0 0 1px var(--filter-bg);
+      z-index: 2;
     }
 
     .advice-pill {
@@ -668,27 +676,27 @@
     }
 
     .edge-hit.advice-edge.v-edge .edge-line {
-      width: 4.5px;
+      width: 5px;
       background: repeating-linear-gradient(
         to bottom,
-        var(--wall-hint) 0px,
-        var(--wall-hint) 5px,
+        var(--advice-wall) 0px,
+        var(--advice-wall) 5px,
         transparent 5px,
         transparent 8px
       );
-      box-shadow: 0 0 8px rgba(217, 119, 6, 0.65);
+      box-shadow: 0 0 9px var(--advice-wall-glow);
     }
 
     .edge-hit.advice-edge.h-edge .edge-line {
-      height: 4.5px;
+      height: 5px;
       background: repeating-linear-gradient(
         to right,
-        var(--wall-hint) 0px,
-        var(--wall-hint) 5px,
+        var(--advice-wall) 0px,
+        var(--advice-wall) 5px,
         transparent 5px,
         transparent 8px
       );
-      box-shadow: 0 0 8px rgba(217, 119, 6, 0.65);
+      box-shadow: 0 0 9px var(--advice-wall-glow);
     }
 
     .edge-hit.error-edge .edge-line {
